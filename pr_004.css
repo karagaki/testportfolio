@@ -1,0 +1,27 @@
+#project4-image-wrapper {
+    width: 100%;
+    max-width: 1100px;
+    aspect-ratio: 1100 / 600; /* 縦横比を1100:600に固定 */
+    overflow: hidden; /* はみ出た部分は非表示 */
+    position: relative;
+}
+
+#project4-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    border-radius: 20px;
+}
+
+#project4-image-wrapper canvas {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    height: 100%;
+    width:  100%;
+    transform: translateX(-50%);
+    border-radius: 20px;
+}
+
+

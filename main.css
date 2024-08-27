@@ -1,0 +1,37 @@
+/* ■■■■■■■■■　全体を指定　■■■■■■■■■ */
+.feature {
+    padding: 1rem 5%;
+    position: relative;
+    max-width: 1100px;
+    margin: 0 auto;
+    min-height: 100vh; /* 最小高さをビューポートの高さに設定 */
+    z-index: 1;
+}
+
+
+.feature-image {
+    width: 100%;
+    object-fit: cover;
+}
+
+
+* {
+    margin: 0; /* すべての要素のマージンをリセット */
+    padding: 0; /* すべての要素のパディングをリセット */
+    box-sizing: border-box; /* パディングとボーダーを幅と高さに含める */
+}
+
+
+
+.mask-animation {
+    pointer-events: auto;
+    cursor: pointer;
+}
+
+.mask-animation .image-wrapper {
+    pointer-events: none;
+}
+
+.mask-animation .image-wrapper > * {
+    pointer-events: auto;
+}

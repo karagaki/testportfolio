@@ -1,0 +1,320 @@
+
+
+body {
+    font-family: var(--font-primary); /* ボディのフォントファミリーを指定 */
+    font-weight: var(--font-weight-medium); /* ボディのフォントの太さを指定 */
+    font-size: 16px; /* ボディの基本フォントサイズを指定 */
+    line-height: var(--line-height-base); /* ボディの行の高さを指定 */
+    color: var(--color-text); /* テキストの色を指定 */
+    letter-spacing: var(--letter-spacing); /* 文字間隔を指定 */
+    overflow-x: hidden; /* 横スクロールを防ぐ */
+}
+
+:root {
+    /* プライマリフォントファミリーを定義 */
+    --font-primary: 'Zen Maru Gothic', "ヒラギノ丸ゴ Pro W4", "ヒラギノ丸ゴ Pro", "Hiragino Maru Gothic Pro", "ヒラギノ角ゴ Pro W3", "Hiragino Kaku Gothic Pro", "メイリオ", Meiryo, sans-serif;
+    --font-weight-medium: 500; /* 中間の太さのフォントウェイトを定義 */
+    --font-weight-bold: 700; /* 太字のフォントウェイトを定義 */
+    --line-height-base: 1.6; /* 基本的な行の高さを定義 */
+}
+
+
+
+
+
+/* ===== pの行間など ===== */
+
+.animate-title.show {
+    transform: translateX(-50%) translateY(0); /* 表示位置に移動 */
+    opacity: 1; /* 表示状態に */
+}
+
+.animate-text-char span.visible {
+    transform: translateY(0);
+    opacity: 1;
+    animation: colorChangeBlack 0.9s forwards; /* 黒色へのアニメーション */
+}
+
+.animate-text-char.white span.visible {
+    animation: colorChangeWhite 0.9s forwards; /* 白色へのアニメーション */
+}
+
+.animate-text-line {
+    overflow: hidden;
+}
+
+.animate-text-line span {
+    display: inline-block;
+    transform: translateX(-100%); /* 初期位置を左に設定 */
+    opacity: 0;
+    transition: transform 1.5s ease, opacity 1.5s ease; /* アニメーション効果を追加 */
+}
+
+.animate-text-line span.visible {
+    transform: translateX(0); /* 表示位置に移動 */
+    opacity: 1;
+}
+
+.animate-text-line + .animate-text-line {
+    margin-top: -1em; /* 行間を詰める */
+}
+
+　
+
+
+
+
+
+.japanese-numerals {
+    font-feature-settings: "palt"; /* プロポーショナルメトリクスを有効化 */
+    font-variant-numeric: proportional-nums; /* 数字をプロポーショナルにする */
+    text-transform: full-width; /* 全角文字に変換 */
+}
+
+.text-center {
+    text-align: center; /* テキストを中央揃えにするクラス */
+}
+
+.text-bold {
+    font-weight: var(--font-weight-bold); /* テキストを太字にするクラス */
+}
+
+.text-medium {
+    font-weight: var(--font-weight-medium); /* テキストを中間の太さにするクラス */
+}
+
+h4 {
+    font-family: var(--font-primary); /* h4のフォントファミリーを指定 */
+    line-height: 1.2;       /* h4の行の高さを指定 */
+    margin-bottom: 0.5em;   /* h4の下マージンを指定 */
+    text-align: left;       /* h4のテキストを左揃えに */
+    font-size: 1.5rem;      /* h4のフォントサイズを指定 */
+    font-weight: var(--font-weight-bold); /* h4のフォントの太さを指定 */
+}
+
+h4 + p {
+    margin-top: -1.6px; /* h4直後の段落の上マージンを微調整 */
+}
+
+p {
+    font-size: 1rem; /* 段落のフォントサイズを指定 */
+    font-weight: normal; /* 段落のフォントの太さを指定 */
+    margin-bottom: 1rem; /* 段落の下マージンを指定 */
+    text-align: left; /* 段落のテキストを左揃えに */
+}
+
+
+
+
+/* 画像の選択とドラッグを防ぐ */
+img, .image-wrapper, .image-container {
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    pointer-events: none;
+}
+
+
+
+.feature h4,
+.feature p,
+.feature p2 {
+    max-width: 1100px; 
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 1rem;
+}
+
+
+@media (max-width: 768px) {
+    body {
+        font-size: 14px; /* モバイル用に小さいフォントサイズを設定 */
+    }
+
+    h1 { font-size: 2rem; }
+    h2 { font-size: 1.75rem; }
+    h3 { font-size: 1.5rem; }
+    h4 { font-size: 1.25rem; }
+    
+    .content-section {
+        flex-direction: column; /* モバイルでは縦並びに */
+    }
+    
+    .text-content {
+        padding-right: 0;
+        margin-bottom: 2rem;
+    }
+}
+
+
+/* h4ロゴカラー */
+@keyframes colorChangeBlack {
+    0%   { color: hsl(000, 000%, 100%); }
+    20%  { color: hsl(050, 020%, 100%); }
+    36%  { color: hsl(045, 080%, 080%); }
+    52%  { color: hsl(340, 070%, 070%); }
+    68%  { color: hsl(320, 090%, 055%); }
+    84%  { color: hsl(260, 070%, 040%); }
+    90%  { color: hsl(230, 060%, 025%); }
+    100% { color: rgb(010, 010, 010); }
+}
+
+/* 白色アニメーション */
+@keyframes colorChangeWhite {
+    0%   { color: hsl(000, 000%, 100%); }
+    20%  { color: hsl(050, 020%, 100%); }
+    36%  { color: hsl(045, 080%, 080%); }
+    52%  { color: hsl(340, 070%, 070%); }
+    68%  { color: hsl(320, 090%, 055%); }
+    84%  { color: hwb(299 58% 1%); }
+    90%  { color: hsl(0, 76%, 97%); }
+    100% { color: rgb(255, 255, 255); }
+}
+
+
+
+
+/* 機能怪しい */
+.project-description {
+    max-width: 1100px; /* プロジェクト説明の最大幅を指定 */
+    margin-left: auto;
+    margin-right: auto;
+    text-align: left;
+    padding-left: 20px;
+}
+
+.project-description h3 {
+    font-size: 1.75rem;
+    font-weight: var(--font-weight-bold);
+    margin-bottom: 1rem;
+}
+
+.project-description .highlight {
+    font-size: 1rem;
+    font-weight: var(--font-weight-bold);
+    margin-bottom: 1rem;
+}
+
+.project-description .detail {
+    font-size: 1rem;
+    font-weight: 300;
+    line-height: 1.6;
+}
+
+.subtitle {
+    font-size: 1.5rem;
+    font-weight: 300;
+}
+
+
+
+
+
+
+
+
+.hero-title-container {
+    position: relative;
+    height: 100px;
+}
+
+.hero-title-main,
+.hero-title-rogo{
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%) translateY(100%);
+    transition: transform 0.3s ease, opacity 0.3s ease;
+    opacity: 0;
+}
+.hero-title-main {
+    top: 0;
+}
+
+.hero-title-rogo {
+    top: 50px; /* 調整が必要な場合はこの値を変更 */
+}
+
+
+
+.hero-title-sub3-container {
+    position: absolute;
+    bottom: -50px; /* この値を調整して、ロゴの位置を上下に動かせます */
+    left: 0;
+    right: 0; /* 右側も0に設定して幅を確保 */
+    margin: 0 auto; /* 左右のマージンを自動に設定 */
+    width: 100%;
+    text-align: center;
+    z-index: 10;
+}
+
+.hero-title-sub3 {
+    max-width: 100%;
+    height: auto; /* 高さを自動調整に */
+    opacity: 0.5; /* 透明度を50%に設定 */
+    display: inline-block; /* インラインブロック要素として表示 */
+}
+
+
+
+.hero-title-container {
+    position: relative;
+    height: 100px;
+}
+
+.hero-title-main,
+.hero-title-sub {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%) translateY(100%); /* 初期位置を下に設定 */
+    transition: transform 0.3s ease, opacity 0.3s ease; /* アニメーション効果を追加 */
+    opacity: 0; /* 初期状態では非表示 */
+}
+
+.hero-title-main {
+    top: 0;
+}
+
+.hero-title-sub {
+    top: 43px;
+}
+
+.hero {
+    position: relative;
+    overflow: hidden;
+    height: 100vh; /* ビューポートの高さいっぱいに */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    margin-bottom: 30vh;
+}
+
+.hero-content {
+    position: relative;
+    z-index: 2; /* 背景より前面に配置 */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+}
+
+
+/*  ラスト文 */
+.section_contact_last {
+    position: relative;
+    padding: 100px 0;  /* 上下のパディングを調整 */
+    max-width: 1100px;  /* 最大幅を設定 */
+    margin: 0 auto;  /* 中央揃え */
+}
+
+.section_contact_last h4 {
+    position: absolute;
+    top: 100px;  /* 上からの位置 */
+    left: 50px;  /* 左からの位置 */
+    font-size: 24px;  /* フォントサイズ */
+    line-height: 1.5;
+    margin: 0;
+}

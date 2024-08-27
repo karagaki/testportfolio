@@ -1,0 +1,62 @@
+#project8-image-wrapper {
+    position: relative;
+    width: 100%;
+    height: 600px;
+    max-width: 1100px;
+    margin: 0 auto;
+    overflow: hidden;
+    border-radius: 20px;
+}
+
+#project8-video-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(209, 219, 254, 0.941);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 20px;
+}
+
+#project8-video {
+    height: 100%;
+    width: auto;
+    max-width: none;
+}
+
+#project8-video-container::before {
+    content: '';
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    right: 10px;
+    bottom: 10px;
+    border: 2px solid white;
+    border-radius: 10px;
+    pointer-events: none;
+    z-index: 1;
+}
+
+#project8-play-button, #project8-audio-button {
+    position: absolute;
+    left: 25px;
+    width: 60px;
+    height: 60px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    z-index: 1000;
+    scale: 90%;
+}
+
+#project8-play-button {
+    bottom: 20px;
+}
+
+#project8-audio-button {
+    bottom: 90px;
+}
+

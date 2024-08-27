@@ -1,0 +1,112 @@
+
+/* UI */
+
+/* プロジェクト4の画像コンテナ */
+#project-4 .image-container {
+    position: relative;
+    overflow: hidden;
+}
+
+#project-4 .page-counter {
+    position: absolute;
+    bottom: 22px;
+    left: 51%; /* 追加: 左端を中央に配置 */
+    transform: translateX(-50%) scale(0.6); /* 追加: 中央揃えとスケール */
+    width: 120px;
+    height: 47px;
+    background-image: url('assets/pr_4/s4_ui/s4_count.png');
+    background-repeat: no-repeat;
+    background-position: 0 100%;
+    z-index: 10;
+}
+
+/* カウンター各ページ番号に対応するbackground-position */
+#project-4 .page-counter[data-page="1"] { background-position: 0 -299px; }
+#project-4 .page-counter[data-page="2"] { background-position: 0 -249px; }
+#project-4 .page-counter[data-page="3"] { background-position: 0 -199px; }
+#project-4 .page-counter[data-page="4"] { background-position: 0 -149px; }
+#project-4 .page-counter[data-page="5"] { background-position: 0 -98px; }
+
+
+/* プロジェクト4用のネクストボタン */
+#project-4 .next-button {
+    position: absolute;
+    bottom: 31px;
+    width: 15px;
+    height: 24px;
+    background-image: url('assets/pr_4/s4_ui/s4_next.png');
+    background-repeat: no-repeat;
+    z-index: 10;
+}
+
+#project-4 .next-button-left {
+    left: calc(50% - 75px);
+    background-position: left center;
+}
+
+#project-4 .next-button-right {
+    right: calc(50% - 75px);
+    background-position: right center;
+}
+
+
+/* プロジェクト4用のページナビゲーション
+
+#project-4 .page-nav-item {
+    width: 50px;
+    height: 17px;
+    background-image: url('assets/pr_4/s4_ui/s4_page.png');
+    background-repeat: no-repeat;
+    background-position: 0 -33px;
+    margin: 0 -10px;
+    scale: 44%;
+}
+
+#project-4 .page-nav-item.active {
+    background-position: 0 0;
+}
+*/
+
+
+/* プロジェクト4用のページナビゲーション 
+#project-4 .page-navigation {
+    position: absolute;
+    bottom: 22px;
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    z-index: 10;
+}
+*/
+
+
+/* プロジェクト4用  再生/停止ボタン */
+#project-4 .playback-control {
+    position: absolute;
+    width: 30px;
+    height: 50px;
+    background-repeat: no-repeat;
+    background-size: 100%;
+    cursor: pointer;
+    left: 22px;
+    bottom: 19px;
+    transform: scale(0.7);
+}
+
+#project-4 .play-button {
+    background-image: url('assets/pr_4/s4_ui/s4_play.png');
+}
+
+#project-4 .stop-button {
+    background-image: url('assets/pr_4/s4_ui/s4_stop.png');
+}
+
+#project-4 .playback-control:hover {
+    background-position: 0 100%;
+}
+
+#project-4 .playback-control {
+    cursor: pointer;
+    z-index: 1000; /* 他の要素より前面に表示 */
+}
+

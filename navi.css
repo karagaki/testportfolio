@@ -1,0 +1,31 @@
+/ ■■　ナビゲーション　■■　*/
+
+
+.page-indicator {
+    position: fixed;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 120;
+}
+
+.page-indicator span {
+    display: block;
+    width: 10px;
+    height: 10px;
+    border-radius: 20px;
+    margin: 12px;
+    transition: all 0.1s ease; /* アニメーション効果を追加 */
+}
+
+.page-indicator span.current {
+    transform: scale(1.7); /* 現在のページを大きく表示 */
+}
+
+
+/* インジケーター最後は除外 */
+.page-indicator span:last-child {
+    display: none;
+}
+
+

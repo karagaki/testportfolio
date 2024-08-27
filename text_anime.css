@@ -1,0 +1,70 @@
+
+/* プロジェクト1 */
+#project-1,
+.section[data-background="1"] h4,
+.section[data-background="1"] p {
+    color: #000000;
+}
+
+/* プロジェクト2 */
+#project-2,
+.section[data-background="2"] h4,
+.section[data-background="2"] p {
+    color: #ffffff;
+}
+
+/* プロジェクト3 */
+#project-3,
+.section[data-background="3"] h4,
+.section[data-background="3"] p {
+    color: #ffffff;
+}
+
+/* プロジェクト4 */
+.section[data-background="4"] h4,
+.section[data-background="4"] p {
+    color: #000000;
+}
+
+/* プロジェクト5 */
+.section[data-background="5"] h4,
+.section[data-background="5"] p {
+    color: #ffffff;
+}
+
+
+/* プロジェクト6 */
+.section[data-background="6"] h4,
+.section[data-background="6"] p {
+    color: #ffffff;
+}
+
+/* プロジェクト7 */
+.section[data-background="7"] h4,
+.section[data-background="7"] p {
+    color: #000000;
+}
+
+/* プロジェクト8 */
+.section[data-background="8"] h4,
+.section[data-background="8"] p {
+    color: #000000;
+}
+
+/* プロジェクト9 */
+.section[data-background="9"] h4,
+.section[data-background="9"] p {
+    color: #000000;
+}
+
+/* プロジェクト10 */
+.section[data-background="10"] h4,
+.section[data-background="10"] p {
+    color: #000000;
+}
+
+/* プロジェクト11 */
+.section[data-background="11"] h4,
+.section[data-background="11"] p {
+    color: #0000ff;
+}
