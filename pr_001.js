@@ -4,12 +4,12 @@ document.addEventListener('DOMContentLoaded', () => {
   const video1 = video1Container.querySelector('video');
   const video2 = video2Container.querySelector('video');
 
-  const icon1 = createIcon('assets/pr_1/ui/s1_a1.png', 'icon1', 'icon');
-  const icon2 = createIcon('assets/pr_1/ui/s1_a2.png', 'icon2', 'icon');
-  const popup1 = createIcon('assets/pr_1/s1_c1.png', 'popup1', 'popup');
-  const popup2 = createIcon('assets/pr_1/s1_c2.png', 'popup2', 'popup');
-  const popup3 = createIcon('assets/pr_1/s1_c3.png', 'popup3', 'popup');
-  const popup4 = createIcon('assets/pr_1/s1_c4.png', 'popup4', 'popup');
+  const icon1 = createIcon('assets/pr_1/webp/s1_a1.webp', 'icon1', 'icon');
+  const icon2 = createIcon('assets/pr_1/webp/s1_a2.webp', 'icon2', 'icon');
+  const popup1 = createIcon('assets/pr_1/webp/s1_c1.webp', 'popup1', 'popup');
+  const popup2 = createIcon('assets/pr_1/webp/s1_c2.webp', 'popup2', 'popup');
+  const popup3 = createIcon('assets/pr_1/webp/s1_c3.webp', 'popup3', 'popup');
+  const popup4 = createIcon('assets/pr_1/webp/s1_c4.webp', 'popup4', 'popup');
 
   video1Container.appendChild(icon1);
   video2Container.appendChild(icon2);
@@ -22,7 +22,6 @@ document.addEventListener('DOMContentLoaded', () => {
   let iconsVisible = false;
   let activePopups = null;
   
-    // 新しく追加するタイマー関連の変数
   let timerSvgLeft = null;
   let timerSvgRight = null;
 
@@ -35,8 +34,8 @@ function createIcon(src, id, className) {
   icon.style.position = 'absolute';
   
   if (className === 'icon') {
-    icon.style.width = '12px';  // サイズを大きくしました
-    icon.style.height = 'auto'; // サイズを大きくしました
+    icon.style.width = '12px'; 
+    icon.style.height = 'auto'; 
   } else {
     icon.style.height = '100%';
     icon.style.width = 'auto';

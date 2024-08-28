@@ -1,7 +1,7 @@
 // pr_004.js
 
 (function() {
-    const images = ['s4_a1.webp', 's4_a2.webp', 's4_a3.webp', 's4_a4.png', 's4_a5.png'];
+    const images = ['s4_a1.webp', 's4_a2.webp', 's4_a3.webp'];
     const verticalImages = ['s4_a1.webp', 's4_a2.webp', 's4_a3.webp'];
     let currentImageIndex = 0;
     let textures = [];
@@ -229,7 +229,7 @@ function init() {
     function loadTextures() {
         const loader = new THREE.TextureLoader();
         Promise.all(images.map(img => new Promise(resolve => {
-            const path = img.endsWith('.webp') ? `assets/pr_4/webp/${img}` : `assets/pr_4/${img}`;
+            const path = `assets/pr_4/webp/${img}`;
             loader.load(path, texture => {
                 resolve(texture);
             }, undefined, error => {
@@ -237,7 +237,7 @@ function init() {
             });
         }))).then(loadedTextures => {
             textures = loadedTextures.filter(t => t !== null);
-            loader.load('assets/pr_4/1.png',
+            loader.load('assets/pr_4/1.webp',
                 texture => {
                     dispTexture = texture;
                     createMaterial();
