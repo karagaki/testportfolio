@@ -1,162 +1,125 @@
 // pr_009.js
 
-(function() {
-    // グローバル変数の使用を避けるため、すべての変数をこの関数のスコープ内に置きます
-    const images = ['s9_a1.png'];　                                          　//他プロジェクトはここ差し替え必要
-    let currentImageIndex = 0;
-    let textures = [];
-    let dispTexture;
+class MirroredSeamlessScrollGrid {
+    constructor(options = {}) {
+        this.container = document.getElementById('project9-image-wrapper');
+        this.images = ['s9_a1.webp', 's9_a2.webp', 's9_a3.webp', 's9_a4.webp', 's9_a5.webp', 's9_a6.webp'];
+        this.gridElement = null;
+        this.cameraPosition = { x: 0, y: 0 };
+        this.mousePosition = { x: 0, y: 0 };
+        this.scrollSpeed = options.scrollSpeed || 0.5;
+        this.autoScrollSpeed = options.autoScrollSpeed || 0.2;
+        this.imageWidth = 1800;
+        this.imageHeight = 180;
+        this.baseGridSize = { width: this.imageWidth * 3, height: this.imageHeight * 6 };
+        this.rowScrollOffsets = [];
 
-    let scene, camera, renderer, geometry, material, mesh;
-
-    const vertexShader = `
-        varying vec2 vUv;
-        void main() {
-            vUv = uv;
-            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-        }
-    `;
-
-    const fragmentShader = `
-        uniform sampler2D texture1;
-        uniform sampler2D texture2;
-        uniform sampler2D disp;
-        uniform float dispFactor;
-        uniform float effectFactor;
-        varying vec2 vUv;
-
-        void main() {
-            vec2 uv = vUv;
-            // ここを変更: x座標の代わりにy座標を使用
-            vec4 disp = texture2D(disp, uv);
-            vec2 distortedPosition1 = vec2(uv.x, uv.y + dispFactor * (disp.r*effectFactor));
-            vec2 distortedPosition2 = vec2(uv.x, uv.y - (1.0 - dispFactor) * (disp.r*effectFactor));
-            vec4 _texture1 = texture2D(texture1, distortedPosition1);
-            vec4 _texture2 = texture2D(texture2, distortedPosition2);
-            gl_FragColor = mix(_texture1, _texture2, dispFactor);
-        }
-    `;
-
-    function updateRendererSize() {
-        const imageWrapper = document.getElementById('project9-image-wrapper'); 　//他プロジェクトはここ差し替え必要
-        if (!imageWrapper || !renderer) return;
-
-        const wrapperHeight = imageWrapper.offsetHeight;
-        const imageAspectRatio = 16 / 10; // 画像のアスペクト比を16:9と仮定
-        
-        let width = wrapperHeight * imageAspectRatio;
-        let height = wrapperHeight;
-        
-        renderer.setSize(width, height);
-        renderer.domElement.style.left = '50%';
-        renderer.domElement.style.transform = 'translateX(-50%)';
-
-        // カメラのアスペクト比も更新
-        const aspect = width / height;
-        camera.left = -aspect;
-        camera.right = aspect;
-        camera.top = 1;
-        camera.bottom = -1;
-        camera.updateProjectionMatrix();
-
-        // メッシュのスケールも更新
-        if (mesh) {
-            mesh.scale.set(aspect, 1, 1);
-        }
+        this.init();
     }
 
-    function init() {
-        console.log('Initializing...');
-        const imageWrapper = document.getElementById('project9-image-wrapper');　//他プロジェクトはここ差し替え必要
-        if (!imageWrapper) {
-            return;
-        }
-
-        scene = new THREE.Scene();
-        camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
-        renderer = new THREE.WebGLRenderer({ alpha: true });
-        
-        updateRendererSize();
-        imageWrapper.appendChild(renderer.domElement);
-
-        geometry = new THREE.PlaneBufferGeometry(2, 2);
-
-        loadTextures();
-    }
-    
-    function loadTextures() {
-        console.log('Loading textures...');
-        const loader = new THREE.TextureLoader();
-        Promise.all(images.map(img => new Promise(resolve => {
-            loader.load(`assets/pr_9/${img}`, texture => {　　//他プロジェクトはここ差し替え必要
-                resolve(texture);
-            }, undefined, error => {
-                resolve(null);
-            });
-        }))).then(loadedTextures => {
-            textures = loadedTextures.filter(t => t !== null);
-            loader.load('assets/pr_9/1.png', 　　　　　　　//他プロジェクトはここ差し替え必要
-                texture => {
-                    dispTexture = texture;
-                    createMaterial();
-                },
-                undefined,
-            );
-        });
+    init() {
+        this.createGrid();
+        this.setupEventListeners();
+        this.initializeRowScrollOffsets();
+        this.animate();
     }
 
-    function createMaterial() {
-        material = new THREE.ShaderMaterial({
-            uniforms: {
-                effectFactor: { type: "f", value: 0.1 },
-                dispFactor: { type: "f", value: 0 },
-                texture1: { type: "t", value: textures[0] },
-                texture2: { type: "t", value: textures[1] },
-                disp: { type: "t", value: dispTexture }
-            },
-            vertexShader: vertexShader,
-            fragmentShader: fragmentShader,
-            transparent: true,
-            opacity: 1.0
-        });
+    createGrid() {
+        this.gridElement = document.createElement('div');
+        this.gridElement.className = 'scroll-grid';
+        this.container.appendChild(this.gridElement);
 
-        mesh = new THREE.Mesh(geometry, material);
-        scene.add(mesh);
-
-        // メッシュの初期スケールを設定
-        const aspect = renderer.domElement.width / renderer.domElement.height;
-        mesh.scale.set(aspect, 1, 1);
-
-        animate();
-        setTimeout(changeImage, 2000);
-    }
-
-    function animate() {
-        requestAnimationFrame(animate);
-        renderer.render(scene, camera);
-    }
-
-    function changeImage() {
-        const nextImageIndex = (currentImageIndex + 1) % textures.length;
-        
-        gsap.to(material.uniforms.dispFactor, {
-            value: 1,
-            duration: 0.8, 　　　　　　　　　　　　　　　　　　　　　//時間調整3
-            ease: "power2.inOut",
-            onUpdate: () => {
-            },
-            onComplete: () => {
-                currentImageIndex = nextImageIndex;
-                material.uniforms.texture1.value = textures[currentImageIndex];
-                material.uniforms.texture2.value = textures[(currentImageIndex + 1) % textures.length];
-                material.uniforms.dispFactor.value = 0;
-                setTimeout(changeImage, 3000);
+        // Create 3x3 grid of base images
+        for (let y = -1; y <= 1; y++) {
+            for (let x = -1; x <= 1; x++) {
+                const baseGrid = this.createBaseGrid();
+                baseGrid.style.transform = `translate(${x * this.baseGridSize.width}px, ${y * this.baseGridSize.height}px)`;
+                this.gridElement.appendChild(baseGrid);
             }
+        }
+    }
+
+    createBaseGrid() {
+        const baseGrid = document.createElement('div');
+        baseGrid.className = 'base-grid';
+
+        for (let i = 0; i < this.images.length; i++) {
+            const row = document.createElement('div');
+            row.className = 'image-row';
+
+            // Add 5 images to each row to ensure seamless scrolling
+            for (let j = 0; j < 5; j++) {
+                const img = document.createElement('img');
+                img.src = `assets/pr_9/webp/${this.images[i]}`;
+                img.style.width = `${this.imageWidth}px`;
+                img.style.height = `${this.imageHeight}px`;
+                row.appendChild(img);
+            }
+
+            baseGrid.appendChild(row);
+        }
+
+        return baseGrid;
+    }
+
+    initializeRowScrollOffsets() {
+        for (let i = 0; i < this.images.length; i++) {
+            this.rowScrollOffsets.push(0);
+        }
+    }
+
+    setupEventListeners() {
+        this.container.addEventListener('mousemove', (e) => this.handleMouseMove(e));
+        this.container.addEventListener('mouseleave', () => this.resetMousePosition());
+    }
+
+    handleMouseMove(e) {
+        const rect = this.container.getBoundingClientRect();
+        this.mousePosition.x = (e.clientX - rect.left) / rect.width - 0.5;
+        this.mousePosition.y = (e.clientY - rect.top) / rect.height - 0.5;
+    }
+
+    resetMousePosition() {
+        this.mousePosition.x = 0;
+        this.mousePosition.y = 0;
+    }
+
+    updateGrid() {
+        // Update camera position based on mouse movement (vertical only)
+        this.cameraPosition.y -= this.mousePosition.y * this.scrollSpeed;
+
+        // Ensure camera position stays within bounds
+        this.cameraPosition.y = (this.cameraPosition.y + this.baseGridSize.height) % this.baseGridSize.height;
+
+        // Update row scroll offsets (automatic horizontal scrolling)
+        for (let i = 0; i < this.rowScrollOffsets.length; i++) {
+            const direction = i % 2 === 0 ? 1 : -1;
+            this.rowScrollOffsets[i] += direction * this.autoScrollSpeed;
+            this.rowScrollOffsets[i] = (this.rowScrollOffsets[i] + this.imageWidth * 5) % (this.imageWidth * 5);
+        }
+
+        // Apply camera position to grid
+        const gridX = -this.cameraPosition.x;
+        const gridY = -this.cameraPosition.y;
+        this.gridElement.style.transform = `translate(${gridX}px, ${gridY}px)`;
+
+        // Update row positions
+        const rows = this.gridElement.querySelectorAll('.image-row');
+        rows.forEach((row, index) => {
+            const offset = -this.rowScrollOffsets[index % this.images.length];
+            row.style.transform = `translateX(${offset}px)`;
         });
     }
-    
-    init();
 
-    window.addEventListener('resize', updateRendererSize);
+    animate() {
+        this.updateGrid();
+        requestAnimationFrame(() => this.animate());
+    }
+}
 
-})();
+document.addEventListener('DOMContentLoaded', () => {
+    new MirroredSeamlessScrollGrid({
+        scrollSpeed: 2,
+        autoScrollSpeed: 0.5
+    });
+});

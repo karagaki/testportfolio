@@ -28,6 +28,8 @@
     width:  100%;
     aspect-ratio: 110 / 63;
     transform: translateX(-50%);
+        border-radius: 20px;
+
 }
 
 

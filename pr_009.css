@@ -1,10 +1,4 @@
-#project9-image {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    object-fit: cover;
-}
+/* pr_009.css */
 
 #project9-image-wrapper {
     position: relative;
@@ -13,32 +7,32 @@
     max-width: 1100px;
     margin: 0 auto;
     overflow: hidden;
-    
-    aspect-ratio: 110 / 63;
-    position: relative;
-    overflow: hidden;
     border-radius: 20px;
+    background-color: #f0f0f0;
+    cursor: move;
 }
 
-#project9-image-wrapper canvas {
+.base-grid,
+.mirror-grid {
     position: absolute;
     top: 0;
-    left: 50%;
-    height: 100%;
-    width:  100%;
-    aspect-ratio: 110 / 63;
-    transform: translateX(-50%);
+    left: 0;
+    width: 5400px; /* 1800px * 3 */
+    height: 1080px; /* 180px * 6 */
+    transition: transform 0.1s linear;
 }
 
+.image-row {
+    position: relative;
+    display: flex;
+    width: 100%;
+    height: 180px;
+    transition: transform 0.1s linear;
+}
 
-
-
-
-
-
-
-
-
-
-
-
+.image-row img {
+    display: block;
+    width: 1800px;
+    height: 180px;
+    transition: opacity 0.3s ease;
+}

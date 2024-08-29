@@ -1,5 +1,3 @@
-// pr_7-anime.js
-
 (function() {
   const IMAGES = [
   's7_a1.webp', 's7_a2.webp', 's7_a3.webp', 's7_a4.webp', 's7_a5.webp', 's7_a6.webp', 's7_a7.webp', 
@@ -8,23 +6,23 @@
   's7_a22.webp', 's7_a23.webp', 's7_a24.webp', 's7_a25.webp', 's7_a26.webp', 's7_a27.webp'
 ];
 
-  const COLUMNS = 6;
-  const ROWS_PER_COLUMN = 4; // 各列の画像数を4に統一
+  const COLUMNS = 5; // 列の数を5に変更
+  const ROWS_PER_COLUMN = 4;
   const TOTAL_IMAGES = COLUMNS * ROWS_PER_COLUMN;
-  const IMAGE_WIDTH = 200;  // ピクセル単位
-  const IMAGE_HEIGHT = 200; // ピクセル単位
-  const COLUMN_GAP = 115; // 列間の隙間（ピクセル単位）
-  const ROW_GAP = 10; // 行間の隙間（ピクセル単位）
-  const ANIMATION_SPEED = 10; // ピクセル/秒
-  const BOUNCE_AMPLITUDE = 1; // バウンドの振幅（ピクセル）
-  const BOUNCE_FREQUENCY = 1; // バウンドの周波数（Hz）
+  const IMAGE_WIDTH = 200;
+  const IMAGE_HEIGHT = 200;
+  const COLUMN_GAP = 20; // 列間の隙間を狭くする
+  const ROW_GAP = 10;
+  const ANIMATION_SPEED = 40; // アニメーション速度を上げる
+  const BOUNCE_AMPLITUDE = 1;
+  const BOUNCE_FREQUENCY = 1;
 
   class Project7Animation {
     constructor() {
       this.container = document.getElementById('project7-image-wrapper');
       this.images = [];
       this.lastTime = null;
-      this.columnDirections = [1, -1, 1, -1, 1, -1]; // 1: 下向き, -1: 上向き
+      this.columnDirections = [1, -1, 1, -1, 1, -1]; // 5列分の方向を設定
       this.isAnimating = false;
     }
 
@@ -42,21 +40,20 @@
     createAndPositionImages() {
       this.images = [];
       this.container.innerHTML = '';
-      
-      // 画像をシャッフルして重複なく選択
+
       const shuffledImages = this.shuffleArray([...IMAGES]);
       const selectedImages = shuffledImages.slice(0, TOTAL_IMAGES);
-      
+
       let index = 0;
       for (let col = 0; col < COLUMNS; col++) {
         const columnImages = [];
         for (let row = 0; row < ROWS_PER_COLUMN * 2; row++) {
           const imgSrc = selectedImages[index % TOTAL_IMAGES];
-          
-  const img = document.createElement('img');
-  img.src = `assets/pr_7/webp/${imgSrc}`;
-  img.className = 'project7-image';
-  img.setAttribute('data-webm', imgSrc.replace('.webp', '.webm'));
+
+          const img = document.createElement('img');
+          img.src = `assets/pr_7/webp/${imgSrc}`;
+          img.className = 'project7-image';
+          img.setAttribute('data-webm', imgSrc.replace('.webp', '.webm'));
           this.container.appendChild(img);
           const imageData = {
             element: img,
@@ -85,12 +82,12 @@
     positionColumnImages(columnImages, col) {
       const containerWidth = this.container.offsetWidth;
       const containerHeight = this.container.offsetHeight;
-      
+
       const totalColumnWidth = containerWidth - COLUMN_GAP * (COLUMNS - 1);
       const colWidth = totalColumnWidth / COLUMNS;
-      
+
       const x = (colWidth + COLUMN_GAP) * col + colWidth / 2;
-      const totalHeight = containerHeight * 2 + ROW_GAP * (ROWS_PER_COLUMN * 2 - 1);  // 2倍の高さを使用し、行間の隙間を加える
+      const totalHeight = containerHeight * 2 + ROW_GAP * (ROWS_PER_COLUMN * 2 - 1);
       const imageSpacing = (totalHeight - ROW_GAP * (ROWS_PER_COLUMN * 2 - 1)) / (ROWS_PER_COLUMN * 2);
 
       columnImages.forEach((img, index) => {
@@ -135,9 +132,10 @@
           img.bouncePhase += BOUNCE_FREQUENCY * Math.PI * 2 * deltaTime;
           img.bounceOffset = Math.sin(img.bouncePhase) * BOUNCE_AMPLITUDE;
 
-          if (direction > 0 && img.y > totalHeight) {
+          // 画像が画面外に出る前に位置をリセット
+          if (direction > 0 && img.y > containerHeight + IMAGE_HEIGHT) {
             img.y -= totalHeight;
-          } else if (direction < 0 && img.y < 0) {
+          } else if (direction < 0 && img.y < -IMAGE_HEIGHT) {
             img.y += totalHeight;
           }
 
@@ -158,8 +156,10 @@
             this.rotateImages();
           }
         }
-      }, 5000); // 5秒ごとに実行
+      }, 5000);
     }
+    
+    
 
     swapImagePairs() {
       this.isAnimating = true;
@@ -264,8 +264,13 @@
     }
 
     addClickListener() {
-      this.container.addEventListener('click', () => {
-        this.createWalkingCharacter();
+      this.container.addEventListener('click', (event) => {
+        if (event.target.classList.contains('project7-image')) {
+          const webmFile = event.target.getAttribute('data-webm');
+          if (webmFile) {
+            this.createWalkingCharacter(webmFile);
+          }
+        }
       });
     }
 

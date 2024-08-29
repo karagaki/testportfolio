@@ -1,5 +1,14 @@
 // script.js
 
+
+document.addEventListener('DOMContentLoaded', function() {
+    // GSAPプラグインの登録
+    gsap.registerPlugin(ScrollTrigger);
+
+    // 既存の初期化コードや関数呼び出し
+    initializeWebsite();
+});
+
 // DOMコンテンツ読み込み完了時の処理
 document.addEventListener('DOMContentLoaded', () => {
     console.log("DOM fully loaded");
@@ -161,8 +170,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
-
-
 // プロジェクト5
 if (document.getElementById('project5-image-wrapper')) {
     console.log('Attempting to load pr_005.js');
@@ -305,5 +312,3 @@ videos.forEach((video, index) => {
         video.currentTime = 0;
     });
 });
-
-
