@@ -13,6 +13,7 @@ document.addEventListener('DOMContentLoaded', function() {
 document.addEventListener('DOMContentLoaded', () => {
     console.log("DOM fully loaded");
 
+    setupP2Animation();
 
     // タイトルアニメーション設定
     const titles = document.querySelectorAll('.animate-title');
@@ -309,6 +310,58 @@ videos.forEach((video, index) => {
     });
     video.addEventListener('ended', () => {
         video.pause();
-        video.currentTime = 0;
+        video.currentTime = -1;
     });
 });
+
+
+
+//　p2アニメーション
+function setupP2Animation() {
+    const p2Elements = document.querySelectorAll('p2');
+    
+    p2Elements.forEach(element => {
+        const text = element.textContent;
+        element.textContent = '';
+        element.classList.add('animate-text-p2');
+        
+        for (let i = 0; i < text.length; i++) {
+            const span = document.createElement('span');
+            span.textContent = text[i];
+            element.appendChild(span);
+        }
+    });
+
+    const p2Observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                animateP2(entry.target);
+            } else {
+                resetP2Animation(entry.target);
+            }
+        });
+    }, {
+        threshold: 0.5
+    });
+
+    p2Elements.forEach(element => {
+        p2Observer.observe(element);
+    });
+}
+
+function animateP2(element) {
+    element.classList.add('visible');
+    const spans = element.querySelectorAll('span');
+    spans.forEach((span, index) => {
+        span.style.transitionDelay = `${index * 190}ms`;
+    });
+}
+
+function resetP2Animation(element) {
+    element.classList.remove('visible');
+    const spans = element.querySelectorAll('span');
+    spans.forEach(span => {
+        span.style.transitionDelay = '0s';
+    });
+}
+

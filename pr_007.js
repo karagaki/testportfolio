@@ -6,9 +6,13 @@ let animationSpeed = 0.5;
 let maxCharacters = 1000;
 let activeCharacters = 0;
 let characters = [];
+let project7AnimationInitialized = false;
+
+
 
 document.addEventListener('DOMContentLoaded', () => {
-    if (document.getElementById('project7-image-wrapper')) {
+    if (document.getElementById('project7-image-wrapper') && !project7AnimationInitialized) {
+                loadProject7Animation();
         const script = document.createElement('script');
         script.src = 'pr_7-anime.js';
         script.onload = () => {
@@ -29,6 +33,34 @@ document.addEventListener('DOMContentLoaded', () => {
         console.error('project7-image-wrapper element not found');
     }
 });
+
+
+
+function loadProject7Animation() {
+    const script = document.createElement('script');
+    script.src = 'pr_7-anime.js';
+    script.onload = () => {
+        console.log('pr_7-anime.js loaded successfully');
+        if (typeof window.Project7Animation === 'function' && !project7AnimationInitialized) {
+            const project7Animation = new window.Project7Animation();
+            project7Animation.init();
+            initializeImageClickHandlers();
+            project7AnimationInitialized = true;
+        } else if (project7AnimationInitialized) {
+            console.log('Project7Animation already initialized');
+        } else {
+            console.error('Project7Animation class not found');
+        }
+    };
+    script.onerror = () => {
+        console.error('Failed to load pr_7-anime.js');
+    };
+    document.body.appendChild(script);
+}
+
+
+
+
 
 function initializeImageClickHandlers() {
     const container = document.getElementById('project7-image-wrapper');

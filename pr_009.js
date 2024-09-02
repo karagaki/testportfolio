@@ -1,5 +1,3 @@
-// pr_009.js
-
 class MirroredSeamlessScrollGrid {
     constructor(options = {}) {
         this.container = document.getElementById('project9-image-wrapper');
@@ -13,6 +11,9 @@ class MirroredSeamlessScrollGrid {
         this.imageHeight = 180;
         this.baseGridSize = { width: this.imageWidth * 3, height: this.imageHeight * 6 };
         this.rowScrollOffsets = [];
+        this.isMouseOverMask = false;
+        this.scrollInfluence = 1;
+        this.scrollInfluenceDecayRate = 0.95;
 
         this.init();
     }
@@ -23,6 +24,25 @@ class MirroredSeamlessScrollGrid {
         this.initializeRowScrollOffsets();
         this.animate();
     }
+
+    setupEventListeners() {
+        this.container.addEventListener('mousemove', (e) => this.handleMouseMove(e));
+        this.container.addEventListener('mouseleave', () => this.handleMouseLeave());
+    }
+
+    handleMouseMove(e) {
+        const rect = this.container.getBoundingClientRect();
+        this.mousePosition.x = (e.clientX - rect.left) / rect.width - 0.5;
+        this.mousePosition.y = (e.clientY - rect.top) / rect.height - 0.5;
+        this.isMouseOverMask = true;
+        this.scrollInfluence = 1;
+    }
+
+    handleMouseLeave() {
+        this.isMouseOverMask = false;
+    }
+    
+    
 
     createGrid() {
         this.gridElement = document.createElement('div');
@@ -73,43 +93,44 @@ class MirroredSeamlessScrollGrid {
         this.container.addEventListener('mouseleave', () => this.resetMousePosition());
     }
 
-    handleMouseMove(e) {
-        const rect = this.container.getBoundingClientRect();
-        this.mousePosition.x = (e.clientX - rect.left) / rect.width - 0.5;
-        this.mousePosition.y = (e.clientY - rect.top) / rect.height - 0.5;
-    }
 
-    resetMousePosition() {
-        this.mousePosition.x = 0;
-        this.mousePosition.y = 0;
-    }
-
-    updateGrid() {
-        // Update camera position based on mouse movement (vertical only)
+updateGrid() {
+    if (this.isMouseOverMask) {
+        // Full scroll when mouse is over the mask
         this.cameraPosition.y -= this.mousePosition.y * this.scrollSpeed;
-
-        // Ensure camera position stays within bounds
-        this.cameraPosition.y = (this.cameraPosition.y + this.baseGridSize.height) % this.baseGridSize.height;
-
-        // Update row scroll offsets (automatic horizontal scrolling)
-        for (let i = 0; i < this.rowScrollOffsets.length; i++) {
-            const direction = i % 2 === 0 ? 1 : -1;
-            this.rowScrollOffsets[i] += direction * this.autoScrollSpeed;
-            this.rowScrollOffsets[i] = (this.rowScrollOffsets[i] + this.imageWidth * 5) % (this.imageWidth * 5);
+        this.scrollInfluence = 1; // Reset influence to full when mouse is over mask
+    } else {
+        // Gradual decrease in scroll influence when mouse is outside the mask
+        if (this.scrollInfluence > 0.01) {
+            this.scrollInfluence *= this.scrollInfluenceDecayRate;
+            this.cameraPosition.y -= this.mousePosition.y * this.scrollSpeed * this.scrollInfluence;
+        } else {
+            this.scrollInfluence = 0; // Stop scrolling when influence becomes negligible
         }
-
-        // Apply camera position to grid
-        const gridX = -this.cameraPosition.x;
-        const gridY = -this.cameraPosition.y;
-        this.gridElement.style.transform = `translate(${gridX}px, ${gridY}px)`;
-
-        // Update row positions
-        const rows = this.gridElement.querySelectorAll('.image-row');
-        rows.forEach((row, index) => {
-            const offset = -this.rowScrollOffsets[index % this.images.length];
-            row.style.transform = `translateX(${offset}px)`;
-        });
     }
+
+    // Ensure camera position stays within bounds
+    this.cameraPosition.y = (this.cameraPosition.y + this.baseGridSize.height) % this.baseGridSize.height;
+
+    // Update row scroll offsets (automatic horizontal scrolling)
+    for (let i = 0; i < this.rowScrollOffsets.length; i++) {
+        const direction = i % 2 === 0 ? 1 : -1;
+        this.rowScrollOffsets[i] += direction * this.autoScrollSpeed;
+        this.rowScrollOffsets[i] = (this.rowScrollOffsets[i] + this.imageWidth * 5) % (this.imageWidth * 5);
+    }
+
+    // Apply camera position to grid
+    const gridX = -this.cameraPosition.x;
+    const gridY = -this.cameraPosition.y;
+    this.gridElement.style.transform = `translate(${gridX}px, ${gridY}px)`;
+
+    // Update row positions
+    const rows = this.gridElement.querySelectorAll('.image-row');
+    rows.forEach((row, index) => {
+        const offset = -this.rowScrollOffsets[index % this.images.length];
+        row.style.transform = `translateX(${offset}px)`;
+    });
+}
 
     animate() {
         this.updateGrid();

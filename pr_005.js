@@ -18,6 +18,7 @@ const Project5Slider = (function() {
     const MAX_SLIDE_HEIGHT_PERCENTAGE = 0.04; // コンテナの高さの4%
     const SLIDE_SPACING_FACTOR = 0.2; // スライド間の間隔を調整
     const DEPTH_STEP = 3; // 各スライド間の奥行きステップ
+let isTransitioning = false;
 
 
 const images = [
@@ -71,6 +72,7 @@ const textData = [
     {name1: 'Net Police (Cybercrime Investigation Department)', alias1: '', nickname1: '', 
      name2: 'ネットポリス（サイバー犯罪捜査部）', alias2: '', nickname2: '' }
 ];
+
 
 
     function getTextInfo(index) {
@@ -219,29 +221,99 @@ const textData = [
     }
     
     
-
-    function createSlides(textures) {
-        calculateSlideDimensions();
-        const geometry = new THREE.PlaneGeometry(slideWidth, slideHeight);
-
-        textures.forEach((texture, index) => {
-            texture.encoding = THREE.sRGBEncoding;
-            texture.premultiplyAlpha = true;
-            const material = new THREE.MeshBasicMaterial({ 
-                map: texture, 
-                side: THREE.DoubleSide,
-                transparent: true,
-                alphaTest: 0.0
-            });
-            const mesh = new THREE.Mesh(geometry, material);
-            updateSlidePosition(mesh, index, textures.length);
-            scene.add(mesh);
-            slides.push(mesh);
-        });
-        updateSlidesPosition(currentIndex);
-        animate();
-    }
     
+    
+    
+function createBehindGlowMaterial(texture) {
+    return new THREE.ShaderMaterial({
+        uniforms: {
+            tDiffuse: { value: texture },
+            glowColor: { value: new THREE.Color(0xf3f2ff) },
+            glowStrength: { value: 3.5 },
+            glowWidth: { value: 0.001 }
+        },
+        vertexShader: `
+            varying vec2 vUv;
+            void main() {
+                vUv = uv;
+                gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+            }
+        `,
+        fragmentShader: `
+            uniform sampler2D tDiffuse;
+            uniform vec3 glowColor;
+            uniform float glowStrength;
+            uniform float glowWidth;
+            varying vec2 vUv;
+
+            float getAlpha(vec2 uv) {
+                return texture2D(tDiffuse, uv).a;
+            }
+
+            void main() {
+                float alpha = getAlpha(vUv);
+                
+                // ぼかし効果の計算
+                float blur = 0.0;
+                for (int i = -5; i <= 5; i++) {
+                    for (int j = -5; j <= 5; j++) {
+                        vec2 offset = vec2(float(i), float(j)) * glowWidth;
+                        blur += getAlpha(vUv + offset);
+                    }
+                }
+                blur /= 121.0; // 11x11のカーネルサイズ
+                
+                // 元の画像のアルファ値を反転させてグロー効果を作成
+                float glowAlpha = (1.0 - alpha) * blur * glowStrength;
+                
+                // グロー効果のみを出力（元の画像は描画しない）
+                gl_FragColor = vec4(glowColor, glowAlpha);
+            }
+        `,
+        transparent: true,
+        depthWrite: false,
+        blending: THREE.AdditiveBlending
+    });
+}
+
+
+
+
+function createSlides(textures) {
+    calculateSlideDimensions();
+    const geometry = new THREE.PlaneGeometry(slideWidth, slideHeight);
+
+    textures.forEach((texture, index) => {
+        texture.encoding = THREE.sRGBEncoding;
+        texture.premultiplyAlpha = true;
+
+        // グロー効果用マテリアル（後ろに配置）
+        const glowMaterial = createBehindGlowMaterial(texture);
+        const glowMesh = new THREE.Mesh(geometry, glowMaterial);
+        updateSlidePosition(glowMesh, index, textures.length);
+        glowMesh.visible = false; // 初期状態では非表示に
+        scene.add(glowMesh);
+
+        // 元の画像用マテリアル（前面に配置）
+        const material = new THREE.MeshBasicMaterial({ 
+            map: texture, 
+            side: THREE.DoubleSide,
+            transparent: true,
+            opacity: 0
+        });
+        const mesh = new THREE.Mesh(geometry, material);
+        updateSlidePosition(mesh, index, textures.length);
+        mesh.position.z += 0.01; // 元の画像をグロー効果の前に配置
+        scene.add(mesh);
+
+        slides.push({ original: mesh, glow: glowMesh });
+    });
+    updateSlidesPosition(currentIndex);
+    enableGlowEffect(); // 初期状態で中央の画像にのみオーラを表示
+    animate();
+}
+
+
         function updateSlidePosition(slide, index, totalSlides) {
         const spacing = slideWidth * 0.55;
         slide.position.x = (index - (totalSlides - 1) / 2) * spacing;
@@ -254,28 +326,31 @@ const textData = [
 
 let animationFrameId;
 
-    function animate(currentTime) {
-        animationFrameId = requestAnimationFrame(animate);
+function animate(currentTime) {
+    animationFrameId = requestAnimationFrame(animate);
 
-        if (!lastTime) {
-            lastTime = currentTime;
-            return;
-        }
-
-        const deltaTime = currentTime - lastTime;
-
-        if (deltaTime < frameTime) {
-            return;
-        }
-
-        if (!isSelected && !isAnimating && Math.abs(targetIndex - currentIndex) > 0.001) {
-            currentIndex += (targetIndex - currentIndex) * 0.1;
-            updateSlidesPosition(currentIndex);
-        }
-
-        renderer.render(scene, camera);
+    if (!lastTime) {
         lastTime = currentTime;
+        return;
     }
+
+    const deltaTime = currentTime - lastTime;
+
+    if (deltaTime < frameTime) {
+        return;
+    }
+
+    if (!isSelected && !isAnimating && !isTransitioning && Math.abs(targetIndex - currentIndex) > 0.001) {
+        currentIndex += (targetIndex - currentIndex) * 0.1;
+        updateSlidesPosition(currentIndex).then(() => {
+            enableGlowEffect();
+        });
+    }
+
+    renderer.render(scene, camera);
+    lastTime = currentTime;
+}
+
 
     function stopAnimation() {
         if (animationFrameId) {
@@ -301,111 +376,169 @@ let animationFrameId;
         updateSlidesPosition(currentIndex);
     }
 
-    function onMouseMove(event) {
-        if (!isSelected) {
-            const rect = container.getBoundingClientRect();
-            const x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-            targetIndex = Math.round((slides.length - 1) * (x + 1) / 2);
-        }
+
+function onMouseMove(event) {
+    if (!isSelected && !isTransitioning) {
+        const rect = container.getBoundingClientRect();
+        const mouseX = event.clientX - rect.left;
+        const containerWidth = rect.width;
+
+        const margin = containerWidth * 0.1;
+        const effectiveWidth = containerWidth - 2 * margin;
+
+        let normalizedX = (mouseX - margin) / effectiveWidth;
+        normalizedX = Math.max(0, Math.min(1, normalizedX));
+
+        targetIndex = (slides.length - 1) * normalizedX;
+
+        updateSlidesPosition(targetIndex).then(() => {
+            enableGlowEffect();
+        });
     }
+}
     
     
-    function updateSlidesPosition(centerIndex) {
+function updateSlidesPosition(centerIndex, animate = false) {
+    return new Promise((resolve) => {
         const visibleSlides = 11;
         const halfVisible = Math.floor(visibleSlides / 2);
 
-        slides.forEach((slide, i) => {
-            const distance = i - centerIndex;
-            const absDistance = Math.abs(distance);
+        const updatePromises = slides.map((slide, i) => {
+            return new Promise((resolveSlide) => {
+                const distance = i - centerIndex;
+                const absDistance = Math.abs(distance);
 
-            if (absDistance > halfVisible) {
-                slide.visible = false;
-                return;
-            } else {
-                slide.visible = true;
-            }
+                if (absDistance > halfVisible) {
+                    slide.original.visible = false;
+                    slide.glow.visible = false;
+                    resolveSlide();
+                    return;
+                } else {
+                    slide.original.visible = true;
+                }
 
-            const spacing = slideWidth * SLIDE_SPACING_FACTOR;
-            const targetX = distance * spacing;
-            const targetZ = -absDistance * DEPTH_STEP; // 一段ずつ奥行きを変更
-            const targetScale = Math.max(0.7, 1 - absDistance * 0.1);
-            const targetOpacity = Math.max(0.5, 1 - absDistance * 0.15);
+                const spacing = slideWidth * SLIDE_SPACING_FACTOR;
+                const targetX = distance * spacing;
+                const targetZ = -absDistance * DEPTH_STEP;
+                const targetScale = Math.max(0.7, 1 - absDistance * 0.1);
+                const targetOpacity = Math.max(0, 1 - absDistance * 0.2);
 
-            gsap.to(slide.position, {
-                duration: 0.3,
-                x: targetX,
-                z: targetZ,
-                ease: "power2.out",
-            });
-            gsap.to(slide.scale, {
-                duration: 0.3,
-                x: targetScale,
-                y: targetScale,
-                ease: "power2.out",
-            });
-            gsap.to(slide.material, {
-                duration: 0.3,
-                opacity: targetOpacity,
-                ease: "power2.out",
-            });
-        });
-    }
+                const duration = animate ? 0.3 : 0;
 
-    function selectSlide(index) {
-        return new Promise((resolve) => {
-            const selectedSlide = slides[index];
-            const centerX = 0;
-            const offset = centerX - selectedSlide.position.x;
-
-            slides.forEach((slide, i) => {
-                gsap.to(slide.position, {
-                    duration: 0.5,
-                    x: slide.position.x + offset,
+                gsap.to(slide.original.position, {
+                    duration: duration,
+                    x: targetX,
+                    z: targetZ + 0.01,
                     ease: "power2.out",
                 });
-            });
-
-            gsap.to(selectedSlide.position, {
-                duration: 0.5,
-                z: 2,
-                ease: "power2.out",
-            });
-            gsap.to(selectedSlide.scale, {
-                duration: 0.5,
-                x: 1.12,
-                y: 1.12,
-                ease: "power2.out",
-            });
-
-            slides.forEach((slide, i) => {
-                if (i !== index) {
-                    gsap.to(slide.position, {
-                        duration: 0.5,
-                        z: -2,
-                        ease: "power2.out",
-                    });
-                    gsap.to(slide.scale, {
-                        duration: 0.5,
-                        x: 0.4,
-                        y: 0.4,
-                        ease: "power2.out",
-                    });
-                    gsap.to(slide.material, {
-                        duration: 0.8,
-                        opacity: 0.1,
-                        ease: "power2.out",
-                    });
-                }
-            });
-
-            setTimeout(() => {
-                animateWhiteCircle(index).then(() => {
-                    displayTextInfo(index);
-                    resolve();
+                gsap.to(slide.glow.position, {
+                    duration: duration,
+                    x: targetX,
+                    z: targetZ,
+                    ease: "power2.out",
                 });
-            }, 1000);
+                gsap.to(slide.original.scale, {
+                    duration: duration,
+                    x: targetScale,
+                    y: targetScale,
+                    ease: "power2.out",
+                });
+                gsap.to(slide.glow.scale, {
+                    duration: duration,
+                    x: targetScale,
+                    y: targetScale,
+                    ease: "power2.out",
+                });
+                gsap.to(slide.original.material, {
+                    duration: duration,
+                    opacity: targetOpacity,
+                    ease: "power2.out",
+                    onComplete: resolveSlide
+                });
+            });
         });
-    }
+
+        Promise.all(updatePromises).then(() => {
+            if (!isTransitioning) {
+                enableGlowEffect();
+            }
+            resolve();
+        });
+    });
+}
+
+
+
+
+
+
+function selectSlide(index) {
+    return new Promise((resolve) => {
+        const selectedSlide = slides[index];
+        const centerX = 0;
+        const offset = centerX - selectedSlide.original.position.x;
+
+        // すべてのスライドのグロー効果を即座に非表示にする
+        slides.forEach((slide) => {
+            slide.glow.visible = false;
+        });
+
+        slides.forEach((slide, i) => {
+            gsap.to(slide.original.position, {
+                duration: 0.5,
+                x: slide.original.position.x + offset,
+                ease: "power2.out",
+            });
+            gsap.to(slide.glow.position, {
+                duration: 0.5,
+                x: slide.glow.position.x + offset,
+                ease: "power2.out",
+            });
+        });
+
+        gsap.to(selectedSlide.original.position, {
+            duration: 0.5,
+            z: 2,
+            ease: "power2.out",
+        });
+        gsap.to(selectedSlide.original.scale, {
+            duration: 0.5,
+            x: 1.12,
+            y: 1.12,
+            ease: "power2.out",
+        });
+
+        slides.forEach((slide, i) => {
+            if (i !== index) {
+                gsap.to(slide.original.position, {
+                    duration: 0.5,
+                    z: -2,
+                    ease: "power2.out",
+                });
+                gsap.to(slide.original.scale, {
+                    duration: 0.5,
+                    x: 0.4,
+                    y: 0.4,
+                    ease: "power2.out",
+                });
+                gsap.to(slide.original.material, {
+                    duration: 0.8,
+                    opacity: 0.1,
+                    ease: "power2.out",
+                });
+            }
+        });
+
+        setTimeout(() => {
+            animateWhiteCircle(index).then(() => {
+                displayTextInfo(index);
+                resolve();
+            });
+        }, 1000);
+    });
+}
+
+
 
    function animateWhiteCircle(index) {
         return new Promise((resolve) => {
@@ -506,80 +639,133 @@ let animationFrameId;
     }
     
     
+ 
     
 function onSlideClick(event) {
-        if (isAnimating) return;
+    if (isAnimating) return;
 
-        const rect = container.getBoundingClientRect();
-        const x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-        const clickedIndex = Math.round((slides.length - 1) * (x + 1) / 2);
+    const rect = container.getBoundingClientRect();
+    const clickX = event.clientX - rect.left;
+    const containerWidth = rect.width;
 
-        animationQueue = animationQueue.then(() => {
-            isAnimating = true;
-            if (!isSelected && clickedIndex === Math.round(currentIndex)) {
-                isSelected = true;
-                return selectSlide(clickedIndex);
-            } else if (isSelected) {
-                isSelected = false;
-                return resetSlides();
-            }
-        }).then(() => {
-            isAnimating = false;
+    // 有効なクリック範囲を制限（マウス移動と同じマージンを使用）
+    const margin = containerWidth * 0.1;
+    const effectiveWidth = containerWidth - 2 * margin;
+
+    // クリック位置を0から1の範囲に正規化（マージンを考慮）
+    let normalizedX = (clickX - margin) / effectiveWidth;
+    normalizedX = Math.max(0, Math.min(1, normalizedX)); // 0から1の範囲に制限
+
+    // 正規化された位置をスライドインデックスに変換
+    const clickedIndex = Math.round((slides.length - 1) * normalizedX);
+
+    animationQueue = animationQueue.then(() => {
+        isAnimating = true;
+        if (!isSelected && clickedIndex === Math.round(currentIndex)) {
+            isSelected = true;
+            return selectSlide(clickedIndex);
+        } else if (isSelected) {
+            isSelected = false;
+            return resetSlides();
+        }
+    }).then(() => {
+        isAnimating = false;
+    });
+}
+
+
+
+function resetSlides() {
+    return new Promise((resolve) => {
+        isTransitioning = true;
+        // すべてのスライドのグロー効果を非表示にする
+        slides.forEach((slide) => {
+            slide.glow.visible = false;
         });
-    }
 
-    function resetSlides() {
-        return new Promise((resolve) => {
-            if (textElement) {
-                gsap.to(textElement, {
-                    duration: 0.5,
-                    opacity: 0,
-                    y: -50,
-                    ease: "power2.in",
-                    onComplete: () => {
-                        textElement.remove();
-                        textElement = null;
-                    }
-                });
-            }
-
-            gsap.to(whiteCircle.scale, {
-                duration: 0.5,
-                x: 0,
-                y: 0,
-                ease: "power2.in",
-            });
-            gsap.to(whiteCircle.material, {
+        if (textElement) {
+            gsap.to(textElement, {
                 duration: 0.5,
                 opacity: 0,
+                y: -50,
                 ease: "power2.in",
+                onComplete: () => {
+                    textElement.remove();
+                    textElement = null;
+                }
             });
+        }
 
-            slides.forEach((slide) => {
-                gsap.to(slide.position, {
+        gsap.to(whiteCircle.scale, {
+            duration: 0.5,
+            x: 0,
+            y: 0,
+            ease: "power2.in",
+        });
+        gsap.to(whiteCircle.material, {
+            duration: 0.5,
+            opacity: 0,
+            ease: "power2.in",
+        });
+
+        // まず並列に戻す
+        const parallelPromises = slides.map((slide) => {
+            return new Promise((resolveSlide) => {
+                gsap.to(slide.original.position, {
                     duration: 0.5,
                     z: 0,
                     ease: "power2.out",
                 });
-                gsap.to(slide.scale, {
+                gsap.to(slide.original.scale, {
                     duration: 0.5,
                     x: 0.8,
                     y: 0.8,
                     ease: "power2.out",
                 });
-                gsap.to(slide.material, {
+                gsap.to(slide.original.material, {
                     duration: 0.5,
                     opacity: 1,
                     ease: "power2.out",
+                    onComplete: resolveSlide
                 });
             });
-
-            setTimeout(() => {
-                updateSlidesPosition(currentIndex);
-                resolve();
-            }, 500);
         });
-    }
+
+        // 並列に戻った後、前後の並びにする
+        Promise.all(parallelPromises).then(() => {
+            updateSlidesPosition(currentIndex, true).then(() => {
+                isTransitioning = false;
+                enableGlowEffect();
+                resolve();
+            });
+        });
+    });
+}
+
+
+
+
+
+function enableGlowEffect() {
+    if (isTransitioning) return;
+
+    const centerIndex = Math.round(currentIndex);
+    slides.forEach((slide, i) => {
+        const distance = i - centerIndex;
+        const absDistance = Math.abs(distance);
+        if (absDistance < 0.1) {
+            slide.glow.visible = true;
+            gsap.to(slide.glow.material.uniforms.glowStrength, {
+                duration: 0.3,
+                value: 4.5,
+                ease: "power2.out",
+            });
+        } else {
+            slide.glow.visible = false;
+        }
+    });
+}
+
 
     // 公開するメソッド
     return {
@@ -589,3 +775,7 @@ function onSlideClick(event) {
 
 // ロード時にスライダーを初期化
 window.addEventListener('load', Project5Slider.init);
+
+
+
+

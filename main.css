@@ -35,3 +35,24 @@
 .mask-animation .image-wrapper > * {
     pointer-events: auto;
 }
+
+
+
+.section_contact_last {
+  text-align: center;
+  padding: 2rem 0;
+}
+
+.section_contact_last h6 {
+  font-size: 1.2em !important; /* 優先度を上げ、大きなフォントサイズを強制 */
+  margin-bottom: 1rem;
+  color: #333;
+  font-weight: normal;
+  line-height: 1.5;
+  animation: none; /* アニメーションを無効化 */
+}
+
+
+body .content .section_contact_last h6 {
+  font-size: 2.9em;
+}
