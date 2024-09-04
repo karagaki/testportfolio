@@ -14,7 +14,7 @@
     transform: translateX(-50%) scale(0.6); /* 追加: 中央揃えとスケール */
     width: 120px;
     height: 47px;
-    background-image: url('assets/pr_4/s4_ui/s4_count.png');
+    background-image: url('assets/pr_4/webp/s4_count.webp');
     background-repeat: no-repeat;
     background-position: 0 100%;
     z-index: 10;
@@ -34,7 +34,7 @@
     bottom: 31px;
     width: 15px;
     height: 24px;
-    background-image: url('assets/pr_4/s4_ui/s4_next.png');
+    background-image: url('assets/pr_4/webp/s4_next.webp');
     background-repeat: no-repeat;
     z-index: 10;
 }
@@ -50,37 +50,7 @@
 }
 
 
-/* プロジェクト4用のページナビゲーション
 
-#project-4 .page-nav-item {
-    width: 50px;
-    height: 17px;
-    background-image: url('assets/pr_4/s4_ui/s4_page.png');
-    background-repeat: no-repeat;
-    background-position: 0 -33px;
-    margin: 0 -10px;
-    scale: 44%;
-}
-
-#project-4 .page-nav-item.active {
-    background-position: 0 0;
-}
-*/
-
-
-/* プロジェクト4用のページナビゲーション 
-#project-4 .page-navigation {
-    position: absolute;
-    bottom: 22px;
-    display: flex;
-    justify-content: center;
-    width: 100%;
-    z-index: 10;
-}
-*/
-
-
-/* プロジェクト4用  再生/停止ボタン */
 #project-4 .playback-control {
     position: absolute;
     width: 30px;
@@ -94,11 +64,11 @@
 }
 
 #project-4 .play-button {
-    background-image: url('assets/pr_4/s4_ui/s4_play.png');
+    background-image: url('assets/pr_4/webp/s4_play.webp');
 }
 
 #project-4 .stop-button {
-    background-image: url('assets/pr_4/s4_ui/s4_stop.png');
+    background-image: url('assets/pr_4/webp/s4_stop.webp');
 }
 
 #project-4 .playback-control:hover {

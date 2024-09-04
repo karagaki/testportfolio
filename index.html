@@ -32,7 +32,7 @@
     <link rel="stylesheet" href="pr_009.css">
     <link rel="stylesheet" href="pr_010.css">
     <link rel="stylesheet" href="pr_011.css">
-    <link rel="stylesheet" href="background.css">
+    <link rel="stylesheet" href="bg.css">
 
     <div class="page-indicator"></div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
@@ -40,8 +40,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/ScrollTrigger.min.js"></script>
 
-    <script src="bg-eff.js"></script>
-    <script src="section-background.js" defer></script>
+    <script src="bg.js"></script>
     <script src="scroll-control.js" defer></script>
 
     <script src="script.js" defer></script>
@@ -56,7 +55,7 @@
     <script src="pr_009.js" defer></script>
     <script src="pr_010.js" defer></script>
     <script src="pr_011.js" defer></script>
-    <script src="pr_7-anime.js" defer></script>    
+    <script src="pr_007_a.js" defer></script>    
     <script>
         window.onbeforeunload = function () {
             window.scrollTo(0, 0);
@@ -67,9 +66,8 @@
 <body>
 
     <div id="background-container">
+        <div id="blur-overlay"></div>
         <div id="background-canvas"></div>
-        <div class="section-background" data-index="0"></div>
-        <div class="section-background" data-index="1"></div>
         <div class="section-background" data-index="2"></div>
         <div class="section-background" data-index="3"></div>
         <div class="section-background" data-index="4"></div>
@@ -131,26 +129,27 @@
             <h4 class="animate-text-char">造形 ART TOYSを意識し作成 ( 2010 )</h4>
             <p class="animate-text-line">２作目では２体の異なるディティールで作成。内１体は多方向視点で魅せるポーズや見せ方を意識して制作しました。</p>
             <p class="animate-text-line">また見慣れているキャラクターをモチーフで選び、ファンアートとして完成させました。</p>
+            <p2 class="animate-text-line"> [ 自動で画像を切り替え ] </p2>
 
             <div class="image-container mask-animation">
                 <div id="project2-image-wrapper" class="image-wrapper">
                     <alt="プロジェクト2">
                 </div>
             </div>
-            <p2 class="animate-text-line"> [ 自動で画像を切り替え ] </p2>
         </section>
 
         <section class="section feature animate-image" data-background="3" data-text-color="white">
             <h4 class="animate-text-char">造形３点 人体学習得しリアルな造形を表現（ 2010 ）</h4>
             <p class="animate-text-line">造形力を高める為、人体解剖学を学びZBrushが得意とする表現を活かし望みました。</p>
             <p class="animate-text-line">ZBrushは当時参考書も少なく、試行錯誤しながらリアルな表現を追求し技術習得に没頭しました。</p>
+            <p2 class="animate-text-line"> [ 自動で画像を切り替え ] </p2>
+
 
             <div class="image-container mask-animation">
                 <div id="project3-image-wrapper" class="image-wrapper">
                     <img src="assets/pr_3/s3_a1.png" class="feature-image" alt="プロジェクト3" id="project3-image">
                 </div>
             </div>
-            <p2 class="animate-text-line"> [ 自動で画像を切り替え ] </p2>
         </section>
 
         <section class="section feature animate-image" id="project-4" data-background="4" data-text-color="white">
@@ -178,21 +177,32 @@
         </section>
 
 
-        <section id="project-5" class="section feature animate-image" data-background="5" data-text-color="white">
-            <h4 class="animate-text-char">キャラクターデザイン（ 2010- ）</h4>
-            <p class="animate-text-line">アンチセキュリティのテーマを、親しみやすいキャラクターに擬人化し、新たな視点から表現しました。</p>
-            <p class="animate-text-line">村上の元を離れ、独自のスタイルと見たことのない世界観を追求し、自分自身の表現を模索する中でこの作品を制作しました。</p>
-
-            <div class="image-container mask-animation">
-                <div id="project5-image-wrapper" class="image-wrapper">
-                    <div id="project5-container">
-                        <div id="white-overlay"></div>
-                        <img src="assets/pr_5/s5_a1.png" class="feature-image" alt="プロジェクト5" id="project5-image"
-                            style="display: none;">
-                    </div>
-                </div>
-                <p2 class="animate-text-line"> [ カーソルで左右にスクロール、Clickでキャラ詳細 ] </p2>
-        </section>
+<section id="project-5" class="section feature animate-image" data-background="5" data-text-color="white">
+    <h4 class="animate-text-char">キャラクターデザイン（ 2010- ）</h4>
+    <p class="animate-text-line">アンチセキュリティのテーマを、親しみやすいキャラクターに擬人化し、新たな視点から表現しました。</p>
+    <p class="animate-text-line">村上の元を離れ、独自のスタイルと見たことのない世界観を追求し、自分自身の表現を模索する中でこの作品を制作しました。</p>
+    <div class="image-container mask-animation">
+        <div id="project5-image-wrapper" class="image-wrapper">
+            <div id="project5-container">
+                <div id="white-overlay"></div>
+                <img src="assets/pr_5/s5_a1.png" class="feature-image" alt="プロジェクト5" id="project5-image"
+                    style="display: none;">
+<div id="curved-text-container" class="curved-text-container">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="none">
+        <defs>
+            <path id="curve" d="M0,95 Q50,105 100,95" fill="none" />
+        </defs>
+        <text font-family="Arial, sans-serif" font-size="3" fill="#ffffff">
+            <textPath href="#curve" startOffset="50%" text-anchor="middle">
+                [ カーソルで左右にスクロール、Clickでキャラ詳細 ]
+            </textPath>
+        </text>
+    </svg>
+</div>
+            </div>
+        </div>
+    </div>
+</section>
 
 
         <section class="section feature animate-image" data-background="6" id="project-6" data-text-color="white">

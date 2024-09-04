@@ -21,11 +21,8 @@
     box-sizing: border-box; /* パディングとボーダーを幅と高さに含める */
 }
 
-
-
 .mask-animation {
     pointer-events: auto;
-    cursor: pointer;
 }
 
 .mask-animation .image-wrapper {
