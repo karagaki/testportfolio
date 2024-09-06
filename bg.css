@@ -17,27 +17,6 @@
     object-fit: cover; /* 画像のアスペクト比を保持しながら領域を埋める */
 }
 
-.background-container {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-}
-
-.section-background {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    opacity: 0; /* 初期状態では非表示 */
-    background-size: cover;
-    background-position: center;
-}
-
-
 #blur-overlay {
     position: fixed;
     top: 0;
@@ -49,13 +28,26 @@
     will-change: backdrop-filter;
     transition: backdrop-filter 0.3s ease;
 }
+
+
+.background-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
 .section-background {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    opacity: 0;
+    opacity: 0; /* 初期状態では非表示 */
+    background-size: cover;
+    background-position: center;
     transition: opacity 0.3s ease;
 }
 
@@ -68,5 +60,3 @@ body {
         background-color: rgba(255, 255, 255, 0.5);
     }
 }
-
-

@@ -1,3 +1,10 @@
+
+#project8-video {
+    height: 100%;
+    width: auto;
+    max-width: none;
+}
+
 #project8-image-wrapper {
     position: relative;
     width: 100%;
@@ -7,6 +14,7 @@
     overflow: hidden;
     border-radius: 20px;
 }
+
 
 #project8-video-container {
     position: absolute;
@@ -19,12 +27,6 @@
     justify-content: center;
     align-items: center;
     border-radius: 20px;
-}
-
-#project8-video {
-    height: 100%;
-    width: auto;
-    max-width: none;
 }
 
 #project8-video-container::before {
@@ -40,11 +42,13 @@
     z-index: 1;
 }
 
+
+
 #project8-play-button, #project8-audio-button {
     position: absolute;
     left: 25px;
     width: 60px;
-    height: 60px;
+    height: 70px;
     background: none;
     border: none;
     cursor: pointer;
@@ -52,6 +56,8 @@
     scale: 90%;
 }
 
+
+/* ui */
 #project8-play-button {
     bottom: 20px;
 }

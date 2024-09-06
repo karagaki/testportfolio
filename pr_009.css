@@ -1,5 +1,3 @@
-/* pr_009.css */
-
 #project9-image-wrapper {
     position: relative;
     width: 100%;
@@ -17,8 +15,8 @@
     position: absolute;
     top: 0;
     left: 0;
-    width: 5400px; /* 1800px * 3 */
-    height: 1080px; /* 180px * 6 */
+    width: 5400px; 
+    height: 1080px;
     transition: transform 0.1s linear;
 }
 

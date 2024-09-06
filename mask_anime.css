@@ -3,7 +3,6 @@
     overflow: hidden; 
 }
 
-
 .mask-animation .feature-image {
     width: 100%;
     height: 100%;
@@ -17,6 +16,17 @@
     mask-image: none !important;
 }
 
+.mask-animation {
+    pointer-events: auto;
+}
+
+.mask-animation .image-wrapper {
+    pointer-events: none;
+}
+
+.mask-animation .image-wrapper > * {
+    pointer-events: auto;
+}
 
 .image-wrapper {
     position: absolute;

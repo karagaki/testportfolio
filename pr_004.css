@@ -1,8 +1,8 @@
 #project4-image-wrapper {
     width: 100%;
     max-width: 1100px;
-    aspect-ratio: 1100 / 600; /* 縦横比を1100:600に固定 */
-    overflow: hidden; /* はみ出た部分は非表示 */
+    aspect-ratio: 1100 / 600; 
+    overflow: hidden; 
     position: relative;
 }
 
@@ -23,5 +23,3 @@
     transform: translateX(-50%);
     border-radius: 20px;
 }
-
-

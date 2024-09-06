@@ -221,8 +221,7 @@ const textData = [
     }
     
     
-    
-    
+  
     
 function createBehindGlowMaterial(texture) {
     return new THREE.ShaderMaterial({
@@ -312,16 +311,11 @@ function createSlides(textures) {
     enableGlowEffect(); // 初期状態で中央の画像にのみオーラを表示
     animate();
 }
-
-
         function updateSlidePosition(slide, index, totalSlides) {
         const spacing = slideWidth * 0.55;
         slide.position.x = (index - (totalSlides - 1) / 2) * spacing;
         slide.scale.set(0.8, 0.8, 1);
     }
-    
-    
-    
     
 
 let animationFrameId;
@@ -358,23 +352,31 @@ function animate(currentTime) {
         }
     }
 
-    function onWindowResize() {
-        const width = container.clientWidth;
-        const height = container.clientHeight;
-        camera.aspect = width / height;
-        camera.updateProjectionMatrix();
-        renderer.setSize(width, height);
+function onWindowResize() {
+    const width = container.clientWidth;
+    const height = container.clientHeight;
+    camera.aspect = width / height;
+    camera.updateProjectionMatrix();
+    renderer.setSize(width, height);
 
-        calculateSlideDimensions();
+    calculateSlideDimensions();
 
-        slides.forEach((slide, index) => {
-            slide.geometry.dispose();
-            slide.geometry = new THREE.PlaneGeometry(slideWidth, slideHeight);
-            updateSlidePosition(slide, index, slides.length);
-        });
+    slides.forEach((slide, index) => {
+        if (slide.original && slide.original.geometry) {
+            slide.original.geometry.dispose();
+            slide.original.geometry = new THREE.PlaneGeometry(slideWidth, slideHeight);
+        }
+        if (slide.glow && slide.glow.geometry) {
+            slide.glow.geometry.dispose();
+            slide.glow.geometry = new THREE.PlaneGeometry(slideWidth, slideHeight);
+        }
+        updateSlidePosition(slide.original, index, slides.length);
+        updateSlidePosition(slide.glow, index, slides.length);
+    });
 
-        updateSlidesPosition(currentIndex);
-    }
+    updateSlidesPosition(currentIndex);
+}
+
 
 
 function onMouseMove(event) {
@@ -468,10 +470,6 @@ function updateSlidesPosition(centerIndex, animate = false) {
 }
 
 
-
-
-
-
 function selectSlide(index) {
     return new Promise((resolve) => {
         const selectedSlide = slides[index];
@@ -537,8 +535,6 @@ function selectSlide(index) {
         }, 1000);
     });
 }
-
-
 
    function animateWhiteCircle(index) {
         return new Promise((resolve) => {
@@ -638,9 +634,6 @@ function selectSlide(index) {
         });
     }
     
-    
- 
-    
 function onSlideClick(event) {
     if (isAnimating) return;
 
@@ -672,8 +665,6 @@ function onSlideClick(event) {
         isAnimating = false;
     });
 }
-
-
 
 function resetSlides() {
     return new Promise((resolve) => {
@@ -741,10 +732,6 @@ function resetSlides() {
         });
     });
 }
-
-
-
-
 
 function enableGlowEffect() {
     if (isTransitioning) return;

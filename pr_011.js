@@ -14,10 +14,10 @@ function createProject11Animation(options = {}) {
         cornerAnimationDelay: options.cornerAnimationDelay || 100
     };
 
-    let tileContainer = overlay.querySelector('.project11-tile-container');
+    let tileContainer = overlay.querySelector('.pr_11-tile-container');
     if (!tileContainer) {
         tileContainer = document.createElement('div');
-        tileContainer.className = 'project11-tile-container';
+        tileContainer.className = 'pr_11-tile-container';
         overlay.insertBefore(tileContainer, overlay.firstChild);
     }
 
@@ -35,7 +35,7 @@ function createProject11Animation(options = {}) {
 
         for (let i = 0; i < totalTiles; i++) {
             const tile = document.createElement('div');
-            tile.className = 'project11-tile';
+            tile.className = 'pr_11-tile';
             fragment.appendChild(tile);
         }
 

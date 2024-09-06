@@ -55,13 +55,13 @@
     font-size: 26px;
     margin: 0;
     color: #808080 !important;
-    line-height: 1.1; /* 行間を狭める */
+    line-height: 1.1; 
 }
 
 .slide-info .alias {
     font-size: 20px;
     color: #808080 !important;
-    margin-bottom: -5px; /* alias と nickname の間隔を狭める */
+    margin-bottom: -5px; 
 }
 
 .slide-info-bottom h2,
@@ -83,3 +83,4 @@
 #project5-image-wrapper .slide-info .alias {
     color: #808080 !important;
 }
+

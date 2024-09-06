@@ -81,8 +81,8 @@ function centerPageElements() {
     const wrapper = document.getElementById('project4-image-wrapper');
     if (!wrapper) return;
 
-    const counter = document.querySelector('#project-4 .page-counter');
-    const navigation = document.querySelector('#project-4 .page-navigation');
+    const counter = document.querySelector('#project4 .page-counter');
+    const navigation = document.querySelector('#project4 .page-navigation');
     const nextButtons = document.querySelectorAll('#project-4 .next-button-left, #project-4 .next-button-right');
 
     const wrapperWidth = wrapper.offsetWidth;

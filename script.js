@@ -7,6 +7,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // 既存の初期化コードや関数呼び出し
     initializeWebsite();
+    
+    setupProjectVisibilityObserver();
+
 });
 
 // DOMコンテンツ読み込み完了時の処理
@@ -109,7 +112,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // 画像のフェードインアニメーション設定
-    const animateImages = document.querySelectorAll('.animate-image');
+    const animateImages = document.querySelectorAll('.animation-img');
     
     // 画像用Intersection Observerの設定
     const imageObserver = new IntersectionObserver((entries) => {
@@ -200,11 +203,11 @@ if (document.getElementById('project5-image-wrapper')) {
 
 // テキストアニメーションのセットアップ関数
 function setupTextAnimation() {
-    const charElements = document.querySelectorAll('.animate-text-char');
-    const lineElements = document.querySelectorAll('.animate-text-line');
+    const charElements = document.querySelectorAll('.animation-text-char');
+    const lineElements = document.querySelectorAll('.animation-text-line');
 
     function setupElement(element) {
-        if (element.classList.contains('animate-text-char')) {
+        if (element.classList.contains('animation-text-char')) {
             const text = element.textContent;
             element.innerHTML = '';
             for (let i = 0; i < text.length; i++) {
@@ -214,12 +217,12 @@ function setupTextAnimation() {
                 element.appendChild(span);
             }
 
-            // data-text-color属性を確認し、白色の場合はクラスを追加
+            // tx_color属性を確認し、白色の場合はクラスを追加
             const section = element.closest('.section');
             if (section && section.dataset.textColor === 'white') {
                 element.classList.add('white');
             }
-        } else if (element.classList.contains('animate-text-line')) {
+        } else if (element.classList.contains('animation-text-line')) {
             const span = document.createElement('span');
             span.innerHTML = element.innerHTML;
             element.innerHTML = '';
@@ -323,7 +326,7 @@ function setupP2Animation() {
     p2Elements.forEach(element => {
         const text = element.textContent;
         element.textContent = '';
-        element.classList.add('animate-text-p2');
+        element.classList.add('animation-text-p2');
         
         for (let i = 0; i < text.length; i++) {
             const span = document.createElement('span');
@@ -365,3 +368,32 @@ function resetP2Animation(element) {
     });
 }
 
+
+function toggleProjectVisibility(projectId, isVisible) {
+    const project = document.getElementById(projectId);
+    if (project) {
+        if (isVisible) {
+            project.classList.add('visible');
+        } else {
+            project.classList.remove('visible');
+        }
+    }
+}
+
+
+function setupProjectVisibilityObserver() {
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            const projectId = entry.target.id;
+            toggleProjectVisibility(projectId, entry.isIntersecting);
+        });
+    }, {
+        threshold: 0.1 // 10%見えたら可視とみなす
+    });
+
+    // プロジェクト2と8を監視対象に追加
+    const projects = document.querySelectorAll('#project2, #project8');
+    projects.forEach(project => {
+        observer.observe(project);
+    });
+}

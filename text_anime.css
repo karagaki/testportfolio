@@ -1,3 +1,78 @@
+/* anime (h4,p,p2) */
+
+.animate-title.show {
+    transform: translateX(-50%) translateY(0); /* 表示位置に移動 */
+    opacity: 1; /* 表示状態に */
+}
+
+.animation-text-line {
+    overflow: hidden;
+}
+
+.animation-text-line span {
+    display: inline-block;
+    transform: translateX(-100%); /* 初期位置を左に設定 */
+    opacity: 0;
+    transition: transform 1.5s ease, opacity 1.5s ease; /* アニメーション効果を追加 */
+}
+
+.animation-text-line span.visible {
+    transform: translateX(0); /* 表示位置に移動 */
+    opacity: 1;
+}
+
+.animation-text-line + .animation-text-line {
+    margin-top: -1em; /* 行間を詰める */
+}
+
+.animation-text-p2 span {
+    display: inline-block;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.5s, transform 0.5s;
+}
+
+.animation-text-p2.visible span {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+
+.animation-text-char.white span.visible {
+    animation: colorChangeWhite 0.9s forwards; /* 白色へのアニメーション */
+}
+
+.animation-text-char span.visible {
+    transform: translateY(0);
+    opacity: 1;
+    animation: colorChangeBlack 0.9s forwards; /* 黒色へのアニメーション */
+}
+
+
+/* h4ロゴカラー */
+@keyframes colorChangeBlack {
+    0%   { color: hsl(000, 000%, 100%); }
+    20%  { color: hsl(050, 020%, 100%); }
+    36%  { color: hsl(045, 080%, 080%); }
+    52%  { color: hsl(340, 070%, 070%); }
+    68%  { color: hsl(320, 090%, 055%); }
+    84%  { color: hsl(260, 070%, 040%); }
+    90%  { color: hsl(230, 060%, 025%); }
+    100% { color: rgb(010, 010, 010); }
+}
+
+/* 白色アニメーション */
+@keyframes colorChangeWhite {
+    0%   { color: hsl(000, 000%, 100%); }
+    20%  { color: hsl(050, 020%, 100%); }
+    36%  { color: hsl(045, 080%, 080%); }
+    52%  { color: hsl(340, 070%, 070%); }
+    68%  { color: hsl(320, 090%, 055%); }
+    84%  { color: hwb(299 58% 1%); }
+    90%  { color: hsl(0, 76%, 97%); }
+    100% { color: rgb(255, 255, 255); }
+}
+
 
 /* プロジェクト1 */
 #project-1,
@@ -9,14 +84,16 @@
 /* プロジェクト2 */
 #project-2,
 .section[data-background="2"] h4,
-.section[data-background="2"] p {
+.section[data-background="2"] p,
+.section[data-background="2"] p2 {
     color: #ffffff;
 }
 
 /* プロジェクト3 */
 #project-3,
 .section[data-background="3"] h4,
-.section[data-background="3"] p {
+.section[data-background="3"] p,
+.section[data-background="3"] p2  {
     color: #ffffff;
 }
 
@@ -28,14 +105,16 @@
 
 /* プロジェクト5 */
 .section[data-background="5"] h4,
-.section[data-background="5"] p {
+.section[data-background="5"] p,
+.section[data-background="5"] p2 {
     color: #ffffff;
 }
 
 
 /* プロジェクト6 */
 .section[data-background="6"] h4,
-.section[data-background="6"] p {
+.section[data-background="6"] p,
+.section[data-background="6"] p2 {
     color: #ffffff;
 }
 
@@ -59,7 +138,8 @@
 
 /* プロジェクト10 */
 .section[data-background="10"] h4,
-.section[data-background="10"] p {
+.section[data-background="10"] p, 
+.section[data-background="10"] p2  {
     color: #000000;
 }
 

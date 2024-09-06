@@ -6,6 +6,8 @@
     let currentImageIndex = 0;
     let textures = [];
     let dispTexture;
+    const FIXED_HEIGHT = 615; 
+
 
     let scene, camera, renderer, geometry, material, mesh;
 
@@ -37,16 +39,18 @@
         }
     `;
 
+
+
     function updateRendererSize() {
         const imageWrapper = document.getElementById('project2-image-wrapper');
         if (!imageWrapper || !renderer) return;
 
-        const wrapperHeight = imageWrapper.offsetHeight;
-        const imageAspectRatio = 16 / 10; // 画像のアスペクト比を16:9と仮定
-        
-        let width = wrapperHeight * imageAspectRatio;
-        let height = wrapperHeight;
-        
+        const wrapperWidth = imageWrapper.offsetWidth;
+        const imageAspectRatio = 864 / 540; // 元の画像のアスペクト比
+
+        let width = FIXED_HEIGHT * imageAspectRatio;
+        let height = FIXED_HEIGHT;
+
         renderer.setSize(width, height);
         renderer.domElement.style.left = '50%';
         renderer.domElement.style.transform = 'translateX(-50%)';
@@ -64,6 +68,24 @@
             mesh.scale.set(aspect, 1, 1);
         }
     }
+
+function updateRendererPosition() {
+    if (!renderer) return;
+
+    const currentMaskPosition = images[currentImageIndex].maskPosition;
+    const wrapperWidth = document.getElementById('project2-image-wrapper').offsetWidth;
+    const rendererWidth = renderer.domElement.width;
+    
+    if (currentMaskPosition === 'left') {
+        renderer.domElement.style.left = '0';
+        renderer.domElement.style.transform = 'none';
+    } else {
+        const leftPosition = Math.max(0, (wrapperWidth - rendererWidth) / 2);
+        renderer.domElement.style.left = `${leftPosition}px`;
+        renderer.domElement.style.transform = 'none';
+    }
+}
+
 
     function init() {
         console.log('Initializing...');

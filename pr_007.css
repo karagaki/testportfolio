@@ -1,4 +1,3 @@
-/* pr_007.css */
 
 #project-7 .image-container {
     width: 100%;
@@ -18,8 +17,7 @@
     border-radius: 20px;
         background-color: rgba(25, 207, 4, 0.3);
 
-  padding: 20px 0; /* 上下のパディングを追加 */
-
+  padding: 20px 0;
 }
 
 .project7-image {
@@ -30,8 +28,7 @@
     max-height: none;
     object-fit: contain;
     cursor: pointer;
-      margin: 10px 0; /* 画像の上下マージンを追加 */
-
+    margin: 10px 0;
 }
 
 
@@ -41,7 +38,6 @@
     clip-path: none !important;
     mask-image: none !important;
 }
-
 
 
 .walking-character {
