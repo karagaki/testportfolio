@@ -1,78 +1,92 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const sections = document.querySelectorAll('.section');
-    const pageIndicator = document.querySelector('.page-indicator');
-    let currentSectionIndex = 0;
-    const scrollFactor = 0.3;
+    console.log('DOM Content Loaded');
+    
+    let isScrolling = false;
+    let startY;
+    let currentY;
+    const maxScrollSpeed = 5;
+    const scrollMultiplier = 0.1;
 
-    // タブレット検出
-    const isTablet = /iPad|Android|webOS|iPhone|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-
-    // ページインジケーターの初期化と更新（変更なし）
-    function initializePageIndicator() { /* ... */ }
-    function updatePageIndicator(scrollPosition) { /* ... */ }
-
-    // PC用のスクロール処理（変更なし）
-    function handlePCScroll(event) { /* ... */ }
-
-    // タブレット用のスクロール処理
-    let touchStartY = 0;
-    let touchStartX = 0;
-    let isSwiping = false;
-    let startTime;
-
-    function handleTouchStart(event) {
-        touchStartY = event.touches[0].clientY;
-        touchStartX = event.touches[0].clientX;
-        startTime = new Date().getTime();
-        isSwiping = false;
+    function easeOutCubic(t) {
+        return 1 - Math.pow(1 - t, 3);
     }
 
-    function handleTouchMove(event) {
-        if (isSwiping) return;
+    function smoothScroll(targetY, duration) {
+        const startY = window.pageYOffset;
+        const distance = targetY - startY;
+        const startTime = performance.now();
 
-        const touchY = event.touches[0].clientY;
-        const touchX = event.touches[0].clientX;
-        const diffY = touchStartY - touchY;
-        const diffX = touchStartX - touchX;
+        function step(currentTime) {
+            const elapsed = currentTime - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+            const easeProgress = easeOutCubic(progress);
+            window.scrollTo(0, startY + distance * easeProgress);
 
-        // 縦方向のスワイプを検出
-        if (Math.abs(diffY) > Math.abs(diffX) && Math.abs(diffY) > 10) {
-            isSwiping = true;
-        }
-    }
-
-    function handleTouchEnd(event) {
-        const endTime = new Date().getTime();
-        const touchTime = endTime - startTime;
-
-        if (isSwiping && touchTime < 300) {  // スワイプが短時間で行われた場合のみ処理
-            const touchY = event.changedTouches[0].clientY;
-            const diff = touchStartY - touchY;
-
-            if (Math.abs(diff) > 50) { // スワイプの閾値
-                const direction = diff > 0 ? 1 : -1;
-                const nextIndex = Math.max(0, Math.min(currentSectionIndex + direction, sections.length - 1));
-                sections[nextIndex].scrollIntoView({ behavior: 'smooth' });
-                currentSectionIndex = nextIndex;
+            if (progress < 1) {
+                requestAnimationFrame(step);
             }
         }
 
-        isSwiping = false;
+        requestAnimationFrame(step);
     }
 
-    // イベントリスナーの設定
-    if (isTablet) {
-        window.addEventListener('scroll', () => {
-            updatePageIndicator(window.pageYOffset);
-        }, { passive: true });
-        document.addEventListener('touchstart', handleTouchStart, { passive: true });
-        document.addEventListener('touchmove', handleTouchMove, { passive: true });
-        document.addEventListener('touchend', handleTouchEnd, { passive: true });
-    } else {
-        window.addEventListener('wheel', handlePCScroll, { passive: false });
+    function handleStart(e) {
+        isScrolling = true;
+        startY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
+        currentY = startY;
+        console.log('Start:', startY);
     }
 
-    // 初期化
-    initializePageIndicator();
-    updatePageIndicator(window.pageYOffset);
+    function handleMove(e) {
+        if (!isScrolling) return;
+
+        const y = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
+        const diff = (currentY - y) * scrollMultiplier;
+        currentY = y;
+
+        const limitedDiff = Math.sign(diff) * Math.min(Math.abs(diff), maxScrollSpeed);
+        const newScrollTop = window.pageYOffset + limitedDiff;
+
+        console.log('Move:', y, 'Diff:', limitedDiff, 'New scroll top:', newScrollTop);
+        smoothScroll(newScrollTop, 100);
+
+        e.preventDefault();
+    }
+
+    function handleEnd() {
+        isScrolling = false;
+        console.log('End');
+    }
+
+    // タッチイベントとマウスイベントの両方をキャッチ
+    document.addEventListener('touchstart', handleStart, { passive: false });
+    document.addEventListener('mousedown', handleStart, { passive: false });
+    document.addEventListener('touchmove', handleMove, { passive: false });
+    document.addEventListener('mousemove', handleMove, { passive: false });
+    document.addEventListener('touchend', handleEnd);
+    document.addEventListener('mouseup', handleEnd);
+
+    // スクロールイベントのリスナーを追加
+    window.addEventListener('scroll', (e) => {
+        console.log('Scroll event:', window.pageYOffset);
+    }, { passive: true });
+
+    // デバッグ用のオーバーレイを追加
+    const debugOverlay = document.createElement('div');
+    debugOverlay.style.position = 'fixed';
+    debugOverlay.style.top = '10px';
+    debugOverlay.style.left = '10px';
+    debugOverlay.style.background = 'rgba(0,0,0,0.7)';
+    debugOverlay.style.color = 'white';
+    debugOverlay.style.padding = '10px';
+    debugOverlay.style.zIndex = '9999';
+    document.body.appendChild(debugOverlay);
+
+    function updateDebugOverlay() {
+        debugOverlay.textContent = `Scroll: ${window.pageYOffset.toFixed(2)}`;
+        requestAnimationFrame(updateDebugOverlay);
+    }
+    updateDebugOverlay();
+
+    console.log('Event listeners and debug overlay added');
 });

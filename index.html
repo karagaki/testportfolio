@@ -41,14 +41,15 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/ScrollTrigger.min.js"></script>
 
     <script src="bg.js"></script>
-    <script src="scroll-control.js" defer></script>
+    <script src="scroll-control.js" ></script>
 
     <script src="script.js" defer></script>
     <script src="pr_001.js" defer></script>
     <script src="pr_002.js" defer></script>
     <script src="pr_003.js" defer></script>
     <script src="pr_004.js" defer></script>
-    <script type="module" src="pr_005.js" defer></script>
+    <script src="pr_005_text.js"></script>
+    <script src="pr_005.js"></script>
     <script type="module" src="pr_006.js" defer></script>
     <script src="pr_007.js" defer></script>
     <script src="pr_008.js" defer></script>
@@ -56,11 +57,22 @@
     <script src="pr_010.js" defer></script>
     <script src="pr_011.js" defer></script>
     <script src="pr_007_a.js" defer></script>
+    <script type="module" src="pr_005_text.js"></script>
+
     <script>
         window.onbeforeunload = function () {
             window.scrollTo(0, 0);
         } // ページTOPに
     </script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        if (window.Project5Slider && typeof window.Project5Slider.init === 'function') {
+            window.Project5Slider.init();
+        } else {
+            console.error('Project5Slider not found or init is not a function');
+        }
+    });
+</script>
 </head>
 
 <body>

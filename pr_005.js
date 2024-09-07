@@ -1,6 +1,15 @@
 // pr_005.js
 
-const Project5Slider = (function() {
+
+(function(window) {
+    if (window.Project5TextInitialized) {
+        console.warn('Project5Text has already been initialized. Skipping re-initialization.');
+        return;
+    }
+    
+window.Project5SliderInitialized = true;
+
+window. Project5Slider = (function() {
     let scene, camera, renderer, container;
     let slides = [];
     let currentIndex = 0;
@@ -18,7 +27,10 @@ const Project5Slider = (function() {
     const MAX_SLIDE_HEIGHT_PERCENTAGE = 0.04; // コンテナの高さの4%
     const SLIDE_SPACING_FACTOR = 0.2; // スライド間の間隔を調整
     const DEPTH_STEP = 3; // 各スライド間の奥行きステップ
-let isTransitioning = false;
+    let isTransitioning = false;
+    let displayTextInfo;
+    
+    displayTextInfo = window.displayTextInfo;
 
 
 const images = [
@@ -28,67 +40,9 @@ const images = [
     's5_a16.webp', 's5_a17.webp', 's5_a18.webp', 's5_a19.webp', 's5_a20.webp', 's5_a21.webp'
 ];
 
-const textData = [
-    {name1: 'Trojan Horse', alias1: '',                nickname1: '',
-     name2: 'トロイの木馬', alias2: '',                  nickname2: '' },
-    {name1: 'Stealth Virus', alias1: 'Alias:',         nickname1: 'Ghost Virus', 
-     name2: 'ステルス型ウイルス', alias2: '通称',          nickname2: 'ゴースト・ウイルス' },
-    {name1: 'Stealth Virus', alias1: 'Alias:',         nickname1: 'Dark Virus', 
-     name2: 'ステルス型ウイルス', alias2: '通称',          nickname2: 'ダーク・ウイルス' },
-    {name1: 'Mutation Virus', alias1: 'Alias:',        nickname1: 'Alien Virus', 
-     name2: 'ミューテーション型ウイルス', alias2: '通称',   nickname2: 'エイリアン・ウイルス' },
-    {name1: 'Browser Hijacking', alias1: 'Alias:',     nickname1: 'Porn Wear', 
-     name2: 'ブラウザハイジャック', alias2: '通称',        nickname2: 'ポルノ・ウェア' },
-    {name1: 'RansomWare', alias1: 'Alias:',            nickname1: 'Mafia Wear', 
-     name2: 'ランサムウエア', alias2: '通称',             nickname2: 'マフィア・ウェア' },
-    {name1: 'Logic Bomb', alias1: 'Alias:', nickname1: 'SmileMark Bomb', 
-     name2: 'ロジックボム', alias2: '通称', nickname2: 'スマイルマーク・ボム' },
-    {name1: 'SpyWare', alias1: '', nickname1: '', 
-     name2: 'スパイウェア', alias2: '', nickname2: '' },
-    {name1: 'Cracking', alias1: '', nickname1: '', 
-     name2: 'クラッキング', alias2: '', nickname2: '' },
-    {name1: 'Cyberterrorism', alias1: '', nickname1: '', 
-     name2: 'サイバーテロ', alias2: '', nickname2: '' },
-    {name1: 'Attacking', alias1: '', nickname1: '', 
-     name2: 'アタッキング', alias2: '', nickname2: '' },
-    {name1: 'Bots (spambots)', alias1: '', nickname1: '', 
-     name2: 'ボット（スパムボット）', alias2: '', nickname2: '' },
-    {name1: 'Mass Mailing Type Worm', alias1: 'Alias:', nickname1: 'Love Letter Worm', 
-     name2: 'マスメーリング型ワーム', alias2: '通称', nickname2: 'ラブレター・ワーム' },
-    {name1: 'Networked Worms', alias1: 'Alias:', nickname1: 'Hydra Worm', 
-     name2: 'ネットワーク型ワーム', alias2: '通称', nickname2: 'ヒュドラ・ワーム' },
-    {name1: 'Keylogger', alias1: '', nickname1: '', 
-     name2: 'キーロガー', alias2: '', nickname2: '' },
-    {name1: 'Scareware', alias1: 'Alias:', nickname1: 'Error Vaccine', 
-     name2: 'スケアウェア', alias2: '通称', nickname2: 'エラー・ワクチン' },
-    {name1: 'Christmas Card virus', alias1: 'Alias:', nickname1: 'Christmas Card virus', 
-     name2: 'パスワードスティーラ', alias2: '通称', nickname2: 'クリスマスカード・ウイルス' },
-    {name1: '〈Spear Phishing〉 Phishing', alias1: '', nickname1: '', 
-     name2: '〈スピアフィッシング〉フィッシング', alias2: '', nickname2: '' },
-    {name1: 'Backdoors', alias1: '', nickname1: '', 
-     name2: 'バックドア', alias2: '', nickname2: '' },
-    {name1: 'Hacking', alias1: '', nickname1: '', 
-     name2: 'ハッキング', alias2: '', nickname2: '' },
-    {name1: 'Net Police (Cybercrime Investigation Department)', alias1: '', nickname1: '', 
-     name2: 'ネットポリス（サイバー犯罪捜査部）', alias2: '', nickname2: '' }
-];
 
 
 
-    function getTextInfo(index) {
-        if (index >= 0 && index < textData.length) {
-            return textData[index];
-        } else {
-            return {
-                name1: "Error: Invalid Index",
-                name2: "Error: Invalid Index",
-                alias1: "",
-                nickname1: "",
-                alias2: "",
-                nickname2: ""
-            };
-        }
-    }
 
     function throttle(func, limit) {
         let inThrottle;
@@ -103,30 +57,31 @@ const textData = [
         }
     }
 
-    function initProject5Slider() {
-        if (typeof THREE === 'undefined') {
-            console.error('THREE is not defined. Make sure Three.js is loaded before this script.');
-            return;
-        }
-        if (typeof gsap === 'undefined') {
-            console.error('GSAP is not defined. Make sure GSAP is loaded before this script.');
-            return;
-        }
+       function initProject5Slider() {
+            if (typeof THREE === 'undefined') {
+                console.error('THREE is not defined. Make sure Three.js is loaded before this script.');
+                return;
+            }
+            if (typeof gsap === 'undefined') {
+                console.error('GSAP is not defined. Make sure GSAP is loaded before this script.');
+                return;
+            }
 
-        container = document.getElementById('project5-image-wrapper');
-        if (!container) {
-            console.error('Container element not found');
-            return;
+            container = document.getElementById('project5-image-wrapper');
+            if (!container) {
+                console.error('Container element not found');
+                return;
+            }
+
+            window.container = container;
+
+            init();
+            loadTextures().then(createSlides);
+
+            window.addEventListener('resize', onWindowResize);
+            container.addEventListener('mousemove', throttle(onMouseMove, 50));
+            container.addEventListener('click', onSlideClick);
         }
-
-        init();
-        loadTextures().then(createSlides);
-
-        window.addEventListener('resize', onWindowResize);
-        container.addEventListener('mousemove', throttle(onMouseMove, 50));
-        container.addEventListener('click', onSlideClick);
-    }
-    
     
 
     function init() {
@@ -529,7 +484,7 @@ function selectSlide(index) {
 
         setTimeout(() => {
             animateWhiteCircle(index).then(() => {
-                displayTextInfo(index);
+                window.displayTextInfo(index); // Change this line
                 resolve();
             });
         }, 1000);
@@ -562,77 +517,8 @@ function selectSlide(index) {
         });
     }
 
-    function displayTextInfo(index) {
-        const textInfo = getTextInfo(index);
 
-        if (textElement) {
-            textElement.remove();
-        }
 
-        function adjustKatakana1(text) {
-            return text.replace(/(ア|の|木|バ)/g, '<span style="letter-spacing: -0.05em;">$1</span>');
-        }
-
-        function adjustKatakana2(text) {
-            return text.replace(/(ク|シ|ュ|ィ|ト|ド|ロ|サ|ウ)/g, '<span style="letter-spacing: -0.2em;">$1</span>');
-        }
-
-        function adjustKatakana3(text) {
-            return text.replace(/(ミ|テ|ム|タ|イ|ョ|フ|ワ|ェ|ラ)/g, '<span style="letter-spacing: -0.25em;">$1</span>');
-        }
-
-        function adjustKatakana4(text) {
-            return text.replace(/(〈|〉|ジ|ッ|ャ)/g, '<span style="letter-spacing: -0.3em;">$1</span>');
-        }
-
-        function adjustKatakana5(text) {
-            return text.replace(/(・)/g, '<span style="letter-spacing: -0.35em;">$1</span>');
-        }
-
-        function applyAllAdjustments(text) {
-            return adjustKatakana5(
-                adjustKatakana4(
-                    adjustKatakana3(
-                        adjustKatakana2(
-                            adjustKatakana1(text)
-                        )
-                    )
-                )
-            );
-        }
-
-        const outlineStyle = `
-            text-shadow: 
-                -0.5px -0.5px 0 #fff,
-                0.5px -0.5px 0 #fff,
-                -0.5px 0.5px 0 #fff,
-                0.5px 0.5px 0 #fff;
-        `;
-
-        textElement = document.createElement('div');
-        textElement.className = 'slide-info';
-        textElement.innerHTML = `
-            <div class="slide-info-top">
-                <h2 style="color: #000000; margin-bottom: -8px; ${outlineStyle}">${textInfo.name1}</h2>
-                <p class="alias" style="color: #808080; margin-bottom: -2px; ${outlineStyle}">${textInfo.alias1}</p>
-                <p style="color: #808080; ${outlineStyle}">${textInfo.nickname1}</p>
-            </div>
-            <div class="slide-info-bottom">
-                <h2 style="color: #000000; margin-bottom: -8px; ${outlineStyle}">${applyAllAdjustments(textInfo.name2)}</h2>
-                <p class="alias" style="color: #808080; margin-bottom: -2px; ${outlineStyle}">${applyAllAdjustments(textInfo.alias2)}</p>
-                <p style="color: #808080; ${outlineStyle}">${applyAllAdjustments(textInfo.nickname2)}</p>
-            </div>
-        `;
-
-        container.appendChild(textElement);
-
-        gsap.from(textElement, {
-            duration: 0.5,
-            opacity: 0,
-            ease: "power2.out",
-            onComplete: () => console.log('Text animation completed')
-        });
-    }
     
 function onSlideClick(event) {
     if (isAnimating) return;
@@ -754,15 +640,15 @@ function enableGlowEffect() {
 }
 
 
-    // 公開するメソッド
-    return {
-        init: initProject5Slider
-    };
-})();
-
-// ロード時にスライダーを初期化
-window.addEventListener('load', Project5Slider.init);
+       return {
+            init: initProject5Slider
+        };
+    })();
 
 
+    if (typeof window.displayTextInfo !== 'function') {
+        window.displayTextInfo = displayTextInfo;
+    }
 
-
+    console.log('pr_005_text.js loaded and initialized, window.displayTextInfo set');
+})(window);
