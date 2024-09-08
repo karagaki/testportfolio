@@ -84,3 +84,26 @@
     color: #808080 !important;
 }
 
+
+.adjusted-char {
+     display: inline-block !important;
+     position: relative !important;
+     z-index: 1 !important;
+   }
+
+   .slide-info-bottom h2,
+   .slide-info-bottom p {
+     white-space: nowrap !important;
+     overflow: visible !important;
+   }
+
+
+@import url('https://fonts.googleapis.com/css2?family=Kosugi+Maru&family=Kiwi+Maru&display=swap');
+
+.slide-info-top {
+    font-family: 'Kosugi Maru', sans-serif;
+}
+
+.slide-info-bottom {
+    font-family: 'Kiwi Maru', serif;
+}

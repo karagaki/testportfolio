@@ -1,10 +1,14 @@
-// textData.js
-
-
-console.log('pr_005_text.js loaded, window.displayTextInfo set');
-
+ // pr_005_text.js
 
 (function(window) {
+    if (window.Project5Text) {
+        console.warn('Project5Text has already been initialized. Skipping re-initialization.');
+        return;
+    }
+    
+    window.Project5TextInitialized = true;
+
+
     window.textData = [
     {
         name1: 'Trojan Horse', 
@@ -218,9 +222,57 @@ console.log('pr_005_text.js loaded, window.displayTextInfo set');
     }
 ];
 
+
+
+
+function displayTextInfo(index) {
+    console.log('Displaying text info for index:', index);
+    const textInfo = getTextInfo(index);
+
+    if (!window.textElement) {
+        window.textElement = document.createElement('div');
+        window.textElement.className = 'slide-info';
+        Object.assign(window.textElement.style, {
+            position: 'absolute',
+            top: '0',
+            left: '0',
+            width: '100%',
+            height: '100%',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between',
+            zIndex: '10',
+            pointerEvents: 'none',
+            color: '#ffffff',
+            fontFamily: "'Arial', sans-serif",
+            fontSize: '16px',
+            lineHeight: '1.5',
+            opacity: 0,
+            borderRadius: '550px'
+        });
+        window.container.appendChild(window.textElement);
+    }
+
+
+    window.textElement.innerHTML = '';
+    window.textElement.appendChild(topContent);
+    window.textElement.appendChild(bottomContent);
+
+    gsap.to(window.textElement, {
+        duration: 0.5,
+        opacity: 1,
+        ease: "power2.out",
+        onComplete: () => {
+            console.log('Text animation completed');
+            checkAdjustedChars();
+        }
+    });
+}
+
+
     function getTextInfo(index) {
-        if (index >= 0 && index < textData.length) {
-            return textData[index];
+        if (index >= 0 && index < window.textData.length) {
+            return window.textData[index];
         } else {
             return {
                 name1: "Error: Invalid Index",
@@ -232,83 +284,148 @@ console.log('pr_005_text.js loaded, window.displayTextInfo set');
             };
         }
     }
-    
-        function adjustKatakana1(text) {
-            return text.replace(/(ア|の|木|バ)/g, '<span style="letter-spacing: -0.05em;">$1</span>');
-        }
 
-        function adjustKatakana2(text) {
-            return text.replace(/(ク|シ|ュ|ィ|ト|ド|ロ|サ|ウ)/g, '<span style="letter-spacing: -0.2em;">$1</span>');
-        }
+    function adjustLetterSpacing(text) {
+        console.log('Adjusting letter spacing for:', text);
 
-        function adjustKatakana3(text) {
-            return text.replace(/(ミ|テ|ム|タ|イ|ョ|フ|ワ|ェ|ラ)/g, '<span style="letter-spacing: -0.25em;">$1</span>');
-        }
-
-        function adjustKatakana4(text) {
-            return text.replace(/(〈|〉|ジ|ッ|ャ)/g, '<span style="letter-spacing: -0.3em;">$1</span>');
-        }
-
-        function adjustKatakana5(text) {
-            return text.replace(/(・)/g, '<span style="letter-spacing: -0.35em;">$1</span>');
-        }
-
-        function applyAllAdjustments(text) {
-            return adjustKatakana5(
-                adjustKatakana4(
-                    adjustKatakana3(
-                        adjustKatakana2(
-                            adjustKatakana1(text)
-                        )
-                    )
-                )
-            );
-        }
-
-    
-        function displayTextInfo(index) {
-        const textInfo = getTextInfo(index);
-
-       if (window.textElement) {
-            window.textElement.remove();
-        }
+        const adjustments = {
+            'バックドア': [
+                { chars: 'バ', spacing: '-0.12em' },
+                { chars: 'ッ', spacing: '0.1em' },
+                { chars: 'ク', spacing: '-0.1em' },
+                { chars: 'ド', spacing: '0.1em' },
+                { chars: 'ア', spacing: '0.1em' }
+            ],
+            'スパイウェア': [
+                { chars: 'スパ', spacing: '-0.05em' },
+                { chars: 'イ', spacing: '-0.1em' },
+                { chars: 'ウェ', spacing: '-0.15em' },
+                { chars: 'ア', spacing: '-0.05em' }
+            ],
+        };
         
-        
-         const outlineStyle = `
-            text-shadow: 
-                -0.5px -0.5px 0 #fff,
-                0.5px -0.5px 0 #fff,
-                -0.5px 0.5px 0 #fff,
-                0.5px 0.5px 0 #fff;
-        `;
-        
-        window.textElement = document.createElement('div');
-        window.textElement.className = 'slide-info';
-        window.textElement.innerHTML = `
-            <div class="slide-info-top">
-                <h2 style="color: #000000; margin-bottom: -8px; ${outlineStyle}">${textInfo.name1}</h2>
-                <p class="alias" style="color: #808080; margin-bottom: -2px; ${outlineStyle}">${textInfo.alias1}</p>
-                <p style="color: #808080; ${outlineStyle}">${textInfo.nickname1}</p>
-            </div>
-            <div class="slide-info-bottom">
-                <h2 style="color: #000000; margin-bottom: -8px; ${outlineStyle}">${applyAllAdjustments(textInfo.name2)}</h2>
-                <p class="alias" style="color: #808080; margin-bottom: -2px; ${outlineStyle}">${applyAllAdjustments(textInfo.alias2)}</p>
-                <p style="color: #808080; ${outlineStyle}">${applyAllAdjustments(textInfo.nickname2)}</p>
-            </div>
-        `;
-        
+        const generalAdjustments = [
+            { chars: 'ア|の|木|バ', spacing: '-0.05em' },
+            { chars: 'ク|シ|ュ|ィ|ト|ド|ロ|サ|ウ', spacing: '-0.2em' },
+            { chars: 'ミ|テ|ム|タ|イ|ョ|フ|ワ|ェ|ラ', spacing: '-0.25em' },
+            { chars: '〈|〉|ジ|ッ|ャ', spacing: '-0.3em' },
+            { chars: '・', spacing: '-0.35em' }
+        ];
 
-        window.container.appendChild(window.textElement);
+        // Apply word-specific adjustments
+        for (const [word, wordAdjustments] of Object.entries(adjustments)) {
+            if (text.includes(word)) {
+                console.log('Applying word-specific adjustment for:', word);
+                let adjustedWord = '';
+                for (let i = 0; i < word.length; i++) {
+                    const char = word[i];
+                    const adjustment = wordAdjustments.find(adj => adj.chars.includes(char));
+                    if (adjustment) {
+                        adjustedWord += `<span style="letter-spacing: ${adjustment.spacing}; display: inline-block;" class="adjusted-char">${char}</span>`;
+                    } else {
+                        adjustedWord += char;
+                    }
+                }
+                text = text.replace(word, adjustedWord);
+            }
+        }
 
-        gsap.from(window.textElement, {
-            duration: 0.5,
-            opacity: 0,
-            ease: "power2.out",
-            onComplete: () => console.log('Text animation completed')
+        // Apply general adjustments
+        generalAdjustments.forEach(({ chars, spacing }) => {
+            const regex = new RegExp(`(${chars})`, 'g');
+            text = text.replace(regex, `<span style="letter-spacing: ${spacing}; display: inline-block;" class="adjusted-char">$1</span>`);
+        });
+
+        console.log('Adjusted text:', text);
+        return text;
+    }
+
+
+
+function displayTextInfo(index) {
+    console.log('Displaying text info for index:', index);
+    const textInfo = getTextInfo(index);
+
+    if (window.textElement) {
+        window.textElement.remove();
+    }
+
+    const outlineStyle = `
+        text-shadow: 
+            -1px -1px 0 #FFF,
+            1px -1px 0 #FFF,
+            -1px 1px 0 #FFF,
+            1px 1px 0 #FFF;
+    `;
+
+    window.textElement = document.createElement('div');
+    window.textElement.className = 'slide-info';
+    Object.assign(window.textElement.style, {
+        position: 'absolute',
+        top: '0',
+        left: '0',
+        width: '100%',
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'space-between',
+        zIndex: '10',
+        pointerEvents: 'none',
+        color: '#ffffff',
+        background: 'radial-gradient(circle, rgba(255,255,255,0) 20%, rgba(70, 29, 73, 0.5) 80%)',
+        fontFamily: "'Arial', sans-serif",
+        lineHeight: '1.0',
+        opacity: 0,
+        borderRadius: '550px'  // マスクに合わせて角丸を追加
+    });
+
+
+
+    window.textElement.innerHTML = `
+        <div class="slide-info-top" style="padding: 20px;">
+            <h2 style="font-size: 2.5em; margin-bottom: 0.2em; ${outlineStyle}">${textInfo.name1}</h2>
+            
+            <p class="alias" style="font-size: 1.2em; margin-bottom: 0.1em;  ${outlineStyle}">${textInfo.alias1}</p>
+            
+            <p style="font-size: 1.6em; ${outlineStyle}">${textInfo.nickname1}</p>
+        </div>
+        <div class="slide-info-bottom" style="padding: 20px; text-align: right;">
+            
+            <h2 style="font-size: 2.5em; margin-bottom: 0.2em; ${outlineStyle}">${adjustLetterSpacing(textInfo.name2)}</h2>
+            
+            <p class="alias" style="font-size: 1.2em; margin-bottom: 0.1em; ${outlineStyle}">${adjustLetterSpacing(textInfo.alias2)}</p>
+            
+            <p style="font-size: 1.6em; ${outlineStyle}">${adjustLetterSpacing(textInfo.nickname2)}</p>
+        </div>
+    `;
+
+    window.container.appendChild(window.textElement);
+
+    // テキスト要素をフェードインさせる
+    gsap.to(window.textElement, {
+        duration: 0.9,
+        opacity: 1,
+        ease: "power2.out",
+        onComplete: () => {
+            console.log('Text animation completed');
+            checkAdjustedChars();
+        }
+    });
+}
+
+
+    function checkAdjustedChars() {
+        const adjustedChars = document.querySelectorAll('.adjusted-char');
+        console.log('Number of adjusted characters:', adjustedChars.length);
+        adjustedChars.forEach((char, index) => {
+            console.log(`Char ${index}:`, char.textContent, 'Style:', char.getAttribute('style'));
         });
     }
 
-    // Expose the displayTextInfo function to the global scope
-    window.displayTextInfo = displayTextInfo;
+    window.Project5Text = {
+        displayTextInfo,
+        getTextInfo,
+        adjustLetterSpacing
+    };
 
 })(window);
