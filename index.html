@@ -32,6 +32,7 @@
     <link rel="stylesheet" href="pr_009.css">
     <link rel="stylesheet" href="pr_010.css">
     <link rel="stylesheet" href="pr_011.css">
+    <link rel="stylesheet" href="pr_012.css">
     <link rel="stylesheet" href="bg.css">
 
     <div class="page-indicator"></div>
@@ -41,13 +42,14 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/ScrollTrigger.min.js"></script>
 
     <script src="bg.js"></script>
-    <script src="scroll-control.js" ></script>
+    <script src="scroll-control.js"></script>
 
     <script src="script.js" defer></script>
     <script src="pr_001.js" defer></script>
     <script src="pr_002.js" defer></script>
     <script src="pr_003.js" defer></script>
     <script src="pr_004.js" defer></script>
+    <script src="pr_005_data.js"></script>
     <script src="pr_005_text.js"></script>
     <script src="pr_005.js"></script>
     <script type="module" src="pr_006.js" defer></script>
@@ -66,14 +68,59 @@
         } // ページTOPに
     </script>
     <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        if (window.Project5Slider && typeof window.Project5Slider.init === 'function') {
-            window.Project5Slider.init();
-        } else {
-            console.error('Project5Slider not found or init is not a function');
-        }
-    });
-</script>
+        document.addEventListener('DOMContentLoaded', function () {
+            if (window.Project5Slider && typeof window.Project5Slider.init === 'function')
+            {
+                window.Project5Slider.init();
+            } else
+            {
+                console.error('Project5Slider not found or init is not a function');
+            }
+        });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async function () {
+            if (window.Project5Text && window.Project5Text.initializeTextData)
+            {
+                await window.Project5Text.initializeTextData();
+
+                // 画像クリック時の処理を追加
+                const project5Image = document.getElementById('project5-image');
+                let currentIndex = 0;
+
+                if (project5Image)
+                {
+                    project5Image.addEventListener('click', function () {
+                        window.Project5Text.displayTextInfo(currentIndex);
+                        currentIndex = (currentIndex + 1) % window.textData.length; // 次の文字情報へ
+                    });
+                }
+            }
+        });
+    </script>
+    
+    <svg style="position: absolute; width: 0; height: 0;">
+  <defs>
+    <filter id="outline-effect">
+      <feMorphology in="SourceAlpha" result="DILATED" operator="dilate" radius="1"></feMorphology>
+      <feFlood flood-color="#FFFFFF" flood-opacity="1" result="FLOOD"></feFlood>
+      <feComposite in="FLOOD" in2="DILATED" operator="in" result="OUTLINE"></feComposite>
+      <feMerge>
+        <feMergeNode in="OUTLINE"></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+    <filter id="soft-glow">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="2" result="BLUR"></feGaussianBlur>
+      <feFlood flood-color="#FFFFFF" flood-opacity="0.5" result="GLOW"></feFlood>
+      <feComposite in="GLOW" in2="BLUR" operator="in" result="SOFT_GLOW"></feComposite>
+      <feMerge>
+        <feMergeNode in="SOFT_GLOW"></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+  </defs>
+</svg>
 </head>
 
 <body>
@@ -196,7 +243,6 @@
             <p class="animation-text-line">アンチセキュリティのテーマを、親しみやすいキャラクターに擬人化し、新たな視点から表現しました。</p>
             <p class="animation-text-line">村上の元を離れ、独自のスタイルと見たことのない世界観を追求し、自分自身の表現を模索する中でこの作品を制作しました。</p>
             <p2 class="animation-text-line"> [ カーソルで左右にスクロール、Clickでキャラ詳細 ] </p2>
-
             <div class="image-container mask-animation">
                 <div id="project5-image-wrapper" class="image-wrapper">
                     <div id="pr_5-container">
@@ -204,7 +250,8 @@
                         <img src="assets/pr_5/s5_a1.png" class="feature-image" alt="プロジェクト5" id="project5-image"
                             style="display: none;">
                     </div>
-                </div>      
+                </div>
+            </div>
         </section>
 
 
@@ -235,25 +282,26 @@
             </div>
         </section>
 
-<section class="section feature animate-image" data-background="8" id="project-8" data-text-color="">
-    <h4 class="animation-text-char">Stable Diffusion + Photoshop（ 2023.4- ）</h4>
-    <p class="animation-text-line">SDを活用し、独自の画風を追求した作品を制作しました。</p>
-    <p class="animation-text-line">リアルとイラストとのオリジナリティのあるバランスを探り、表現の可能性を現在も探求し続けています。</p>
-    <p2 class="animation-text-line"> [ 枠内をClickで再生/停止　音符ボタンでミュート切替 ] </p2>
-    <div class="image-container mask-animation">
-        <div id="project8-image-wrapper" class="image-wrapper">
-            <div id="project8-video-container">
-                <video id="project8-video" src="assets/pr_8/s8_v1.mp4" poster="assets/pr_8/webp/s8_a1.webp"></video>
-                <button id="project8-play-button" class="control-button" aria-label="再生/一時停止">
-                    <img src="assets/pr_8/webp/play.webp" alt="Play">
-                </button>
-                <button id="project8-audio-button" class="control-button" aria-label="ミュート/ミュート解除">
-                    <img src="assets/pr_8/webp/on.webp" alt="Audio">
-                </button>
+        <section class="section feature animate-image" data-background="8" id="project-8" data-text-color="">
+            <h4 class="animation-text-char">Stable Diffusion + Photoshop（ 2023.4- ）</h4>
+            <p class="animation-text-line">SDを活用し、独自の画風を追求した作品を制作しました。</p>
+            <p class="animation-text-line">リアルとイラストとのオリジナリティのあるバランスを探り、表現の可能性を現在も探求し続けています。</p>
+            <p2 class="animation-text-line"> [ 枠内をClickで再生/停止　音符ボタンでミュート切替 ] </p2>
+            <div class="image-container mask-animation">
+                <div id="project8-image-wrapper" class="image-wrapper">
+                    <div id="project8-video-container">
+                        <video id="project8-video" src="assets/pr_8/s8_v1.mp4"
+                            poster="assets/pr_8/webp/s8_a1.webp"></video>
+                        <button id="project8-play-button" class="control-button" aria-label="再生/一時停止">
+                            <img src="assets/pr_8/webp/play.webp" alt="Play">
+                        </button>
+                        <button id="project8-audio-button" class="control-button" aria-label="ミュート/ミュート解除">
+                            <img src="assets/pr_8/webp/on.webp" alt="Audio">
+                        </button>
+                    </div>
+                </div>
             </div>
-        </div>
-    </div>
-</section>
+        </section>
 
         <section class="section feature animate-image" data-background="9" id="project-9" data-text-color="">
             <h4 class="animation-text-char">Stable Diffusion + Photoshop（ 2023.10- ）</h4>
@@ -268,7 +316,7 @@
             </div>
         </section>
 
-        <section class="section feature animate-image" data-background="10" id="project-10"  data-text-color="">
+        <section class="section feature animate-image" data-background="10" id="project-10" data-text-color="">
             <h4 class="animation-text-char">CreativeCoding ( 2024.3- )</h4>
             <p class="animation-text-line">心地よい映像をコーディングで表現する分野に魅了され、AIも駆使し遷移アニメーションを自分のテーマにしp5jsに没頭中。</p>
             <p class="animation-text-line">追求心でインタラクティブ性、エフェクト、空間クリエイティブの表現幅を広げるべくTouchDesignerも現在習得中。</p>
@@ -297,13 +345,13 @@
                 </div>
             </div>
         </section>
-        
-        
+
+
         <section class="section feature animate-image" data-background="11" id="project-11" data-text-color="">
             <h4 class="animation-text-char">WEB PORTFOLIO 制作 ( 2024.8- )</h4>
             <p class="animation-text-line">今回ポートフォリオを更新するにあたり、web制作に挑みました。</p>
             <p class="animation-text-line">Webサービスなどのテンプレートは使わずclaudeを使用しコーディング。基礎から様々なJavaScriptも学びながら制作。</p>
-            
+
             <div class="image-container mask-animation">
                 <div id="project11-image-wrapper" class="image-wrapper">
                     <img src="assets/pr_11/s11_a1.webp" alt="Web制作プロジェクト" id="project11-image" class="feature-image">
@@ -325,13 +373,24 @@
                                 <li>多様なデバイスでの最適な表示に継続して取り組みます。</li>
                                 <li>技術の進化に合わせ、新しい表現方法や最適化技術を導入していきます。</li>
                             </ul>
-                            <p3 >様々なクリエイティブ経験を活かし、ユーザー体験を重視したコンテンツ制作に取り組んでいきます。</p3>
+                            <p3>様々なクリエイティブ経験を活かし、ユーザー体験を重視したコンテンツ制作に取り組んでいきます。</p3>
                         </div>
                     </div>
                 </div>
             </div>
         </section>
 
+        <section class="section feature animate-image" data-background="12" id="project-12" data-text-color="">
+            <h4 class="animation-text-char">WEB用文字組みツール制作 ( 2024.9- )</h4>
+            <p class="animation-text-line">Web制作の効率化を目指し、大量テキストの文字組み作業を簡略化するツールを開発。</p>
+            <p class="animation-text-line">Claudeの可能性に触発され、このツールを一時的な文字組みツールだけでなく</p>
+            <p class="animation-text-line">グラフィカルなロゴ制作まで行えるWebツールへと発展させ、将来的には公開も視野に考えてます。</p>
+            <div class="image-container mask-animation">
+                <div id="project12-image-wrapper" class="image-wrapper">
+                    <img src="assets/pr_12/s12_a1.webp" alt="Web用文字組みツール" id="project12-image" class="feature-image">
+                </div>
+            </div>
+        </section>
 
 
         <div class="section_contact_last">

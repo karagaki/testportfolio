@@ -1,0 +1,45 @@
+#project12-image-wrapper {
+    position: relative;
+    width: 100%;
+    height: 680px;
+    max-width: 1100px;
+    margin: 0 auto;
+    overflow: hidden;
+    aspect-ratio: 110 / 63;
+    border-radius: 20px;
+}
+
+#project-12.image-mask {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    mask-image: url('path/to/mask-image.png');
+    mask-size: cover;
+    mask-repeat: no-repeat;
+    mask-position: center;
+    -webkit-mask-image: url('path/to/mask-image.png');
+    -webkit-mask-size: cover;
+    -webkit-mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+}
+
+#project12-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+#project-12 .web-portfolio-description-overlay {
+    position: absolute;
+    top: 30px;
+    left: 30px;
+    right: 30px;
+    bottom: 30px;
+    color: #333333;
+    padding: 0;
+    overflow: hidden;
+    border-radius: 14px;
+    background-color: rgba(255, 255, 255, 0.7);
+}

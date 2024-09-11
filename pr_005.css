@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Kosugi+Maru&family=Kiwi+Maru&display=swap');
+
 #project5-image-wrapper {
     position: relative;
     width: 100%;
@@ -13,7 +15,8 @@
     top: 0;
     left: 50%;
     height: 100%;
-    width: 100%;
+    width: auto;
+    max-width: none;
     transform: translateX(-50%);
     border-radius: 550px;
 }
@@ -36,74 +39,49 @@
     top: 20px;
     left: 20px;
     text-align: left;
+    font-family: 'Kosugi Maru', sans-serif;
 }
 
 .slide-info-bottom {
     bottom: 20px;
     right: 20px;
     text-align: right;
+    font-family: 'Kiwi Maru', serif;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
 }
 
 .slide-info h2 {
     font-size: 54px;
     font-weight: bold;
     margin: 0;
-    color: #000000 !important;
+    color: #000000;
 }
 
 .slide-info p {
     font-size: 26px;
     margin: 0;
-    color: #808080 !important;
+    color: #808080;
     line-height: 1.1; 
 }
 
 .slide-info .alias {
     font-size: 20px;
-    color: #808080 !important;
+    color: #808080;
     margin-bottom: -5px; 
 }
 
-.slide-info-bottom h2,
-.slide-info-bottom p,
-.slide-info-bottom .alias {
-    letter-spacing: -0.15em;
-}
-
-.slide-info-bottom p,
-.slide-info-bottom .alias {
-    text-align: right;
-}
-
-#project5-image-wrapper .slide-info h2 {
-    color: #000000 !important;
-}
-
-#project5-image-wrapper .slide-info p,
-#project5-image-wrapper .slide-info .alias {
-    color: #808080 !important;
-}
-
-
 .adjusted-char {
-     display: inline-block !important;
-     position: relative !important;
-     z-index: 1 !important;
-   }
-
-   .slide-info-bottom h2,
-   .slide-info-bottom p {
-     white-space: nowrap !important;
-     overflow: visible !important;
-   }
-
-
-@import url('https://fonts.googleapis.com/css2?family=Kosugi+Maru&family=Kiwi+Maru&display=swap');
-
-.slide-info-top {
-    font-family: 'Kosugi Maru', sans-serif;
+    display: inline-block;
+    position: relative;
+    z-index: 1;
 }
 
-.slide-info-bottom {
-    font-family: 'Kiwi Maru', serif;
+.slide-info-bottom h2,
+.slide-info-bottom p {
+    white-space: nowrap;
+    overflow: visible;
+    text-align: right;
+    width: 100%;
 }
