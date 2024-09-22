@@ -76,7 +76,7 @@
       whiteCircleCamera.position.z = 1;
 
       const aspect = container.clientWidth / container.clientHeight;
-      camera = new THREE.PerspectiveCamera(25, aspect, 0.1, 1000);
+      camera = new THREE.PerspectiveCamera(25, aspect, 0.2, 100);
       camera.position.z = 17;
 
       renderer = new THREE.WebGLRenderer({
@@ -87,7 +87,7 @@
       renderer.setSize(container.clientWidth, container.clientHeight);
       renderer.setClearColor(0x000000, 0);
       renderer.outputEncoding = THREE.sRGBEncoding;
-      renderer.gammaFactor = 2.2;
+      renderer.gammaFactor = 3.2;
       renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
       container.appendChild(renderer.domElement);
@@ -111,8 +111,8 @@
 
       backgroundMaterial = new THREE.ShaderMaterial({
         uniforms: {
-            color: { value: new THREE.Color(0xffffcc) },
-            opacity: { value: 0 }
+          color: { value: new THREE.Color(0xffffcc) },
+          opacity: { value: 0 },
         },
         vertexShader: `
             varying vec2 vUv;
@@ -131,41 +131,41 @@
         `,
         transparent: true,
         depthTest: false,
-        depthWrite: false
-    });
+        depthWrite: false,
+      });
 
-    const bgGeometry = new THREE.PlaneGeometry(2, 2);
-    const bgMaterial = new THREE.MeshBasicMaterial({
+      const bgGeometry = new THREE.PlaneGeometry(2, 2);
+      const bgMaterial = new THREE.MeshBasicMaterial({
         color: 0xffffcc,
         transparent: true,
         opacity: 0,
         depthTest: false,
-        depthWrite: false
-    });
-    backgroundPlane = new THREE.Mesh(bgGeometry, bgMaterial);
-    backgroundPlane.position.z = -1; // カメラより手前に配置
-    backgroundPlane.renderOrder = -1; // 最初に描画されるようにする
+        depthWrite: false,
+      });
+      backgroundPlane = new THREE.Mesh(bgGeometry, bgMaterial);
+      backgroundPlane.position.z = -1; // カメラより手前に配置
+      backgroundPlane.renderOrder = -1; // 最初に描画されるようにする
 
-    // カメラにbackgroundPlaneを追加
-    camera.add(backgroundPlane);
-    scene.add(camera);
+      // カメラにbackgroundPlaneを追加
+      camera.add(backgroundPlane);
+      scene.add(camera);
 
-    const blackFilterGeometry = new THREE.PlaneGeometry(2, 2);
-    const blackFilterMaterial = new THREE.MeshBasicMaterial({
+      const blackFilterGeometry = new THREE.PlaneGeometry(2, 2);
+      const blackFilterMaterial = new THREE.MeshBasicMaterial({
         color: 0x000000,
         transparent: true,
         opacity: 0,
         depthTest: false,
         depthWrite: false,
-    });
-    blackFilter = new THREE.Mesh(blackFilterGeometry, blackFilterMaterial);
-    scene.add(blackFilter);
+      });
+      blackFilter = new THREE.Mesh(blackFilterGeometry, blackFilterMaterial);
+      scene.add(blackFilter);
 
-    calculateSlideDimensions();
-}
+      calculateSlideDimensions();
+    }
 
-function selectSlide(index) {
-    return new Promise((resolve) => {
+    function selectSlide(index) {
+      return new Promise((resolve) => {
         isAnimating = true;
         isSelected = true;
         const selectedSlide = slides[index];
@@ -173,87 +173,87 @@ function selectSlide(index) {
         const offset = centerX - selectedSlide.original.position.x;
 
         slides.forEach((slide) => {
-            slide.glow.visible = false;
+          slide.glow.visible = false;
         });
 
         // 全てのスライドを同時に移動
         slides.forEach((slide, i) => {
-            gsap.to(slide.original.position, {
-                duration: 0.5,
-                x: slide.original.position.x + offset,
-                ease: "power2.out",
-            });
-            gsap.to(slide.glow.position, {
-                duration: 0.5,
-                x: slide.glow.position.x + offset,
-                ease: "power2.out",
-            });
+          gsap.to(slide.original.position, {
+            duration: 0.5,
+            x: slide.original.position.x + offset,
+            ease: "power2.out",
+          });
+          gsap.to(slide.glow.position, {
+            duration: 0.5,
+            x: slide.glow.position.x + offset,
+            ease: "power2.out",
+          });
 
-            if (i === index) {
-                gsap.to(slide.original.position, {
-                    duration: 0.5,
-                    z: 2,
-                    ease: "power2.out",
-                });
-                gsap.to(slide.original.scale, {
-                    duration: 0.5,
-                    x: 1.12,
-                    y: 1.12,
-                    ease: "power2.out",
-                });
-            } else {
-                gsap.to(slide.original.position, {
-                    duration: 0.5,
-                    z: -2,
-                    ease: "power2.out",
-                });
-                gsap.to(slide.original.scale, {
-                    duration: 0.5,
-                    x: 0.4,
-                    y: 0.4,
-                    ease: "power2.out",
-                });
-                gsap.to(slide.original.material, {
-                    duration: 0.8,
-                    opacity: 0.1,
-                    ease: "power2.out",
-                });
-            }
+          if (i === index) {
+            gsap.to(slide.original.position, {
+              duration: 0.5,
+              z: 2,
+              ease: "power2.out",
+            });
+            gsap.to(slide.original.scale, {
+              duration: 0.5,
+              x: 1.12,
+              y: 1.12,
+              ease: "power2.out",
+            });
+          } else {
+            gsap.to(slide.original.position, {
+              duration: 0.5,
+              z: -2,
+              ease: "power2.out",
+            });
+            gsap.to(slide.original.scale, {
+              duration: 0.5,
+              x: 0.4,
+              y: 0.4,
+              ease: "power2.out",
+            });
+            gsap.to(slide.original.material, {
+              duration: 0.8,
+              opacity: 0.1,
+              ease: "power2.out",
+            });
+          }
         });
 
         animateWhiteCircle(index).then(() => {
-            gsap.to(whiteCircle.material, {
-                duration: 0.5,
-                opacity: 0,
-                ease: "power2.out",
-                onComplete: () => {
-                    whiteCircle.visible = false;
-                }
-            });
-            gsap.to(backgroundPlane.material, {
-                duration: 0.5,
-                opacity: 0.5,
-                ease: "power2.out",
-            });
-            // 黒フィルターの透明度を確実に調整
-            gsap.to(blackFilter.material, {
-                duration: 0.9,
-                opacity: 0.0,
-                ease: "power2.out",
-                onUpdate: () => {
-                    blackFilter.material.needsUpdate = true;
-                },
-                onComplete: () => {
-                    displayTextInfo(index);
-                    isAnimating = false;
-                    resolve();
-                }
-            });
+          gsap.to(whiteCircle.material, {
+            duration: 0.5,
+            opacity: 0,
+            ease: "power2.out",
+            onComplete: () => {
+              whiteCircle.visible = false;
+            },
+          });
+          gsap.to(backgroundPlane.material, {
+            duration: 0.5,
+            opacity: 0.5,
+            ease: "power2.out",
+          });
+          // 黒フィルターの透明度を確実に調整
+          gsap.to(blackFilter.material, {
+            duration: 0.9,
+            opacity: 0.0,
+            ease: "power2.out",
+            onUpdate: () => {
+              blackFilter.material.needsUpdate = true;
+            },
+            onComplete: () => {
+              displayTextInfo(index);
+              isAnimating = false;
+              document.dispatchEvent(new CustomEvent("pr5DetailViewActivated"));
+
+              resolve();
+            },
+          });
         });
-    });
-}
-
-
+      });
+    }
 
     function animateWhiteCircle(index) {
       return new Promise((resolve) => {
@@ -275,85 +275,85 @@ function selectSlide(index) {
       });
     }
 
-function resetSlides() {
-    return new Promise((resolve) => {
+    function resetSlides() {
+      return new Promise((resolve) => {
         isTransitioning = true;
         isSelected = false;
         isAnimating = true;
 
         if (window.textElement) {
-            gsap.to(window.textElement, {
-                duration: 0.5,
-                opacity: 0,
-                ease: "power2.in",
-                onComplete: () => {
-                    if (window.textElement) {
-                        window.textElement.remove();
-                        window.textElement = null;
-                    }
-                },
-            });
-        }
-
-        gsap.to(whiteCircle.scale, {
-            duration: 0.5,
-            x: 0,
-            y: 0,
-            ease: "power2.in",
-        });
-        gsap.to(whiteCircle.material, {
+          gsap.to(window.textElement, {
             duration: 0.5,
             opacity: 0,
             ease: "power2.in",
             onComplete: () => {
-                whiteCircle.visible = false;
+              if (window.textElement) {
+                window.textElement.remove();
+                window.textElement = null;
+              }
             },
+          });
+        }
+
+        gsap.to(whiteCircle.scale, {
+          duration: 0.5,
+          x: 0,
+          y: 0,
+          ease: "power2.in",
+        });
+        gsap.to(whiteCircle.material, {
+          duration: 0.5,
+          opacity: 0,
+          ease: "power2.in",
+          onComplete: () => {
+            whiteCircle.visible = false;
+          },
         });
 
         gsap.to(backgroundPlane.material, {
-            duration: 0.5,
-            opacity: 0,
-            ease: "power2.in",
+          duration: 0.5,
+          opacity: 0,
+          ease: "power2.in",
         });
         gsap.to(blackFilter.material, {
-            duration: 0.5,
-            opacity: 0,
-            ease: "power2.in",
+          duration: 0.5,
+          opacity: 0,
+          ease: "power2.in",
         });
 
         const parallelPromises = slides.map((slide) => {
-            return new Promise((resolveSlide) => {
-                gsap.to(slide.original.position, {
-                    duration: 0.5,
-                    z: 0,
-                    ease: "power2.out",
-                });
-                gsap.to(slide.original.scale, {
-                    duration: 0.5,
-                    x: 0.8,
-                    y: 0.8,
-                    ease: "power2.out",
-                });
-                gsap.to(slide.original.material, {
-                    duration: 0.5,
-                    opacity: 1,
-                    ease: "power2.out",
-                    onComplete: resolveSlide,
-                });
+          return new Promise((resolveSlide) => {
+            gsap.to(slide.original.position, {
+              duration: 0.5,
+              z: 0,
+              ease: "power2.out",
             });
+            gsap.to(slide.original.scale, {
+              duration: 0.5,
+              x: 0.8,
+              y: 0.8,
+              ease: "power2.out",
+            });
+            gsap.to(slide.original.material, {
+              duration: 0.5,
+              opacity: 1,
+              ease: "power2.out",
+              onComplete: resolveSlide,
+            });
+          });
         });
 
         Promise.all(parallelPromises).then(() => {
-            updateSlidesPosition(currentIndex, true).then(() => {
-                isTransitioning = false;
-                isAnimating = false;
-                enableGlowEffect();
-                resolve();
-            });
+          updateSlidesPosition(currentIndex, true).then(() => {
+            isTransitioning = false;
+            isAnimating = false;
+            enableGlowEffect();
+            document.dispatchEvent(new CustomEvent("pr5DetailViewDeactivated"));
+            resolve();
+          });
         });
-    });
-}
-
+      });
+    }
 
     function onSlideClick(event) {
       if (isAnimating) return;
@@ -400,34 +400,34 @@ function resetSlides() {
       renderer.render(scene, camera);
     }
 
-function updateSelectedSlidePosition(index) {
-  const selectedSlide = slides[index];
-  const centerX = 0;
-  const offset = centerX - selectedSlide.original.position.x;
+    function updateSelectedSlidePosition(index) {
+      const selectedSlide = slides[index];
+      const centerX = 0;
+      const offset = centerX - selectedSlide.original.position.x;
 
-  slides.forEach((slide, i) => {
-    slide.original.position.x += offset;
-    slide.glow.position.x += offset;
+      slides.forEach((slide, i) => {
+        slide.original.position.x += offset;
+        slide.glow.position.x += offset;
 
-    if (i !== index) {
-      slide.original.position.z = -2;
-      slide.original.scale.set(0.4, 0.4, 1);
-      slide.original.material.opacity = 0.1;
-    } else {
-      slide.original.position.z = 2;
-      slide.original.scale.set(1.12, 1.12, 1);
-      slide.original.material.opacity = 1;
+        if (i !== index) {
+          slide.original.position.z = -2;
+          slide.original.scale.set(0.4, 0.4, 1);
+          slide.original.material.opacity = 0.1;
+        } else {
+          slide.original.position.z = 2;
+          slide.original.scale.set(1.12, 1.12, 1);
+          slide.original.material.opacity = 1;
+        }
+      });
     }
-  });
-}
 
-function recalculateSlidePositions() {
-  const totalSlides = slides.length;
-  slides.forEach((slide, index) => {
-    updateSlidePosition(slide.original, index, totalSlides);
-    updateSlidePosition(slide.glow, index, totalSlides);
-  });
-}
+    function recalculateSlidePositions() {
+      const totalSlides = slides.length;
+      slides.forEach((slide, index) => {
+        updateSlidePosition(slide.original, index, totalSlides);
+        updateSlidePosition(slide.glow, index, totalSlides);
+      });
+    }
     function initProject5Slider() {
       if (typeof THREE === "undefined") {
         console.error(
@@ -456,6 +456,30 @@ function recalculateSlidePositions() {
       window.addEventListener("resize", onWindowResize);
       container.addEventListener("mousemove", throttle(onMouseMove, 50));
       container.addEventListener("click", onSlideClick);
+
+  if (typeof window.initProject5Touch === "function") {
+    window.initProject5Touch(container, {
+      updateSlidesPosition: updateSlidesPosition,
+      enableGlowEffect: enableGlowEffect,
+      selectSlide: selectSlide,
+      resetSlides: resetSlides,
+      isSelected: () => isSelected,
+      isTransitioning: () => isTransitioning,
+      currentIndex: () => currentIndex,
+      slides: slides,
+      targetIndex: targetIndex
+    });
+  }
+
+
+
+
+
+
+
+
+
+    
     }
 
     function onMouseMove(event) {
@@ -481,26 +505,28 @@ function recalculateSlidePositions() {
 function calculateSlideDimensions() {
   const containerWidth = container.clientWidth;
   const containerHeight = container.clientHeight;
-  const containerAspect = containerWidth / containerHeight;
 
-  if (containerAspect > SLIDE_ASPECT_RATIO) {
-    slideHeight = containerHeight * MAX_SLIDE_HEIGHT_PERCENTAGE;
+  // 縦方向を基準にしてスライドの高さを決定
+  slideHeight = containerHeight * MAX_SLIDE_HEIGHT_PERCENTAGE;
+  
+  // スライドの幅はアスペクト比に基づいて計算
+  slideWidth = slideHeight * SLIDE_ASPECT_RATIO;
+
+  // 最小サイズを設定（例：コンテナの高さの20%）
+  const minHeight = containerHeight * 0.00005;
+  
+  if (slideHeight < minHeight) {
+    slideHeight = minHeight;
     slideWidth = slideHeight * SLIDE_ASPECT_RATIO;
-    
-    if (slideWidth > containerWidth * MAX_SLIDE_WIDTH_PERCENTAGE) {
-      slideWidth = containerWidth * MAX_SLIDE_WIDTH_PERCENTAGE;
-      slideHeight = slideWidth / SLIDE_ASPECT_RATIO;
-    }
-  } else {
-    slideWidth = containerWidth * MAX_SLIDE_WIDTH_PERCENTAGE;
-    slideHeight = slideWidth / SLIDE_ASPECT_RATIO;
-    
-    if (slideHeight > containerHeight * MAX_SLIDE_HEIGHT_PERCENTAGE) {
-      slideHeight = containerHeight * MAX_SLIDE_HEIGHT_PERCENTAGE;
-      slideWidth = slideHeight * SLIDE_ASPECT_RATIO;
-    }
   }
-}
+
+  // スライドが大きすぎる場合は縮小（高さのみを基準にする）
+  if (slideHeight > containerHeight * 0.0087) {
+    const scale = containerHeight * 0.0087 / slideHeight;
+    slideHeight *= scale;
+    slideWidth *= scale;
+  }
+ }
 
     function loadTextures() {
       const textureLoader = new THREE.TextureLoader();
@@ -537,8 +563,8 @@ function calculateSlideDimensions() {
         uniforms: {
           tDiffuse: { value: texture },
           glowColor: { value: new THREE.Color(0xf3f2ff) },
-          glowStrength: { value: 3.5 },
-          glowWidth: { value: 0.001 },
+          glowStrength: { value: 2.9 },
+          glowWidth: { value: 0.0068 },　//白ライン
         },
         vertexShader: `
           varying vec2 vUv;
@@ -561,16 +587,15 @@ function calculateSlideDimensions() {
           void main() {
             float alpha = getAlpha(vUv);
             
-            float blur = 0.0;
-            for (int i = -5; i <= 5; i++) {
-              for (int j = -5; j <= 5; j++) {
-                vec2 offset = vec2(float(i), float(j)) * glowWidth;
-                blur += getAlpha(vUv + offset);
-              }
-            }
-            blur /= 121.0;
-            
-            float glowAlpha = (1.0 - alpha) * blur * glowStrength;
+		float blur = 0.0;
+		for (int i = 0; i < 8; i++) {
+		    float angle = float(i) * 3.14159 * 2.0 / 8.0;
+		    vec2 offset = vec2(cos(angle), sin(angle)) * glowWidth;
+		    blur += getAlpha(vUv + offset);
+		}
+		blur /= 8.0;
+
+		float glowAlpha = (1.0 - alpha) * blur * glowStrength;
             
             gl_FragColor = vec4(glowColor, glowAlpha);
           }
@@ -613,11 +638,11 @@ function calculateSlideDimensions() {
       animate();
     }
 
-function updateSlidePosition(slide, index, totalSlides) {
-  const spacing = slideWidth * SLIDE_SPACING_FACTOR;
-  slide.position.x = (index - (totalSlides - 1) / 2) * spacing;
-  slide.scale.set(0.8, 0.8, 1);
-}
+    function updateSlidePosition(slide, index, totalSlides) {
+      const spacing = slideWidth * SLIDE_SPACING_FACTOR;
+      slide.position.x = (index - (totalSlides - 1) / 2) * spacing;
+      slide.scale.set(0.8, 0.8, 1);
+    }
 
     let animationFrameId;
 
@@ -647,15 +672,18 @@ function updateSlidePosition(slide, index, totalSlides) {
         });
       }
 
-    if (isSelected || isTransitioning) {
-        backgroundMaterial.uniforms.opacity.value = Math.max(0, Math.min(backgroundMaterial.uniforms.opacity.value, 0.5));
-    } else {
+      if (isSelected || isTransitioning) {
+        backgroundMaterial.uniforms.opacity.value = Math.max(
+          0,
+          Math.min(backgroundMaterial.uniforms.opacity.value, 0.5)
+        );
+      } else {
         backgroundMaterial.uniforms.opacity.value = 0;
-    }
+      }
 
-    renderer.setRenderTarget(null);
-    renderer.render(backgroundScene, backgroundCamera);
-    renderer.render(scene, camera);
+      renderer.setRenderTarget(null);
+      renderer.render(backgroundScene, backgroundCamera);
+      renderer.render(scene, camera);
 
       lastTime = currentTime;
     }
@@ -687,74 +715,74 @@ function updateSlidePosition(slide, index, totalSlides) {
       });
     }
 
-function updateSlidesPosition(centerIndex, animate = false) {
-  return new Promise((resolve) => {
-    const visibleSlides = 11;
-    const halfVisible = Math.floor(visibleSlides / 2);
+    function updateSlidesPosition(centerIndex, animate = false) {
+      return new Promise((resolve) => {
+        const visibleSlides = 11;
+        const halfVisible = Math.floor(visibleSlides / 2);
 
-    const updatePromises = slides.map((slide, i) => {
-      return new Promise((resolveSlide) => {
-        const distance = i - centerIndex;
-        const absDistance = Math.abs(distance);
+        const updatePromises = slides.map((slide, i) => {
+          return new Promise((resolveSlide) => {
+            const distance = i - centerIndex;
+            const absDistance = Math.abs(distance);
 
-        if (absDistance > halfVisible) {
-          slide.original.visible = false;
-          slide.glow.visible = false;
-          resolveSlide();
-          return;
-        } else {
-          slide.original.visible = true;
-        }
+            if (absDistance > halfVisible) {
+              slide.original.visible = false;
+              slide.glow.visible = false;
+              resolveSlide();
+              return;
+            } else {
+              slide.original.visible = true;
+            }
 
-        const spacing = slideWidth * SLIDE_SPACING_FACTOR;
-        const targetX = distance * spacing;
-        const targetZ = -absDistance * DEPTH_STEP;
-        const targetScale = Math.max(0.7, 1 - absDistance * 0.1);
-        const targetOpacity = Math.max(0, 1 - absDistance * 0.2);
+            const spacing = slideWidth * SLIDE_SPACING_FACTOR;
+            const targetX = distance * spacing;
+            const targetZ = -absDistance * DEPTH_STEP;
+            const targetScale = Math.max(0.7, 1 - absDistance * 0.1);
+            const targetOpacity = Math.max(0, 1 - absDistance * 0.2);
 
-        const duration = animate ? 0.3 : 0;
+            const duration = animate ? 0.3 : 0;
 
-        gsap.to(slide.original.position, {
-          duration: duration,
-          x: targetX,
-          z: targetZ + 0.01,
-          ease: "power2.out",
+            gsap.to(slide.original.position, {
+              duration: duration,
+              x: targetX,
+              z: targetZ + 0.01,
+              ease: "power2.out",
+            });
+            gsap.to(slide.glow.position, {
+              duration: duration,
+              x: targetX,
+              z: targetZ,
+              ease: "power2.out",
+            });
+            gsap.to(slide.original.scale, {
+              duration: duration,
+              x: targetScale,
+              y: targetScale,
+              ease: "power2.out",
+            });
+            gsap.to(slide.glow.scale, {
+              duration: duration,
+              x: targetScale,
+              y: targetScale,
+              ease: "power2.out",
+            });
+            gsap.to(slide.original.material, {
+              duration: duration,
+              opacity: targetOpacity,
+              ease: "power2.out",
+              onComplete: resolveSlide,
+            });
+          });
         });
-        gsap.to(slide.glow.position, {
-          duration: duration,
-          x: targetX,
-          z: targetZ,
-          ease: "power2.out",
-        });
-        gsap.to(slide.original.scale, {
-          duration: duration,
-          x: targetScale,
-          y: targetScale,
-          ease: "power2.out",
-        });
-        gsap.to(slide.glow.scale, {
-          duration: duration,
-          x: targetScale,
-          y: targetScale,
-          ease: "power2.out",
-        });
-        gsap.to(slide.original.material, {
-          duration: duration,
-          opacity: targetOpacity,
-          ease: "power2.out",
-          onComplete: resolveSlide
+
+        Promise.all(updatePromises).then(() => {
+          if (!isTransitioning) {
+            enableGlowEffect();
+          }
+          resolve();
         });
       });
-    });
-
-    Promise.all(updatePromises).then(() => {
-      if (!isTransitioning) {
-        enableGlowEffect();
-      }
-      resolve();
-    });
-  });
-}
+    }
     function enableGlowEffect() {
       if (isTransitioning) return;
 
@@ -790,6 +818,11 @@ function updateSlidesPosition(centerIndex, animate = false) {
 
     return {
       init: initProject5Slider,
+      // タッチ操作で必要な関数をエクスポート
+      updateSlidesPosition: updateSlidesPosition,
+      enableGlowEffect: enableGlowEffect,
+      selectSlide: selectSlide,
+      resetSlides: resetSlides,
     };
   })();
 

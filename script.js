@@ -187,6 +187,7 @@ if (document.getElementById('project5-image-wrapper')) {
                 window.initProject5Slider();
             } else {
                 document.addEventListener('DOMContentLoaded', window.initProject5Slider);
+                console.error("initProject5Slider function not found in pr_005.js");
             }
         } else {
             console.error('initProject5Slider function not found in pr_005.js');

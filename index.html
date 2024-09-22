@@ -34,24 +34,51 @@
     <link rel="stylesheet" href="pr_011.css">
     <link rel="stylesheet" href="pr_012.css">
     <link rel="stylesheet" href="bg.css">
-
     <div class="page-indicator"></div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/ScrollTrigger.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.7.14/lottie.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lazy-line-painter@1.9.6/lib/lazy-line-painter-1.9.6.min.js"></script>
 
     <script src="bg.js"></script>
     <script src="scroll-control.js"></script>
 
     <script src="script.js" defer></script>
-    <script src="pr_001.js" defer></script>
+    
+<script type="module" src="cursorManager.js"></script>
+<script type="module" src="pr_001_crs.js"></script>
+<script type="module" src="pr_005_crs.js"></script>
+<script type="module">
+    import { initCursorManager } from './cursorManager.js';
+    import PR1CursorGuide from './pr_001_crs.js';
+    import PR5CursorGuide from './pr_005_crs.js';
+
+    function initializeCursors() {
+        console.log('Initializing cursors...');
+        initCursorManager();
+        PR1CursorGuide.init();
+        PR5CursorGuide.init();
+        console.log('All cursor guides initialized');
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initializeCursors);
+    } else {
+        initializeCursors();
+    }
+</script>
+
+	<script type="module" src="pr_001.js"></script>
     <script src="pr_002.js" defer></script>
     <script src="pr_003.js" defer></script>
     <script src="pr_004.js" defer></script>
     <script src="pr_005_data.js"></script>
     <script src="pr_005_text.js"></script>
     <script src="pr_005.js"></script>
+    <script src="pr_005_touch.js"></script>
     <script type="module" src="pr_006.js" defer></script>
     <script src="pr_007.js" defer></script>
     <script src="pr_008.js" defer></script>
@@ -60,13 +87,29 @@
     <script src="pr_011.js" defer></script>
     <script src="pr_007_a.js" defer></script>
     <script type="module" src="pr_005_text.js"></script>
+    
+    <script type="module">
+        import { loadProjectConfigs } from './cursor-config.js';
+
+        // カーソルガイドスクリプトの読み込みと初期化
+        fetch('./cursor-guide.js')
+            .then(response => response.text())
+            .then(script => {
+                const scriptElement = document.createElement('script');
+                scriptElement.textContent = script;
+                document.head.appendChild(scriptElement);
+            })
+            .catch(error => console.error('Error loading cursor-guide.js:', error));
+    </script>
 
     <link href="https://fonts.googleapis.com/css2?family=Kosugi+Maru&family=Kiwi+Maru&display=swap" rel="stylesheet">
+    
     <script>
         window.onbeforeunload = function () {
             window.scrollTo(0, 0);
         } // ページTOPに
     </script>
+
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             if (window.Project5Slider && typeof window.Project5Slider.init === 'function')
@@ -78,49 +121,45 @@
             }
         });
     </script>
-    <script>
-        document.addEventListener('DOMContentLoaded', async function () {
-            if (window.Project5Text && window.Project5Text.initializeTextData)
-            {
-                await window.Project5Text.initializeTextData();
-
-                // 画像クリック時の処理を追加
-                const project5Image = document.getElementById('project5-image');
-                let currentIndex = 0;
-
-                if (project5Image)
-                {
-                    project5Image.addEventListener('click', function () {
-                        window.Project5Text.displayTextInfo(currentIndex);
-                        currentIndex = (currentIndex + 1) % window.textData.length; // 次の文字情報へ
-                    });
-                }
-            }
-        });
+    
+    <script type="module">
+        import { initCursorManager } from './cursorManager.js';
+        document.addEventListener('DOMContentLoaded', initCursorManager);
     </script>
     
+      <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      if (typeof window.initProject5Slider === 'function') {
+        window.initProject5Slider();
+      } else {
+        console.error("initProject5Slider function not found");
+      }
+    });
+      </script>
+    
     <svg style="position: absolute; width: 0; height: 0;">
-  <defs>
-    <filter id="outline-effect">
-      <feMorphology in="SourceAlpha" result="DILATED" operator="dilate" radius="1"></feMorphology>
-      <feFlood flood-color="#FFFFFF" flood-opacity="1" result="FLOOD"></feFlood>
-      <feComposite in="FLOOD" in2="DILATED" operator="in" result="OUTLINE"></feComposite>
-      <feMerge>
-        <feMergeNode in="OUTLINE"></feMergeNode>
-        <feMergeNode in="SourceGraphic"></feMergeNode>
-      </feMerge>
-    </filter>
-    <filter id="soft-glow">
-      <feGaussianBlur in="SourceAlpha" stdDeviation="2" result="BLUR"></feGaussianBlur>
-      <feFlood flood-color="#FFFFFF" flood-opacity="0.5" result="GLOW"></feFlood>
-      <feComposite in="GLOW" in2="BLUR" operator="in" result="SOFT_GLOW"></feComposite>
-      <feMerge>
-        <feMergeNode in="SOFT_GLOW"></feMergeNode>
-        <feMergeNode in="SourceGraphic"></feMergeNode>
-      </feMerge>
-    </filter>
-  </defs>
-</svg>
+        <defs>
+            <filter id="outline-effect">
+                <feMorphology in="SourceAlpha" result="DILATED" operator="dilate" radius="1"></feMorphology>
+                <feFlood flood-color="#FFFFFF" flood-opacity="1" result="FLOOD"></feFlood>
+                <feComposite in="FLOOD" in2="DILATED" operator="in" result="OUTLINE"></feComposite>
+                <feMerge>
+                    <feMergeNode in="OUTLINE"></feMergeNode>
+                    <feMergeNode in="SourceGraphic"></feMergeNode>
+                </feMerge>
+            </filter>
+            <filter id="soft-glow">
+                <feGaussianBlur in="SourceAlpha" stdDeviation="2" result="BLUR"></feGaussianBlur>
+                <feFlood flood-color="#FFFFFF" flood-opacity="0.5" result="GLOW"></feFlood>
+                <feComposite in="GLOW" in2="BLUR" operator="in" result="SOFT_GLOW"></feComposite>
+                <feMerge>
+                    <feMergeNode in="SOFT_GLOW"></feMergeNode>
+                    <feMergeNode in="SourceGraphic"></feMergeNode>
+                </feMerge>
+            </filter>
+        </defs>
+    </svg>
+    
 </head>
 
 <body>
@@ -152,38 +191,40 @@
             </section>
         </div>
 
-        <section class="section feature animate-image" data-background="1" data-text-color="">
-            <h4 class="animation-text-char">造形をテーマに創作 ( 2010 )</h4>
-            <p class="animation-text-line">ZBrush3にて最初の作品。3日2体ペースで制作。</p>
-            <p class="animation-text-line"> 当時務めながら週末通ったデジハリでの3Dへの不十分に終えた事もあり、再挑戦の思いで取り組みました。 </p>
-            <p class="animation-text-line">
-                また職場でも造形が身近にある機会が多かった為、自分の経験値も活かし挑みました。</p>
-            <p2 class="animation-text-line"> [ 画像をClick！] </p2>
 
-            <div class="bganimate-image" style="bganimate-image: url（'assets/A1.png'）;"></div>
-            <div class="bganimate-image" style="bganimate-image: url（'assets/A2.png'）;"></div>
-            <div class="video-container" class="pr_1-content-wrapper" class="pr_1-video-container">
-                <div class="sticky-video left-video">
-                    <video src="assets/pr_1/videos/s1_v1.mp4" muted playsinline>
-                        Your browser does not support the video tag.
-                    </video>
-                    <svg class="timer-svg" width="20" height="20" viewBox="0 0 20 20">
-                        <circle class="timer-circle" cx="10" cy="10" r="9" fill="none" stroke="#ffffff"
-                            stroke-width="2" />
-                    </svg>
-                </div>
-                <div class="sticky-video right-video">
-                    <video src="assets/pr_1/videos/s1_v2.mp4" muted playsinline>
-                        Your browser does not support the video tag.
-                    </video>
-                    <svg class="timer-svg" width="20" height="20" viewBox="0 0 20 20">
-                        <circle class="timer-circle" cx="10" cy="10" r="9" fill="none" stroke="#ffffff"
-                            stroke-width="2" />
-                    </svg>
-                </div>
-                <div class="overlay"></div>
-            </div>
-        </section>
+
+<section class="section feature animate-image" data-background="1" data-text-color="">
+    <h4 class="animation-text-char">造形をテーマに創作 ( 2010 )</h4>
+    <p class="animation-text-line">ZBrush3にて最初の作品。3日2体ペースで制作。</p>
+    <p class="animation-text-line"> 当時務めながら週末通ったデジハリでの3Dへの不十分に終えた事もあり、再挑戦の思いで取り組みました。 </p>
+    <p class="animation-text-line">
+        また職場でも造形が身近にある機会が多かった為、自分の経験値も活かし挑みました。</p>
+    <p2 class="animation-text-line"> [ 画像をClick！] </p2>
+    <div class="bganimate-image" style="bganimate-image: url（'assets/A1.png'）;"></div>
+    <div class="bganimate-image" style="bganimate-image: url（'assets/A2.png'）;"></div>
+    <div id="project1-video" class="video-container pr_1-content-wrapper pr_1-video-container hotspot">
+        <div class="sticky-video left-video">
+            <video src="assets/pr_1/videos/s1_v1.mp4" muted playsinline>
+                Your browser does not support the video tag.
+            </video>
+            <svg class="timer-svg" width="20" height="20" viewBox="0 0 20 20">
+                <circle class="timer-circle" cx="10" cy="10" r="9" fill="none" stroke="#ffffff"
+                    stroke-width="2" />
+            </svg>
+        </div>
+        <div class="sticky-video right-video">
+            <video src="assets/pr_1/videos/s1_v2.mp4" muted playsinline>
+                Your browser does not support the video tag.
+            </video>
+            <svg class="timer-svg" width="20" height="20" viewBox="0 0 20 20">
+                <circle class="timer-circle" cx="10" cy="10" r="9" fill="none" stroke="#ffffff"
+                    stroke-width="2" />
+            </svg>
+        </div>
+        <div class="overlay"></div>
+    </div>
+</section>
+
 
         <section class="section feature animate-image" data-background="2" data-text-color="white">
             <h4 class="animation-text-char">造形 ART TOYSを意識し作成 ( 2010 )</h4>
@@ -203,7 +244,6 @@
             <p class="animation-text-line">造形力を高める為、人体解剖学を学びZBrushが得意とする表現を活かし望みました。</p>
             <p class="animation-text-line">ZBrushは当時参考書も少なく、試行錯誤しながらリアルな表現を追求し技術習得に没頭しました。</p>
             <p2 class="animation-text-line"> [ 自動で画像を切り替え ] </p2>
-
 
             <div class="image-container mask-animation">
                 <div id="project3-image-wrapper" class="image-wrapper">
@@ -333,7 +373,7 @@
                             <video src="assets/pr_10/s10_a3.mp4" class="feature-video" loop muted playsinline></video>
                         </div>
                         <div class="video-item">
-                            <video src="assets/pr_10/s10_a4.webm" class="feature-video" loop muted playsinline></video>
+                            <video src="assets/pr_10/s10_a4.mp4" class="feature-video" loop muted playsinline></video>
                         </div>
                         <div class="video-item">
                             <video src="assets/pr_10/s10_a5.webm" class="feature-video" loop muted playsinline></video>
@@ -397,8 +437,18 @@
             <h6>ポートフォリオをご覧いただきありがとうございました。</h6>
             <h6>ぜひ面接にて、私の熱意と能力を直接お伝えさせてください。</h6>
         </div>
+        <div id="lottie-container" style="position: absolute; pointer-events: none;"></div>
+
     </main>
 </body>
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+    <symbol id="cursor-arrow" viewbox="0 0 442.3 137.8">
+        <polygon
+            points="349.3 137.8 349.3 120.3 93 120.3 93 137.8 0 68.9 93 0 93 17.4 349.3 17.4 349.3 0 442.3 68.9 349.3 137.8">
+        </polygon>
+    </symbol>
+</svg>
+
 <svg class="goo">
     <defs>
         <filter id="gooey">
