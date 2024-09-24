@@ -45,7 +45,7 @@
 #project-4 .playback-control {
     position: absolute;
     width: 30px;
-    height: 50px;
+    height: 48px;
     background-repeat: no-repeat;
     background-size: 100%;
     cursor: pointer;
@@ -56,11 +56,23 @@
 
 #project-4 .play-button {
     background-image: url('assets/pr_4/webp/s4_play.webp');
+    background-position: 0 7px;
+
 }
 
 #project-4 .stop-button {
     background-image: url('assets/pr_4/webp/s4_stop.webp');
+        background-position: 0 7px;
+
 }
+
+
+#project-4 .stop-button:hover {
+    background-position: 0 -0px;  /* stop-button に特化した調整 */
+}
+
+
+
 
 #project-4 .playback-control:hover {
     background-position: 0 100%;
@@ -68,5 +80,5 @@
 
 #project-4 .playback-control {
     cursor: pointer;
-    z-index: 1000; 
+    z-index: 1; 
 }

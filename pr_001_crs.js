@@ -6,9 +6,10 @@ import { leftColor, rightColor, customColor1, customColor2 } from './pr_001.js';
 const PR1CursorGuide = {
   selector: ".pr_1-video-container",
   init: function () {
-
+  	
     const pr1Wrapper = document.querySelector(this.selector);
     if (!pr1Wrapper) {
+      console.error("PR1: Video container not found. Initialization aborted.");
       return;
     }
 
@@ -41,9 +42,9 @@ const PR1CursorGuide = {
         display: flex;
         justify-content: center;
         align-items: center;
-        transition: opacity 0.3s ease-out, border-color 0.3s ease-out;
-        opacity: 0;
+        transition: opacity 1.3s ease-out, border-color 1.3s ease-out;
         transition: all 0.4s ease-out;
+        opacity: 0;
         transform: translate(-50%, -50%);
         left: 0;
         top: 0;
@@ -58,38 +59,51 @@ const PR1CursorGuide = {
       }
     `;
     document.head.appendChild(pr1Style);
-
-    let isDetailImageChanging = false;
-    let isMouseInside = false;
+    console.log("PR1: Cursor style added to head");
 
     function updateCursorPosition(e) {
       const x = e.clientX;
       const y = e.clientY;
       pr1CustomCursor.style.transform = `translate(${x}px, ${y}px) translate(-50%, -50%)`;
+      console.log("PR1: Cursor position updated", { x, y });
     }
+    
+    let isDetailImageChanging = false;
+
 
     function pr1UpdateCursor(e) {
-      const activeProject = getActiveProject();
-      
-      if (activeProject === "pr1" && isMouseInside && !isDetailImageChanging) {
+      if (getActiveProject() === "pr1" && !isDetailImageChanging) {
         const rect = pr1Wrapper.getBoundingClientRect();
         const isLeft = e.clientX - rect.left < rect.width / 2;
 
-        const activePopup = pr1Wrapper.querySelector('.video-popup[style*="opacity: 1"]');
+        const activePopup = document.querySelector('.video-popup[style*="opacity: 1"]');
         let cursorColor;
-        
+
+        if (activePopup) {
+          const popupId = activePopup.id;
+          if (['popup1', 'popup3'].includes(popupId)) {
+            cursorColor = customColor1;
+          } else if (['popup2', 'popup4'].includes(popupId)) {
+            cursorColor = customColor2;
+          }
+        } else {
+          cursorColor = isLeft ? customColor1 : customColor2;
+        }
+
         pr1CustomCursor.style.borderColor = cursorColor;
         pr1CursorText.style.color = cursorColor;
-        pr1CursorText.textContent = "クリックで詳細表示";
+        pr1CursorText.textContent = "クリックで詳細を表示します";
 
         updateCursorPosition(e);
         pr1CustomCursor.style.opacity = "1";
+        console.log("PR1: Cursor updated and shown", { cursorColor });
       } else {
         pr1CustomCursor.style.opacity = "0";
+        console.log("PR1: Cursor hidden");
       }
     }
-
-    function observeDetailImageChanges() {
+    
+        function observeDetailImageChanges() {
       const config = { attributes: true, attributeFilter: ['src'] };
       const observer = new MutationObserver((mutations) => {
         mutations.forEach((mutation) => {
@@ -100,56 +114,57 @@ const PR1CursorGuide = {
               pr1CustomCursor.style.opacity = "0";
               setTimeout(() => {
                 isDetailImageChanging = false;
-                pr1UpdateCursor({ clientX: 0, clientY: 0 });
-              }, 500);
+                pr1UpdateCursor({ clientX: 0, clientY: 0 }); // ダミーのイベントオブジェクト
+              }, 500); // 500ミリ秒後にカーソルを再表示
             }
           }
         });
       });
 
-      const popups = pr1Wrapper.querySelectorAll('.video-popup');
+      const popups = document.querySelectorAll('.video-popup');
       popups.forEach(popup => observer.observe(popup, config));
     }
 
+    observeDetailImageChanges();
+    
+    
+
     pr1Wrapper.addEventListener("mouseenter", () => {
       setActiveProject("pr1");
-      isMouseInside = true;
+      console.log("PR1: Mouse entered PR1 area");
     });
 
     pr1Wrapper.addEventListener("mouseleave", () => {
       setActiveProject(null);
-      isMouseInside = false;
       pr1CustomCursor.style.opacity = "0";
+      console.log("PR1: Mouse left PR1 area");
     });
 
-    // throttle function to limit the rate at which pr1UpdateCursor gets called
-    function throttle(func, limit) {
-      let inThrottle;
-      return function() {
-        const args = arguments;
-        const context = this;
-        if (!inThrottle) {
-          func.apply(context, args);
-          inThrottle = true;
-          setTimeout(() => inThrottle = false, limit);
-        }
-      }
-    }
+    document.addEventListener("mousemove", (e) => {
+      pr1UpdateCursor(e);
+    });
 
-    document.addEventListener("mousemove", throttle(pr1UpdateCursor, 16)); // ~60fps
-
-    // 初期化を遅延させる
+    // Force initial visibility check
     setTimeout(() => {
-      observeDetailImageChanges();
+      const computedStyle = window.getComputedStyle(pr1CustomCursor);
+      console.log("PR1: Initial cursor visibility", {
+        opacity: computedStyle.opacity,
+        display: computedStyle.display,
+        visibility: computedStyle.visibility,
+      });
     }, 1000);
 
+    console.log("PR1CursorGuide: Initialization complete");
   },
 };
 
 // 即時実行関数を使用して初期化
 (function () {
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", PR1CursorGuide.init.bind(PR1CursorGuide));
+    document.addEventListener(
+      "DOMContentLoaded",
+      PR1CursorGuide.init.bind(PR1CursorGuide)
+    );
   } else {
     PR1CursorGuide.init();
   }
