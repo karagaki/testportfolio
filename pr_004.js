@@ -15,12 +15,12 @@
     let scene, camera, renderer, geometry, material, mesh;
 
     const ORIGINAL_HEIGHT = 600;
-    const NEW_HEIGHT = 670; // 新しい高さ
-    const SLIDE_RATIO = 0.375; // 元のスライド比率
+    const NEW_HEIGHT = 700; 
+    const SLIDE_RATIO = 0.375; 
     
     // 微調整用のパラメータ
-    const START_OFFSET = 00; // スライド開始位置の調整（正の値で上に、負の値で下に移動）
-    const END_OFFSET = -40; // スライド終了位置の調整（正の値で上に、負の値で下に移動）
+    const START_OFFSET = 0; // スライド開始位置の調整（正の値で上に、負の値で下に移動）
+    const END_OFFSET = -60; // スライド終了位置の調整（正の値で上に、負の値で下に移動）
 
     const vertexShader = `
         varying vec2 vUv;

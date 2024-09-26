@@ -1,7 +1,7 @@
 #project4-image-wrapper {
     width: 100%;
     max-width: 1100px;
-    aspect-ratio: 1100 / 670; 
+    aspect-ratio: 1100 / 700; 
     overflow: hidden; 
     position: relative;
 }
@@ -23,5 +23,5 @@
     height: 100%;
     width: 100%;
     transform: translateX(-50%);
-    border-radius: 20px;
+    border-radius: 10px;
 }
