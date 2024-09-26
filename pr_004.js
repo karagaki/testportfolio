@@ -12,8 +12,15 @@
     let currentAnimation = null;
     let pausedTime = 0;
 
-    
     let scene, camera, renderer, geometry, material, mesh;
+
+    const ORIGINAL_HEIGHT = 600;
+    const NEW_HEIGHT = 670; // 新しい高さ
+    const SLIDE_RATIO = 0.375; // 元のスライド比率
+    
+    // 微調整用のパラメータ
+    const START_OFFSET = 00; // スライド開始位置の調整（正の値で上に、負の値で下に移動）
+    const END_OFFSET = -40; // スライド終了位置の調整（正の値で上に、負の値で下に移動）
 
     const vertexShader = `
         varying vec2 vUv;
@@ -50,8 +57,6 @@
         }
     `;
 
-
-
 function centerPageElements() {
     const wrapper = document.getElementById('project4-image-wrapper');
     if (!wrapper) return;
@@ -62,30 +67,6 @@ function centerPageElements() {
 
     const wrapperWidth = wrapper.offsetWidth;
     const wrapperHeight = wrapper.offsetHeight;
-
-    if (counter) {
-        const shouldShowCounter = wrapperWidth >= 400;
-        counter.style.display = shouldShowCounter ? 'block' : 'none';
-        if (shouldShowCounter) {
-            const scale = Math.max(0.3, Math.min(0.7, wrapperWidth / 1000));
-            counter.style.transform = `translateX(-50%) scale(${scale})`;
-        }
-    }
-
-    if (navigation) {
-        const shouldShowNavigation = wrapperWidth >= 500;
-        navigation.style.display = shouldShowNavigation ? 'flex' : 'none';
-    }
-
-function centerPageElements() {
-    const wrapper = document.getElementById('project4-image-wrapper');
-    if (!wrapper) return;
-
-    const counter = document.querySelector('#project4 .page-counter');
-    const navigation = document.querySelector('#project4 .page-navigation');
-    const nextButtons = document.querySelectorAll('#project-4 .next-button-left, #project-4 .next-button-right');
-
-    const wrapperWidth = wrapper.offsetWidth;
 
     if (counter) {
         const shouldShowCounter = wrapperWidth >= 400;
@@ -107,14 +88,15 @@ function centerPageElements() {
         
         if (shouldShowButton) {
             const isLeftButton = button.classList.contains('next-button-left');
+            const baseOffset = wrapperWidth * 0.05; // 5% of wrapper width
             const minOffset = 20;
             const maxOffset = 75;
-            const dynamicOffset = Math.max(minOffset, Math.min(maxOffset, wrapperWidth * 0.075));
+            const dynamicOffset = Math.max(minOffset, Math.min(maxOffset, baseOffset));
             
             if (isLeftButton) {
-                button.style.left = `${dynamicOffset}px`;
+                button.style.left = `calc(50% - ${dynamicOffset + 25}px)`;
             } else {
-                button.style.right = `${dynamicOffset}px`;
+                button.style.right = `calc(50% - ${dynamicOffset + 25}px)`;
             }
         }
     });
@@ -131,19 +113,6 @@ function centerPageElements() {
     }
 }
 
-    if (navigation) {
-        const navItems = navigation.querySelectorAll('.page-nav-item');
-        navItems.forEach((item, index) => {
-            if (index === currentImageIndex) {
-                item.classList.add('active');
-            } else {
-                item.classList.remove('active');
-            }
-        });
-    }
-}
-
-
     function updateRendererSize() {
         const imageWrapper = document.getElementById('project4-image-wrapper');
         if (!imageWrapper || !renderer) return;
@@ -155,11 +124,11 @@ function centerPageElements() {
         
         let width, height;
         if (isVertical) {
-            const imageAspectRatio = 12 / 16;
+            const imageAspectRatio = 11 / 16;
             width = wrapperWidth;
             height = width / imageAspectRatio;
         } else {
-            const imageAspectRatio = 16 / 10;
+            const imageAspectRatio = 1100 / NEW_HEIGHT;
             width = wrapperWidth;
             height = width / imageAspectRatio;
         }
@@ -192,12 +161,12 @@ function centerPageElements() {
         
         centerPageElements();
     }
-    
-function init() {
-    const imageWrapper = document.getElementById('project4-image-wrapper');
-    if (!imageWrapper) {
-        return;
-    }
+
+    function init() {
+        const imageWrapper = document.getElementById('project4-image-wrapper');
+        if (!imageWrapper) {
+            return;
+        }
 
         scene = new THREE.Scene();
         camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
@@ -209,8 +178,7 @@ function init() {
         geometry = new THREE.PlaneBufferGeometry(2, 2);
 
         loadTextures();
-            animateUI(); // UIのアニメーションを即座に開始
-
+        animateUI(); // UIのアニメーションを即座に開始
 
         const playbackToggle = document.getElementById('playbackToggle');
         if (playbackToggle) {
@@ -273,13 +241,20 @@ function init() {
         animate();
         changeImage();
         animateUI();
-            changeImage(); // 初期化時に即座にchangeImage()を呼び出す
-
     }
 
     function animate() {
         requestAnimationFrame(animate);
         renderer.render(scene, camera);
+    }
+
+    function calculateSlideDistance() {
+        const baseDistance = SLIDE_RATIO * (NEW_HEIGHT / ORIGINAL_HEIGHT);
+        return baseDistance + (END_OFFSET - START_OFFSET) / NEW_HEIGHT;
+    }
+
+    function getStartPosition() {
+        return START_OFFSET / NEW_HEIGHT;
     }
 
     function changeImage() {
@@ -306,27 +281,34 @@ function init() {
         }
     }
 
-   function scrollCurrentImage(callback) {
-        return gsap.to(material.uniforms.scrollPosition, {
-            value: 0.375,
-            duration: 3.2,
-            ease: "power2.inOut",
-            onUpdate: updateRendererSize,
-            onComplete: () => {
-                animationInProgress = false;
-                callback();
+    function scrollCurrentImage(callback) {
+        const slideDistance = calculateSlideDistance();
+        const startPosition = getStartPosition();
+        return gsap.fromTo(material.uniforms.scrollPosition, 
+            { value: startPosition },
+            {
+                value: startPosition + slideDistance,
+                duration: 3.2,
+                ease: "power2.inOut",
+                onUpdate: updateRendererSize,
+                onComplete: () => {
+                    animationInProgress = false;
+                    callback();
+                }
             }
-        });
+        );
     }
 
     function prepareNextImage(nextImageIndex, isVertical, callback) {
         material.uniforms.texture2.value = textures[nextImageIndex];
         material.uniforms.dispFactor.value = 0;
 
+        const slideDistance = calculateSlideDistance();
+        const startPosition = getStartPosition();
         if (isVertical) {
-            material.uniforms.nextScrollPosition.value = -0.375;
+            material.uniforms.nextScrollPosition.value = startPosition - slideDistance;
         } else {
-            material.uniforms.nextScrollPosition.value = 0;
+            material.uniforms.nextScrollPosition.value = startPosition;
         }
 
         setTimeout(callback, 50);
@@ -373,13 +355,12 @@ function init() {
             counter.setAttribute('data-page', currentPage.toString());
         }
     }
-    
-    
-
 
     function scrollNextImage() {
+        const slideDistance = calculateSlideDistance();
+        const startPosition = getStartPosition();
         currentAnimation = gsap.to(material.uniforms.scrollPosition, {
-            value: 0,
+            value: startPosition,
             duration: 3.2,
             ease: "power2.inOut",
             onUpdate: updateRendererSize,
@@ -390,22 +371,6 @@ function init() {
                 }
             }
         });
-    }
-
-    function updatePageNavigation(currentPage) {
-        const navItems = document.querySelectorAll('#project-4 .page-nav-item');
-        navItems.forEach(item => {
-            if (parseInt(item.getAttribute('data-page')) === currentPage) {
-                item.classList.add('active');
-            } else {
-                item.classList.remove('active');
-            }
-        });
-        
-        const counter = document.querySelector('#project-4 .page-counter');
-        if (counter) {
-            counter.setAttribute('data-page', currentPage.toString());
-        }
     }
 
     function togglePlayback() {
@@ -431,16 +396,6 @@ function init() {
             }
         }
     }
-    
-    
-        function resumeAnimation() {
-        if (currentAnimation) {
-            currentAnimation.resume();
-        } else if (!animationInProgress) {
-            changeImage();
-        }
-    }
-    
 
     function animateUI() {
         const uiElements = document.querySelectorAll('#project-4 .ui-element');
@@ -461,7 +416,3 @@ function init() {
     
     window.togglePlayback = togglePlayback;
 })();
-                    
-                    
-                    
-                    
