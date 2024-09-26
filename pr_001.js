@@ -241,32 +241,33 @@ function createTimerIcon(container, duration, isLeftSide) {
     popupTimeout = setTimeout(() => hidePopup(), 6000);
   }
 
-  function hidePopup() {
-    if (!activePopups) return;
+function hidePopup() {
+  if (!activePopups) return;
 
-    const [normalPopup, compressedPopup] = activePopups;
-    
-    normalPopup.style.opacity = '0';
-    compressedPopup.style.opacity = '0';
+  const [normalPopup, compressedPopup] = activePopups;
+  
+  normalPopup.style.opacity = '0';
+  compressedPopup.style.opacity = '0';
 
-    if (timerSvgLeft) {
-      timerSvgLeft.remove();
-      timerSvgLeft = null;
-    }
-    if (timerSvgRight) {
-      timerSvgRight.remove();
-      timerSvgRight = null;
-    }
-
-    showIcons();
-
-    setTimeout(() => {
-      normalPopup.style.display = 'none';
-      compressedPopup.style.display = 'none';
-      activePopups = null;
-    }, 700);
+  if (timerSvgLeft) {
+    timerSvgLeft.remove();
+    timerSvgLeft = null;
+  }
+  if (timerSvgRight) {
+    timerSvgRight.remove();
+    timerSvgRight = null;
   }
 
+  showIcons();
+
+  setTimeout(() => {
+    normalPopup.style.display = 'none';
+    compressedPopup.style.display = 'none';
+    activePopups = null;
+    // カスタムイベントを発火させてカーソルの更新を通知
+    document.dispatchEvent(new CustomEvent('pr1PopupHidden'));
+  }, 700);
+}
   video1Container.addEventListener('click', () => {
     if (iconsVisible && !activePopups) {
       console.log('Video1 container clicked');

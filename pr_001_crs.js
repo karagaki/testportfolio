@@ -6,7 +6,6 @@ import { leftColor, rightColor, customColor1, customColor2 } from './pr_001.js';
 const PR1CursorGuide = {
   selector: ".pr_1-video-container",
   init: function () {
-  	
     const pr1Wrapper = document.querySelector(this.selector);
     if (!pr1Wrapper) {
       console.error("PR1: Video container not found. Initialization aborted.");
@@ -30,9 +29,8 @@ const PR1CursorGuide = {
     pr1Style.textContent = `
       #pr1-custom-cursor {
         position: fixed;
-        width: 320px;
         height: 48px;
-        border-radius: 52px;
+        border-radius: 24px;
         background-color: rgba(255, 255, 255, 0.5);
         backdrop-filter: blur(5px);
         -webkit-backdrop-filter: blur(5px);
@@ -42,12 +40,12 @@ const PR1CursorGuide = {
         display: flex;
         justify-content: center;
         align-items: center;
-        transition: opacity 1.3s ease-out, border-color 1.3s ease-out;
         transition: all 0.4s ease-out;
         opacity: 0;
         transform: translate(-50%, -50%);
         left: 0;
         top: 0;
+        padding: 0 20px;
       }
       #pr1-cursor-text {
         font-size: 18px; 
@@ -55,29 +53,35 @@ const PR1CursorGuide = {
         color: rgba(255, 255, 255, 0.8);
         text-align: center;
         white-space: nowrap;
-        transition: color 0.3s ease-out;
+        transition: opacity 0.4s ease-in-out;
       }
     `;
+    
     document.head.appendChild(pr1Style);
     console.log("PR1: Cursor style added to head");
 
-    function updateCursorPosition(e) {
-      const x = e.clientX;
-      const y = e.clientY;
+    let lastKnownPosition = { x: 0, y: 0 };
+
+    function updateCursorPosition(x, y) {
+      lastKnownPosition = { x, y };
       pr1CustomCursor.style.transform = `translate(${x}px, ${y}px) translate(-50%, -50%)`;
-      console.log("PR1: Cursor position updated", { x, y });
     }
     
     let isDetailImageChanging = false;
+    let currentText = "";
+    let isFading = false;
+    let pendingUpdate = null;
 
 
-    function pr1UpdateCursor(e) {
+     function pr1UpdateCursor(forceUpdate = false, withFade = false) {
       if (getActiveProject() === "pr1" && !isDetailImageChanging) {
         const rect = pr1Wrapper.getBoundingClientRect();
-        const isLeft = e.clientX - rect.left < rect.width / 2;
+        const isLeft = lastKnownPosition.x - rect.left < rect.width / 2;
 
         const activePopup = document.querySelector('.video-popup[style*="opacity: 1"]');
         let cursorColor;
+        let cursorText;
+        let cursorWidth;
 
         if (activePopup) {
           const popupId = activePopup.id;
@@ -86,36 +90,75 @@ const PR1CursorGuide = {
           } else if (['popup2', 'popup4'].includes(popupId)) {
             cursorColor = customColor2;
           }
+          cursorText = "詳細資料";
+          cursorWidth = "140px";
         } else {
           cursorColor = isLeft ? customColor1 : customColor2;
+          cursorText = "クリックで詳細を表示します";
+          cursorWidth = "320px";
         }
 
         pr1CustomCursor.style.borderColor = cursorColor;
+        pr1CustomCursor.style.width = cursorWidth;
         pr1CursorText.style.color = cursorColor;
-        pr1CursorText.textContent = "クリックで詳細を表示します";
 
-        updateCursorPosition(e);
+        if (cursorText !== currentText) {
+          if (withFade) {
+            if (isFading) {
+              // フェード中の場合は、現在のフェードを継続し、新しい更新をペンディングとして保存
+              pendingUpdate = { cursorText, cursorColor, cursorWidth };
+            } else {
+              isFading = true;
+              pr1CursorText.style.opacity = '0';
+              setTimeout(() => {
+                pr1CursorText.textContent = cursorText;
+                pr1CursorText.style.opacity = '1';
+                currentText = cursorText;
+                isFading = false;
+                
+                // ペンディング中の更新があれば適用
+                if (pendingUpdate) {
+                  pr1UpdateCursor(true, true);
+                  pendingUpdate = null;
+                }
+              }, 350);
+            }
+          } else {
+            pr1CursorText.textContent = cursorText;
+            currentText = cursorText;
+          }
+        }
+
+        if (forceUpdate) {
+          updateCursorPosition(lastKnownPosition.x, lastKnownPosition.y);
+        }
         pr1CustomCursor.style.opacity = "1";
-        console.log("PR1: Cursor updated and shown", { cursorColor });
+        console.log("PR1: Cursor updated and shown", { cursorColor, cursorText, cursorWidth });
       } else {
         pr1CustomCursor.style.opacity = "0";
         console.log("PR1: Cursor hidden");
       }
     }
     
-        function observeDetailImageChanges() {
-      const config = { attributes: true, attributeFilter: ['src'] };
+    
+
+    function observeDetailImageChanges() {
+      const config = { attributes: true, attributeFilter: ['src', 'style'] };
       const observer = new MutationObserver((mutations) => {
         mutations.forEach((mutation) => {
-          if (mutation.type === 'attributes' && mutation.attributeName === 'src') {
-            const newSrc = mutation.target.src;
-            if (newSrc.includes('s1_b') || newSrc.includes('s1_c')) {
-              isDetailImageChanging = true;
-              pr1CustomCursor.style.opacity = "0";
-              setTimeout(() => {
-                isDetailImageChanging = false;
-                pr1UpdateCursor({ clientX: 0, clientY: 0 }); // ダミーのイベントオブジェクト
-              }, 500); // 500ミリ秒後にカーソルを再表示
+          if (mutation.type === 'attributes') {
+            if (mutation.attributeName === 'src') {
+              const newSrc = mutation.target.src;
+              if (newSrc.includes('s1_b') || newSrc.includes('s1_c')) {
+                isDetailImageChanging = true;
+                pr1CustomCursor.style.opacity = "0";
+                setTimeout(() => {
+                  isDetailImageChanging = false;
+                  pr1UpdateCursor(true, true);
+                }, 700);
+              }
+            } else if (mutation.attributeName === 'style') {
+              setTimeout(() => pr1UpdateCursor(true, true), 0);
             }
           }
         });
@@ -126,8 +169,6 @@ const PR1CursorGuide = {
     }
 
     observeDetailImageChanges();
-    
-    
 
     pr1Wrapper.addEventListener("mouseenter", () => {
       setActiveProject("pr1");
@@ -141,10 +182,42 @@ const PR1CursorGuide = {
     });
 
     document.addEventListener("mousemove", (e) => {
-      pr1UpdateCursor(e);
+      updateCursorPosition(e.clientX, e.clientY);
+      if (!isFading) {
+        pr1UpdateCursor();
+      }
     });
 
-    // Force initial visibility check
+
+    pr1Wrapper.addEventListener("click", (e) => {
+      updateCursorPosition(e.clientX, e.clientY);
+      setTimeout(() => pr1UpdateCursor(true, true), 50);
+    });
+
+    const videoContainers = pr1Wrapper.querySelectorAll('.sticky-video');
+    videoContainers.forEach(container => {
+      container.addEventListener('click', () => {
+        setTimeout(() => pr1UpdateCursor(true, true), 50);
+      });
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!pr1Wrapper.contains(e.target)) {
+        setTimeout(() => pr1UpdateCursor(true, true), 50);
+      }
+    });
+
+    const videos = pr1Wrapper.querySelectorAll('video');
+    videos.forEach(video => {
+      video.addEventListener('play', () => setTimeout(() => pr1UpdateCursor(true, true), 50));
+      video.addEventListener('pause', () => setTimeout(() => pr1UpdateCursor(true, true), 50));
+    });
+
+    document.addEventListener('pr1PopupHidden', () => {
+      console.log("PR1: Popup hidden event received");
+      pr1UpdateCursor(true, true);
+    });
+
     setTimeout(() => {
       const computedStyle = window.getComputedStyle(pr1CustomCursor);
       console.log("PR1: Initial cursor visibility", {
@@ -158,7 +231,6 @@ const PR1CursorGuide = {
   },
 };
 
-// 即時実行関数を使用して初期化
 (function () {
   if (document.readyState === "loading") {
     document.addEventListener(
