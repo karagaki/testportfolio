@@ -33,6 +33,8 @@
     <link rel="stylesheet" href="pr_010.css">
     <link rel="stylesheet" href="pr_011.css">
     <link rel="stylesheet" href="pr_012.css">
+    <link rel="stylesheet" href="title_anime.css">
+
     <link rel="stylesheet" href="bg.css">
     <div class="page-indicator"></div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
@@ -47,31 +49,33 @@
     <script src="scroll-control.js"></script>
 
     <script src="script.js" defer></script>
-    
-<script type="module" src="cursorManager.js"></script>
-<script type="module" src="pr_001_crs.js"></script>
-<script type="module" src="pr_005_crs.js"></script>
-<script type="module">
-    import { initCursorManager } from './cursorManager.js';
-    import PR1CursorGuide from './pr_001_crs.js';
-    import PR5CursorGuide from './pr_005_crs.js';
 
-    function initializeCursors() {
-        console.log('Initializing cursors...');
-        initCursorManager();
-        PR1CursorGuide.init();
-        PR5CursorGuide.init();
-        console.log('All cursor guides initialized');
-    }
+    <script type="module" src="cursorManager.js"></script>
+    <script type="module" src="pr_001_crs.js"></script>
+    <script type="module" src="pr_005_crs.js"></script>
+    <script type="module">
+        import { initCursorManager } from './cursorManager.js';
+        import PR1CursorGuide from './pr_001_crs.js';
+        import PR5CursorGuide from './pr_005_crs.js';
 
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initializeCursors);
-    } else {
-        initializeCursors();
-    }
-</script>
+        function initializeCursors() {
+            console.log('Initializing cursors...');
+            initCursorManager();
+            PR1CursorGuide.init();
+            PR5CursorGuide.init();
+            console.log('All cursor guides initialized');
+        }
 
-	<script type="module" src="pr_001.js"></script>
+        if (document.readyState === 'loading')
+        {
+            document.addEventListener('DOMContentLoaded', initializeCursors);
+        } else
+        {
+            initializeCursors();
+        }
+    </script>
+    <script src="title_anime.js" defer></script>
+    <script type="module" src="pr_001.js"></script>
     <script src="pr_002.js" defer></script>
     <script src="pr_003.js" defer></script>
     <script src="pr_004.js" defer></script>
@@ -88,6 +92,7 @@
     <script src="pr_007_a.js" defer></script>
     <script type="module" src="pr_005_text.js"></script>
     
+
     <script type="module">
         import { loadProjectConfigs } from './cursor-config.js';
 
@@ -103,7 +108,7 @@
     </script>
 
     <link href="https://fonts.googleapis.com/css2?family=Kosugi+Maru&family=Kiwi+Maru&display=swap" rel="stylesheet">
-    
+
     <script>
         window.onbeforeunload = function () {
             window.scrollTo(0, 0);
@@ -121,22 +126,24 @@
             }
         });
     </script>
-    
+
     <script type="module">
         import { initCursorManager } from './cursorManager.js';
         document.addEventListener('DOMContentLoaded', initCursorManager);
     </script>
-    
-      <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      if (typeof window.initProject5Slider === 'function') {
-        window.initProject5Slider();
-      } else {
-        console.error("initProject5Slider function not found");
-      }
-    });
-      </script>
-    
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            if (typeof window.initProject5Slider === 'function')
+            {
+                window.initProject5Slider();
+            } else
+            {
+                console.error("initProject5Slider function not found");
+            }
+        });
+    </script>
+
     <svg style="position: absolute; width: 0; height: 0;">
         <defs>
             <filter id="outline-effect">
@@ -159,7 +166,6 @@
             </filter>
         </defs>
     </svg>
-    
 </head>
 
 <body>
@@ -184,46 +190,43 @@
             <section class="section hero" data-background="0">
                 <div class="hero-content">
                     <div class="hero-title-container">
-                        <img src="assets/top/title.png" alt="my portfolio" class="hero-title-main animate-title">
-                        <img src="assets/top/title2.png" alt="Creative Direction | Art Management"
-                            class="hero-title-rogo animate-title">
                     </div>
             </section>
         </div>
 
 
 
-<section class="section feature animate-image" data-background="1" data-text-color="">
-    <h4 class="animation-text-char">造形をテーマに創作 ( 2010 )</h4>
-    <p class="animation-text-line">ZBrush3にて最初の作品。3日2体ペースで制作。</p>
-    <p class="animation-text-line"> 当時務めながら週末通ったデジハリでの3Dへの不十分に終えた事もあり、再挑戦の思いで取り組みました。 </p>
-    <p class="animation-text-line">
-        また職場でも造形が身近にある機会が多かった為、自分の経験値も活かし挑みました。</p>
-    <p2 class="animation-text-line"> [ 画像をClick！] </p2>
-    <div class="bganimate-image" style="bganimate-image: url（'assets/A1.png'）;"></div>
-    <div class="bganimate-image" style="bganimate-image: url（'assets/A2.png'）;"></div>
-    <div id="project1-video" class="video-container pr_1-content-wrapper pr_1-video-container hotspot">
-        <div class="sticky-video left-video">
-            <video src="assets/pr_1/videos/s1_v1.mp4" muted playsinline>
-                Your browser does not support the video tag.
-            </video>
-            <svg class="timer-svg" width="20" height="20" viewBox="0 0 20 20">
-                <circle class="timer-circle" cx="10" cy="10" r="9" fill="none" stroke="#ffffff"
-                    stroke-width="2" />
-            </svg>
-        </div>
-        <div class="sticky-video right-video">
-            <video src="assets/pr_1/videos/s1_v2.mp4" muted playsinline>
-                Your browser does not support the video tag.
-            </video>
-            <svg class="timer-svg" width="20" height="20" viewBox="0 0 20 20">
-                <circle class="timer-circle" cx="10" cy="10" r="9" fill="none" stroke="#ffffff"
-                    stroke-width="2" />
-            </svg>
-        </div>
-        <div class="overlay"></div>
-    </div>
-</section>
+        <section class="section feature animate-image" data-background="1" data-text-color="">
+            <h4 class="animation-text-char">造形をテーマに創作 ( 2010 )</h4>
+            <p class="animation-text-line">ZBrush3にて最初の作品。3日2体ペースで制作。</p>
+            <p class="animation-text-line"> 当時務めながら週末通ったデジハリでの3Dへの不十分に終えた事もあり、再挑戦の思いで取り組みました。 </p>
+            <p class="animation-text-line">
+                また職場でも造形が身近にある機会が多かった為、自分の経験値も活かし挑みました。</p>
+            <p2 class="animation-text-line"> [ 画像をClick！] </p2>
+            <div class="bganimate-image" style="bganimate-image: url（'assets/A1.png'）;"></div>
+            <div class="bganimate-image" style="bganimate-image: url（'assets/A2.png'）;"></div>
+            <div id="project1-video" class="video-container pr_1-content-wrapper pr_1-video-container hotspot">
+                <div class="sticky-video left-video">
+                    <video src="assets/pr_1/videos/s1_v1.mp4" muted playsinline>
+                        Your browser does not support the video tag.
+                    </video>
+                    <svg class="timer-svg" width="20" height="20" viewBox="0 0 20 20">
+                        <circle class="timer-circle" cx="10" cy="10" r="9" fill="none" stroke="#ffffff"
+                            stroke-width="2" />
+                    </svg>
+                </div>
+                <div class="sticky-video right-video">
+                    <video src="assets/pr_1/videos/s1_v2.mp4" muted playsinline>
+                        Your browser does not support the video tag.
+                    </video>
+                    <svg class="timer-svg" width="20" height="20" viewBox="0 0 20 20">
+                        <circle class="timer-circle" cx="10" cy="10" r="9" fill="none" stroke="#ffffff"
+                            stroke-width="2" />
+                    </svg>
+                </div>
+                <div class="overlay"></div>
+            </div>
+        </section>
 
 
         <section class="section feature animate-image" data-background="2" data-text-color="white">
@@ -448,7 +451,6 @@
         </polygon>
     </symbol>
 </svg>
-
 <svg class="goo">
     <defs>
         <filter id="gooey">

@@ -18,3 +18,40 @@
     box-sizing: border-box; /* パディングとボーダーを幅と高さに含める */
 }
 
+/* これらの変更を適切なCSSファイル（例：main.css）に追加または更新してください */
+
+#ui-container {
+    display: flex;
+    flex-direction: column;
+    gap: 5px; /* すべてのコンテナ間の間隔を統一 */
+}
+
+.ui-container,
+.ui-contenter {  /* button-containerのクラス名ミスに対応 */
+    margin: 0;   /* すべてのマージンをリセット */
+    padding: 0;  /* パディングもリセット */
+}
+
+/* 特定のコンテナに適用されていた可能性のある特別なスタイルをリセット */
+#canvas-size-container,
+#button-container,
+#color-container,
+#slider-container,
+#cursor-container,
+#load-container {
+    margin: 0;
+    padding: 0;
+}
+
+/* もし必要であれば、特定のコンテナにのみ適用されるスタイルを以下のように定義 */
+#canvas-size-container {
+    /* canvas-size-container特有のスタイル */
+}
+
+#load-container {
+    /* load-container特有のスタイル */
+}
+
+#cursor-container {
+    /* cursor-container特有のスタイル */
+}

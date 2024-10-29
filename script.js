@@ -4,36 +4,34 @@
 document.addEventListener('DOMContentLoaded', function() {
     // GSAPプラグインの登録
     gsap.registerPlugin(ScrollTrigger);
-
-    // 既存の初期化コードや関数呼び出し
-    initializeWebsite();
     
     setupProjectVisibilityObserver();
-
 });
 
 // DOMコンテンツ読み込み完了時の処理
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', function() {
     console.log("DOM fully loaded");
+    
+    // GSAPプラグインの登録
+    gsap.registerPlugin(ScrollTrigger);
 
+    // タイトルアニメーションの読み込みと初期化
+    const titleScript = document.createElement('script');
+    titleScript.src = 'title_anime.js';
+    titleScript.onload = () => {
+        console.log('Title animation script loaded');
+        if (typeof initializeTitleAnimation === 'function') {
+            initializeTitleAnimation();
+        }
+    };
+    document.body.appendChild(titleScript);
+
+    // 各種セットアップ関数の呼び出し
     setupP2Animation();
+    setupTextAnimation();
+    setupProjectVisibilityObserver();
 
-    // タイトルアニメーション設定
-    const titles = document.querySelectorAll('.animate-title');
-    console.log("Number of title elements found:", titles.length);
 
-    // タイトルアニメーション実行関数
-    function animateTitles() {
-        titles.forEach((title, index) => {
-            setTimeout(() => {
-                title.classList.add('show');
-                console.log(`Title ${index + 1} animated`);
-            }, index * 75);  // サブロゴ表示するタイミング
-        });
-    }
-    
-    
-    
     document.addEventListener('contextmenu', function(e) {
         e.preventDefault();　
     });
@@ -53,10 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }, false);
 
 
-    
 
-    // タイトルアニメーション開始
-    setTimeout(animateTitles, 340);    // ロゴ表示するタイミング
 
     // ビデオ再生の処理設定
     const videoContainer = document.querySelector('.video-container');
