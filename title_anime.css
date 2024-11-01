@@ -1,107 +1,106 @@
-/* SVGのスタイル */
+
+
 .hero-title-main.svg-debug,
 .hero-title-rogo.svg-debug {
-    position: absolute;
-    z-index: 2;
-    pointer-events: none;
-}
-
-.title-path {
-  stroke-dashoffset: 200;
-  transition: stroke-dashoffset 1s ease-out;
-  fill: none;
-  stroke: #444;
-  stroke-width: 3.55;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-
-.title-path.fade-out {
-    transition: none;
-}
-
-@supports not (mix-blend-mode: difference) {
-  img.hero-title-main,
-  img.hero-title-rogo {
-    filter: invert(1) contrast(1.1) brightness(1.1);
-  }
-}
-
-.hero-title-container {
-    position: relative;
-    width: 300%;
-    max-width: 300px;
-    margin: 0 auto;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    overflow: visible;
-    transform: translateX(-5%);
-}
-
-.hero-title-main,
-.hero-title-rogo {
-    position: absolute;
-    left: 30%;
-    opacity: 0;
-    width: 200%;
-    height: auto;
-    mix-blend-mode: exclusion;
-}
-
-.hero-title-main {
-    left: -13.5%;
-    top: 10.3px;
-    width: 100%;
-    overflow: visible;
-}
-
-.hero-title-rogo {
-    left: -13.5%;
-    top: 10px;
-    width: 89.4%;
-    overflow: visible;
-}
-
-img.hero-title-main,
-img.hero-title-rogo {
-    position: absolute;
-    opacity: 0;
-    transition: 1s ease-out, opacity 1.2s ease;
-    z-index: 1;
-    mix-blend-mode: normal;
-}
-
-img.hero-title-main {
-    top: 1px;
-    left: -54%;
-    width: 169%;
-}
-
-img.hero-title-rogo {
-    top: 48px;
-    left: -37%;
-    width: 150%;
-}
-
-.hero-title-main.show,
-.hero-title-rogo.show {
-  transform: translateX(0%) translateY(0);
-    opacity: 0.8; 
-    filter:  contrast(0.8) ;
-
-
-}
-
-.hero-title-container::before {
-    content: '';
+    border-radius: 0;
     position: absolute;
     top: 0;
-    left: 0;
-    width: 100%;
+    left: 23.7%;
+    width: 438px;
     height: 100%;
+    opacity: 0;
+    transition: opacity 0s ease; /* メイン・サブは即時表示 */
     mix-blend-mode: difference;
     pointer-events: none;
 }
 
+.hero-title-additional.svg-debug {
+    position: absolute;
+    left: 15.3%;
+    width: 438px;
+    height: 99.96%;
+    opacity: 0;
+    transition: opacity 7s ease; /* additionalは7秒かけてフェードイン */
+    mix-blend-mode: difference;
+    filter: hue-rotate(200deg) saturate(40.0); /* 青みを加える */
+    pointer-events: none;
+}
+
+.hero-title-main.svg-debug {
+    border-radius: 0;
+    position: absolute;
+    top: -0.1%; /* 上下の位置調整（マイナス値で上に、プラス値で下に移動） */
+    left: 23.64%; /* 左右の位置調整（値を大きくすると右に、小さくすると左に移動） */
+    width: 438px;
+    height: 100%;
+    opacity: 0;
+    transition: opacity 0.1s ease;
+    mix-blend-mode: difference;
+    pointer-events: none;
+}
+
+.hero-title-rogo.svg-debug {
+    position: absolute;
+    top: 0%; /* 上下の位置調整（値を大きくすると下に、小さくすると上に移動） */
+    left: 23.9%; /* 左右の位置調整（値を大きくすると右に、小さくすると左に移動） */
+    width: 438px;
+    height: 100%;
+    opacity: 0;
+    transition: opacity 0.1s ease;
+    mix-blend-mode: difference;
+    pointer-events: none;
+}
+
+
+
+.title-path {
+    fill: none;
+    stroke: #fff;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-dasharray: 1000;
+    stroke-dashoffset: 1000;
+    animation: none; /* 初期状態ではアニメーションなし */
+}
+
+
+@keyframes drawPath {
+    0% {
+        stroke-dashoffset: 150;
+        opacity: 1;
+    }
+    60% {  
+        stroke-dashoffset: 0;
+        opacity: 0.8;
+    }
+    100% { 
+        stroke-dashoffset: 0;
+        opacity: 0;
+    }
+}
+
+
+.show .title-path {
+    animation: drawPath 3s ease 1 forwards;
+    }
+
+.show {
+    opacity: 1 !important;
+}
+
+.hero-title-container {
+    position: relative;
+    width: 440px;  /* 固定幅に設定 */
+    height: 100vh;
+    margin: 0 auto; /* 中央寄せ */
+}
+
+.title-path {
+    fill: none;
+    stroke: #fff;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    transform-origin: center center;
+}

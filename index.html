@@ -147,7 +147,7 @@
     <svg style="position: absolute; width: 0; height: 0;">
         <defs>
             <filter id="outline-effect">
-                <feMorphology in="SourceAlpha" result="DILATED" operator="dilate" radius="1"></feMorphology>
+                <feMorphology in="SourceAlpha" result="DILATED" operator="dilate" radius="0"></feMorphology>
                 <feFlood flood-color="#FFFFFF" flood-opacity="1" result="FLOOD"></feFlood>
                 <feComposite in="FLOOD" in2="DILATED" operator="in" result="OUTLINE"></feComposite>
                 <feMerge>
@@ -169,7 +169,6 @@
 </head>
 
 <body>
-
     <div id="background-container">
         <div id="blur-overlay"></div>
         <div id="background-canvas"></div>
