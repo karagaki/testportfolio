@@ -328,7 +328,6 @@ function updateProjectBackground(newIndex) {
     }
   } else {
     gsap.to(backgroundCanvas, {
-      opacity: 0,
       duration: TRANSITION_DURATION,
       ease: "power2.inOut",
       onUpdate: requestRender,
@@ -501,23 +500,10 @@ function initMaterial() {
     material.uniforms.textureB.value =
       imageTextures[currentSequence[(currentIndex + 1) % TOTAL_IMAGES]];
     material.uniforms.dispMap.value = new THREE.TextureLoader().load(
-      "assets/displacement/5.jpg",
+      "assets/displacement/1.jpg",
       requestRender
     );
   }
-}
-
-function logDebugInfo() {
-  console.log("Debug Info:");
-  console.log("Scroll position:", window.scrollY);
-  console.log("Blur start threshold:", blurStartThreshold);
-  console.log("Blur end threshold:", blurEndThreshold);
-  console.log("Transition end:", transitionEnd);
-  console.log("Blur overlay style:", blurOverlay.style.backdropFilter);
-  console.log(
-    "Computed style:",
-    window.getComputedStyle(blurOverlay).backdropFilter
-  );
 }
 
 // Export the initialization function
