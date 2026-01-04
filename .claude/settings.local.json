@@ -1,0 +1,27 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python3:*)",
+      "Bash(sw_vers:*)",
+      "Bash(fi)",
+      "Bash(done)",
+      "Bash(for dir in A*/)",
+      "Bash(do if [ -d \"$dir\" ])",
+      "Bash(then echo \"=== $dir ===\")",
+      "Bash(if [ -f \"$dirmanifest.json\" ])",
+      "Bash(then echo \"Has manifest.json\")",
+      "Bash(if [ -d \"$dir.git\" ])",
+      "Bash(then echo \"Git initialized: YES\")",
+      "Bash(else echo \"Git initialized: NO\")",
+      "Bash(find:*)",
+      "Bash(chmod:*)",
+      "Bash(/Users/i/Desktop/Projects/_git_routine/git_routine.sh:*)",
+      "Bash(ls:*)",
+      "Bash(if [ ! -d .git ])",
+      "Bash(then git init)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(else echo \"Already initialized\")"
+    ]
+  }
+}
