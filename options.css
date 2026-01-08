@@ -1,0 +1,237 @@
+:root {
+  --bg: #0f1115;
+  --panel: #161a22;
+  --text: #e8eaf0;
+  --muted: #a9b0c3;
+  --line: #2a3140;
+  --btn: #232a38;
+  --btn-hover: #2b3446;
+  --accent: #7aa2ff;
+  --warn: #ff6b6b;
+  --ok: #6bffb3;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: system-ui, -apple-system, "Hiragino Sans", "Noto Sans JP", "Segoe UI", Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.page-header {
+  padding: 16px 18px;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+h1 {
+  margin: 0 0 4px 0;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.sub {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.actions button {
+  background: var(--btn);
+  border: 1px solid var(--line);
+  color: var(--text);
+  padding: 8px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+.actions button:hover { background: var(--btn-hover); }
+
+.panel {
+  padding: 14px 18px 22px;
+}
+
+.toolbar {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.search {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.search input {
+  width: min(520px, 56vw);
+  background: #0b0d12;
+  border: 1px solid var(--line);
+  color: var(--text);
+  padding: 8px 10px;
+  border-radius: 10px;
+}
+
+.meta {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.table-wrap {
+  overflow: auto;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--panel);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+thead th {
+  position: sticky;
+  top: 0;
+  background: #121722;
+  border-bottom: 1px solid var(--line);
+  padding: 10px 10px;
+  text-align: left;
+  font-weight: 700;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+tbody td {
+  border-bottom: 1px solid var(--line);
+  padding: 10px 10px;
+  font-size: 12px;
+  vertical-align: top;
+}
+
+.num {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: #0b0d12;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.badge.ok { color: var(--ok); }
+.badge.warn { color: var(--warn); }
+
+.linkbtn {
+  background: transparent;
+  border: 1px solid var(--line);
+  color: var(--text);
+  padding: 6px 10px;
+  border-radius: 10px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.linkbtn:hover { background: #0b0d12; }
+
+.detail-row td {
+  padding: 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.details {
+  padding: 10px 10px 12px;
+  background: #0b0d12;
+}
+
+.details .r {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 6px;
+  margin-bottom: 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px dashed var(--line);
+}
+
+.details .k {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.details code {
+  color: var(--accent);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  font-size: 11px;
+  word-break: break-all;
+}
+
+.empty {
+  padding: 14px 12px;
+  color: var(--muted);
+  border: 1px dashed var(--line);
+  border-radius: 12px;
+  background: #0b0d12;
+}
+
+.site-name {
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+
+.site-link {
+  font-size: 11px;
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.site-link:hover {
+  text-decoration: underline;
+}
+
+.site-urls { margin-top: 2px; }
+.site-urls .site-link { display: inline-block; }
+
+.site-name-wrap {
+  margin-bottom: 4px;
+}
+
+.site-name-input {
+  width: 100%;
+  max-width: 360px;
+  font-size: 13px;
+  font-weight: 700;
+  background: #0b0d12;
+  border: 1px solid var(--line);
+  color: var(--text);
+  padding: 4px 6px;
+  border-radius: 6px;
+}
+
+.site-name-input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.import-btn .btnlike {
+  display: inline-block;
+  background: var(--btn);
+  border: 1px solid var(--line);
+  color: var(--text);
+  padding: 8px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  user-select: none;
+}
+.import-btn .btnlike:hover { background: var(--btn-hover); }
