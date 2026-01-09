@@ -1,6 +1,7 @@
 const RULES_KEY = 'aps_rules_v1';
 const DRAFT_KEY = 'aps_draft_v1';
 const PALETTE_KEY = 'aps_palette_state_v1';
+const SITE_NAMES_KEY = 'aps_site_names_v1';
 
 function getStorage(defaults) {
     return new Promise(resolve => {
@@ -113,6 +114,7 @@ export async function exportAllData() {
         [RULES_KEY]: { version: 1, rules: [] },
         [DRAFT_KEY]: null,
         [PALETTE_KEY]: null,
+        [SITE_NAMES_KEY]: {},
     });
     return {
         exportedAt: Date.now(),
@@ -120,6 +122,7 @@ export async function exportAllData() {
         rules: normalizeRules(data[RULES_KEY]),
         draft: data[DRAFT_KEY],
         paletteState: data[PALETTE_KEY],
+        siteNames: data[SITE_NAMES_KEY] || {},
     };
 }
 
@@ -135,6 +138,10 @@ export async function importAllData(payload, mode) {
         throw new Error('Invalid backup schema');
     }
 
+    const incomingSiteNames =
+        (payload && payload.siteNames && typeof payload.siteNames === 'object' && !Array.isArray(payload.siteNames))
+            ? payload.siteNames
+            : null;
     const normalizedRules = normalizeRules(payload.rules);
 
     if (mode === 'replace') {
@@ -142,6 +149,7 @@ export async function importAllData(payload, mode) {
             [RULES_KEY]: normalizedRules,
             [DRAFT_KEY]: payload.draft ?? null,
             [PALETTE_KEY]: payload.paletteState ?? null,
+            [SITE_NAMES_KEY]: incomingSiteNames ?? {},
         });
         return;
     }
@@ -156,4 +164,10 @@ export async function importAllData(payload, mode) {
     });
 
     await saveRules({ version: 1, rules: Array.from(merged.values()) });
+
+    if (incomingSiteNames) {
+        const cur = await getStorage({ [SITE_NAMES_KEY]: {} });
+        const mergedNames = { ...(cur[SITE_NAMES_KEY] || {}), ...incomingSiteNames };
+        await setStorage({ [SITE_NAMES_KEY]: mergedNames });
+    }
 }

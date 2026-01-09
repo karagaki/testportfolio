@@ -104,20 +104,28 @@ export function createPaletteUI({
     keywordSection.append(keywordLabel, keywordRow, keywordList);
 
     const paintSection = el('div', 'aps-section');
-    const paintLabel = el('div', 'aps-label', '色設定');
+    const paintLabel = el('div', 'aps-label', '表現');
     const paintRow = el('div', 'aps-row');
     const colorInput = el('input', 'aps-input');
     colorInput.type = 'color';
     const typeSelect = el('select', 'aps-input');
     const optHighlight = el('option');
     optHighlight.value = 'highlight';
-    optHighlight.textContent = 'highlight';
-    const optDim = el('option');
-    optDim.value = 'dim';
-    optDim.textContent = 'dim';
-    typeSelect.append(optHighlight, optDim);
+    optHighlight.textContent = '塗り（highlight）';
+    const optText = el('option');
+    optText.value = 'text';
+    optText.textContent = '文字（text）';
+    const optCollapse = el('option');
+    optCollapse.value = 'collapse';
+    optCollapse.textContent = '非表示（詰める）';
+    typeSelect.append(optHighlight, optText, optCollapse);
     paintRow.append(colorInput, typeSelect);
     paintSection.append(paintLabel, paintRow);
+
+    const textColorLabel = el('div', 'aps-label', '文字色');
+    const textColorInput = el('input', 'aps-input');
+    textColorInput.type = 'color';
+    paintSection.append(textColorLabel, textColorInput);
 
     const titleSection = el('div', 'aps-section');
     const titleLabel = el('div', 'aps-label', 'タイトル');
@@ -192,7 +200,7 @@ export function createPaletteUI({
         paint: {
             type: 'highlight',
             bg: '#ffc0cb',
-            fg: '',
+            fg: '#888888',
             border: 'rgba(0,0,0,0.15)',
         },
         meta: {
@@ -231,6 +239,16 @@ export function createPaletteUI({
         listModeInput.checked = !!draft.list?.enabled;
         listSelectorInput.value = draft.list?.itemSelector || '';
         listTools.style.display = draft.list?.enabled ? 'block' : 'none';
+
+        const isText = draft.paint.type === 'text';
+        textColorLabel.style.display = isText ? 'block' : 'none';
+        textColorInput.style.display = isText ? 'block' : 'none';
+        if (isText) {
+            textColorInput.value = draft.paint.fg || '#888888';
+        }
+
+        const noFill = draft.paint.type === 'collapse' || draft.paint.type === 'text';
+        colorInput.disabled = noFill;
         syncKeywords();
     }
 
@@ -318,6 +336,12 @@ export function createPaletteUI({
 
     typeSelect.addEventListener('change', () => {
         draft.paint.type = typeSelect.value;
+        syncDraftToInputs();
+        emitDraftChange();
+    });
+
+    textColorInput.addEventListener('input', () => {
+        draft.paint.fg = textColorInput.value;
         emitDraftChange();
     });
 

@@ -167,19 +167,27 @@
     display: none;
 }
 
+/* ★重要：aps-painted 自体は “レイアウトを変えない” */
 .aps-painted {
-    background: var(--aps-bg, rgba(255, 192, 203, 0.45));
-    border: 1px solid var(--aps-border, rgba(0, 0, 0, 0.15));
-    color: var(--aps-fg, inherit);
     border-radius: 6px;
-    padding: 6px 8px;
 }
 
-.aps-painted[data-aps-type="dim"] {
-    background: rgba(0, 0, 0, 0.06) !important;
-    border: 1px solid rgba(0, 0, 0, 0.12) !important;
-    color: inherit !important;
-    opacity: 0.78;
+/* highlight：背景 + 枠は inset shadow（borderを使わない＝サイズ不変） */
+.aps-painted[data-aps-type="highlight"] {
+    background: var(--aps-bg, rgba(255, 192, 203, 0.45)) !important;
+    box-shadow: inset 0 0 0 1px var(--aps-border, rgba(0, 0, 0, 0.15)) !important;
+    color: var(--aps-fg, inherit) !important;
+}
+
+/* text：背景/枠は無し（色はJSのinline importantで付与） */
+.aps-painted[data-aps-type="text"] {
+    background: none !important;
+    box-shadow: none !important;
+}
+
+/* collapse：非表示（従来通り） */
+.aps-painted[data-aps-type="collapse"] {
+    display: none !important;
 }
 
 .aps-picker-hover {

@@ -27,6 +27,29 @@ function unpaintNode(node) {
     node.style.removeProperty('--aps-bg');
     node.style.removeProperty('--aps-border');
     node.style.removeProperty('--aps-fg');
+    node.style.removeProperty('--aps-opacity');
+    node.style.removeProperty('--aps-text');
+    node.style.removeProperty('color');
+    clearTextColorDeep(node);
+}
+
+function applyTextColorDeep(root, color) {
+    root.style.setProperty('color', color, 'important');
+
+    const qs = 'a,p,span,strong,em,small,label,button';
+    root.querySelectorAll(qs).forEach(el => {
+        if (el.querySelector && el.querySelector('img,video,svg')) return;
+        el.style.setProperty('color', color, 'important');
+    });
+}
+
+function clearTextColorDeep(root) {
+    root.style.removeProperty('color');
+    const qs = 'a,p,span,strong,em,small,label,button';
+    root.querySelectorAll(qs).forEach(el => {
+        if (el.querySelector && el.querySelector('img,video,svg')) return;
+        el.style.removeProperty('color');
+    });
 }
 
 function clearPainted() {
@@ -38,11 +61,24 @@ function clearPainted() {
 
 function applyPaint(node, rule) {
     const paint = rule.paint || {};
+    const type = paint.type || 'highlight';
+
     node.classList.add('aps-painted');
-    node.setAttribute('data-aps-type', paint.type || 'highlight');
-    if (paint.bg) node.style.setProperty('--aps-bg', paint.bg);
-    if (paint.border) node.style.setProperty('--aps-border', paint.border);
-    if (paint.fg) node.style.setProperty('--aps-fg', paint.fg);
+    node.setAttribute('data-aps-type', type);
+
+    if (type === 'highlight') {
+        if (paint.bg) node.style.setProperty('--aps-bg', paint.bg);
+        if (paint.border) node.style.setProperty('--aps-border', paint.border);
+        if (paint.fg) node.style.setProperty('--aps-fg', paint.fg);
+    }
+
+    if (type === 'text') {
+        const c = paint.fg || paint.text;
+        if (c) applyTextColorDeep(node, c);
+        else clearTextColorDeep(node);
+    } else {
+        clearTextColorDeep(node);
+    }
 }
 
 export function applyRules(rules) {
