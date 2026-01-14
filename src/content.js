@@ -92,6 +92,34 @@
         loadPaletteState(),
     ]);
 
+    function waitForElement(selector, { root = document, timeoutMs = 8000, intervalMs = 100 } = {}) {
+        const start = Date.now();
+        return new Promise((resolve) => {
+            const tick = () => {
+                const el = root.querySelector(selector);
+                if (el) return resolve(el);
+                if (Date.now() - start >= timeoutMs) return resolve(null);
+                setTimeout(tick, intervalMs);
+            };
+            tick();
+        });
+    }
+
+    function safeAppend(parent, child, { fallback = document.body, label = 'safeAppend' } = {}) {
+        try {
+            const target = parent || fallback;
+            if (!target) {
+                console.warn(`[ext] ${label}: no parent/fallback`, { parent, fallback, url: location.href });
+                return false;
+            }
+            target.appendChild(child);
+            return true;
+        } catch (e) {
+            console.warn(`[ext] ${label}: append failed`, e, { url: location.href });
+            return false;
+        }
+    }
+
     let currentRules = rulesData.rules || [];
     let draft = savedDraft ? mergeDraft(defaultDraft, savedDraft) : { ...defaultDraft };
     if (draft.scope?.host && draft.scope.host !== pageKey.host) {
@@ -124,7 +152,9 @@
         },
     });
 
-    document.body.appendChild(palette.element);
+    const paletteHost = await waitForElement('body');
+    console.debug('[APS] append target =', paletteHost, 'selector=body', 'url=', location.href);
+    safeAppend(paletteHost, palette.element, { fallback: document.body, label: 'injectPalette' });
     palette.setPageInfo(`${pageKey.host}${pageKey.path}`);
     palette.setDraft(draft);
 
@@ -203,7 +233,9 @@
         const filename = `aps_backup_${safeHost}_${formatDate(new Date())}.json`;
         a.href = url;
         a.download = filename;
-        document.body.appendChild(a);
+        const exportHost = await waitForElement('body');
+        console.debug('[APS] append target =', exportHost, 'selector=body', 'url=', location.href);
+        safeAppend(exportHost, a, { fallback: document.body, label: 'exportAnchor' });
         a.click();
         a.remove();
         URL.revokeObjectURL(url);
@@ -366,7 +398,8 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
         padding:8px 12px;
         font-size:12px;
       `;
-            document.documentElement.appendChild(el);
+            console.debug('[APS] append target =', document.documentElement, 'selector=documentElement', 'url=', location.href);
+            safeAppend(document.documentElement, el, { fallback: document.body, label: 'debugPanel' });
         } else {
             el.remove();
         }
