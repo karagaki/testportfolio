@@ -11,14 +11,15 @@ function sendMessageToTab(tabId, message) {
 
 // Handle extension icon click
 chrome.action.onClicked.addListener((tab) => {
-    console.log('[APS][SW] action clicked', tab?.id, tab?.url);
+    console.log('[APS][SW] action clicked', tab && tab.id, tab && tab.url);
 
-    if (!tab?.id) {
+    const tabId = tab && tab.id;
+    if (!tabId) {
         console.warn('[APS][SW] no tab id');
         return;
     }
 
-    sendMessageToTab(tab.id, { type: 'APS_TOGGLE_PALETTE' });
+    sendMessageToTab(tabId, { type: 'APS_TOGGLE_PALETTE' });
 });
 
 // Handle keyboard shortcuts (commands)
@@ -26,16 +27,17 @@ chrome.commands.onCommand.addListener((command) => {
     console.log('[APS][SW] command received:', command);
 
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-        const tab = tabs?.[0];
-        if (!tab?.id) {
+        const tab = tabs && tabs[0];
+        const tabId = tab && tab.id;
+        if (!tabId) {
             console.warn('[APS][SW] no active tab for command:', command);
             return;
         }
 
         if (command === 'toggle-palette') {
-            sendMessageToTab(tab.id, { type: 'APS_TOGGLE_PALETTE' });
+            sendMessageToTab(tabId, { type: 'APS_TOGGLE_PALETTE' });
         } else if (command === 'toggle-picker') {
-            sendMessageToTab(tab.id, { type: 'APS_TOGGLE_PICKER' });
+            sendMessageToTab(tabId, { type: 'APS_TOGGLE_PICKER' });
         }
     });
 });
