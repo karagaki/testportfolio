@@ -658,3 +658,34 @@ export function createPaletteUI({
         setToast,
     };
 }
+
+export function mountPaletteUI(container) {
+    const callbacks = window.__aps_adapter_callbacks ?? {};
+    const palette = createPaletteUI(callbacks);
+    container.appendChild(palette.element);
+
+    function updateState(state) {
+        if (!state) return;
+        const {
+            pageInfo,
+            pickerActive,
+            targetDisplay,
+            rules,
+            draft,
+            visible,
+            minimized,
+        } = state;
+        palette.setPageInfo(pageInfo || '');
+        palette.setPickerActive(!!pickerActive);
+        palette.setTargetDisplay(targetDisplay || '');
+        palette.setRulesList(rules || []);
+        palette.setDraft(draft || {});
+        palette.setVisible(!!visible);
+        palette.setMinimized(!!minimized);
+        palette.setToast('');
+    }
+
+    return {
+        updateState,
+    };
+}

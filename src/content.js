@@ -10,11 +10,13 @@
         rulesEngine,
         selectorGen,
         domPickerModule,
+        paletteModule,
     ] = await Promise.all([
         import(chrome.runtime.getURL('src/storage.js')),
         import(chrome.runtime.getURL('src/rulesEngine.js')),
         import(chrome.runtime.getURL('src/selectorGen.js')),
         import(chrome.runtime.getURL('src/domPicker.js')),
+        import(chrome.runtime.getURL('src/paletteUI.js')),
     ]);
 
     const {
@@ -144,6 +146,7 @@
     }
     let paletteVisible = paletteState?.visible ?? false;
     let paletteMinimized = paletteState?.minimized ?? false;
+    let paletteController = null;
     let lastSelectedElement = null;
     let pickerTarget = 'target';
     let pickerActive = false;
@@ -179,6 +182,7 @@
         if (window.__aps_react_update) {
             window.__aps_react_update();
         }
+        paletteController?.updateState(window.__aps_adapter_state);
     }
 
     const picker = createDomPicker({
@@ -376,8 +380,8 @@
     // Initialize React state
     updateReactState();
 
-    // Load React palette UI
-    async function loadReactPalette() {
+    // Load DOM-based palette UI
+    async function loadPaletteUI() {
         // Create container
         const container = document.createElement('div');
         container.setAttribute('data-aps-palette-container', '1');
@@ -393,21 +397,11 @@
         link.href = cssUrl;
         document.head.appendChild(link);
 
-        // Load JS
-        const jsUrl = chrome.runtime.getURL('dist/palette-ui.js');
-        const script = document.createElement('script');
-        script.src = jsUrl;
-        script.onload = () => {
-            if (window.__aps_mount_palette) {
-                window.__aps_mount_palette(container);
-                // Set initial visibility after mount
-                updateReactState();
-            }
-        };
-        document.head.appendChild(script);
+        paletteController = paletteModule.mountPaletteUI(container);
+        paletteController.updateState(window.__aps_adapter_state);
     }
 
-    await loadReactPalette();
+    await loadPaletteUI();
 
     // Message handlers
     window.addEventListener('message', event => {
