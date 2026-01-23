@@ -253,6 +253,19 @@ export function createPaletteUI({
     const rulesList = el('div', 'aps-rules');
     listSection.append(listLabel, rulesList);
 
+    const statusRow = el('div', 'aps-status-row');
+    statusRow.style.display = 'flex';
+    statusRow.style.justifyContent = 'space-between';
+    statusRow.style.alignItems = 'center';
+    statusRow.style.padding = '4px 0';
+    statusRow.style.fontSize = '12px';
+    statusRow.style.borderTop = '1px solid rgba(0, 0, 0, 0.1)';
+    statusRow.style.marginTop = '4px';
+    statusRow.style.color = '#555';
+    const statusLabel = el('span', 'aps-status-label', '未保存');
+    const statusInfo = el('span', 'aps-status-info', 'ルール: 0');
+    statusRow.append(statusLabel, statusInfo);
+
     body.append(
         pageSection,
         pickerToggle,
@@ -265,6 +278,7 @@ export function createPaletteUI({
         titleSection,
         saveBtn,
         backupSection,
+        statusRow,
         listSection
     );
 
@@ -642,6 +656,14 @@ export function createPaletteUI({
         toast.textContent = message || '';
     }
 
+    function setStatus(text) {
+        statusLabel.textContent = text || '未保存';
+    }
+
+    function setStatusInfo(text) {
+        statusInfo.textContent = text || '';
+    }
+
     return {
         element: root,
         setPageInfo,
@@ -656,6 +678,8 @@ export function createPaletteUI({
         setMinimized,
         setDraft,
         setToast,
+        setStatus,
+        setStatusInfo,
     };
 }
 
@@ -663,6 +687,8 @@ export function mountPaletteUI(container) {
     const callbacks = window.__aps_adapter_callbacks ?? {};
     const palette = createPaletteUI(callbacks);
     container.appendChild(palette.element);
+    palette.setStatus('未保存');
+    palette.setStatusInfo('ルール: 0');
 
     function updateState(state) {
         if (!state) return;
@@ -683,9 +709,11 @@ export function mountPaletteUI(container) {
         palette.setVisible(!!visible);
         palette.setMinimized(!!minimized);
         palette.setToast('');
+        palette.setStatusInfo(`ルール: ${rules?.length || 0}`);
     }
 
     return {
         updateState,
+        setStatus: palette.setStatus,
     };
 }

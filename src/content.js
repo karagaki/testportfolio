@@ -301,12 +301,21 @@
             },
         };
 
-        const data = await upsertRule(rule);
-        currentRules = data.rules || [];
-        draft = mergeDraft(draft, { id: ruleId, enabled: rule.enabled });
-        await saveDraft(draft);
-        applyRules(currentRules);
-        updateReactState();
+        paletteController?.setStatus('保存中…');
+        try {
+            const data = await upsertRule(rule);
+            currentRules = data.rules || [];
+            draft = mergeDraft(draft, { id: ruleId, enabled: rule.enabled });
+            await saveDraft(draft);
+            applyRules(currentRules);
+            updateReactState();
+            const timeLabel = new Date().toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' });
+            paletteController?.setStatus(`保存OK (${timeLabel})`);
+        } catch (error) {
+            const reason = String(error?.message || '保存エラー').split('\n')[0].slice(0, 20);
+            paletteController?.setStatus(`保存失敗 (${reason})`);
+            throw error;
+        }
     }
 
     function handleEditRule(ruleId) {
@@ -350,6 +359,7 @@
     function handleDraftChange(newDraft) {
         draft = mergeDraft(draft, newDraft);
         saveDraft(draft);
+        paletteController?.setStatus('未保存');
     }
 
     // Set up adapter callbacks for React UI
