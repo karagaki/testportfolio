@@ -122,13 +122,13 @@ export function createPaletteUI({
     const optAttr = el('option');
     optAttr.value = 'attr';
     optAttr.textContent = '属性';
-    const optText = el('option');
-    optText.value = 'text';
-    optText.textContent = 'テキスト';
+    const optSourceText = el('option');
+    optSourceText.value = 'text';
+    optSourceText.textContent = 'テキスト';
     const optDayNumber = el('option');
     optDayNumber.value = 'dayNumber';
     optDayNumber.textContent = '日付番号 + 年月ヘッダ';
-    sourceTypeSelect.append(optAttr, optText, optDayNumber);
+    sourceTypeSelect.append(optAttr, optSourceText, optDayNumber);
 
     const dateSelectorLabel = el('div', 'aps-label', '日付要素セレクタ');
     const dateSelectorRow = el('div', 'aps-row');
