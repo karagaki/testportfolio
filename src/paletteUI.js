@@ -266,6 +266,18 @@ export function createPaletteUI({
     const statusInfo = el('span', 'aps-status-info', 'ルール: 0');
     statusRow.append(statusLabel, statusInfo);
 
+    const traceRow = el('div', 'aps-trace-row');
+    traceRow.style.display = 'flex';
+    traceRow.style.justifyContent = 'space-between';
+    traceRow.style.alignItems = 'center';
+    traceRow.style.padding = '4px 0';
+    traceRow.style.fontSize = '11px';
+    traceRow.style.fontFamily = 'monospace';
+    traceRow.style.color = '#777';
+    traceRow.style.borderTop = '1px dashed rgba(0, 0, 0, 0.15)';
+    const traceText = el('span', 'aps-trace-text', 'apply=UNKNOWN last=--:--:-- count=0 host=');
+    traceRow.append(traceText);
+
     body.append(
         pageSection,
         pickerToggle,
@@ -279,6 +291,7 @@ export function createPaletteUI({
         saveBtn,
         backupSection,
         statusRow,
+        traceRow,
         listSection
     );
 
@@ -664,6 +677,10 @@ export function createPaletteUI({
         statusInfo.textContent = text || '';
     }
 
+    function setTrace(text) {
+        traceText.textContent = text || '';
+    }
+
     return {
         element: root,
         setPageInfo,
@@ -680,6 +697,7 @@ export function createPaletteUI({
         setToast,
         setStatus,
         setStatusInfo,
+        setTrace,
     };
 }
 
@@ -689,6 +707,7 @@ export function mountPaletteUI(container) {
     container.appendChild(palette.element);
     palette.setStatus('未保存');
     palette.setStatusInfo('ルール: 0');
+    palette.setTrace('apply=UNKNOWN last=--:--:-- count=0 host=unknown');
 
     function updateState(state) {
         if (!state) return;
@@ -715,5 +734,6 @@ export function mountPaletteUI(container) {
     return {
         updateState,
         setStatus: palette.setStatus,
+        setTrace: palette.setTrace,
     };
 }

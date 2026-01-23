@@ -35,6 +35,13 @@
     const { createDomPicker } = domPickerModule;
 
     const pageKey = getPageKey();
+    const traceState = {
+        lastApplyAt: null,
+        applySource: 'UNKNOWN',
+        ruleCount: 0,
+        pageKey: pageKey.host,
+        lastSaveAction: null,
+    };
     const defaultDraft = {
         id: null,
         enabled: true,
@@ -105,10 +112,50 @@
         };
     }
 
+    function formatTraceTime(at) {
+        if (!at) return '--:--:--';
+        return new Date(at).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    }
+
+    function buildTraceText() {
+        const timeLabel = formatTraceTime(traceState.lastApplyAt);
+        let text = `apply=${traceState.applySource} last=${timeLabel} count=${traceState.ruleCount} host=${traceState.pageKey}`;
+        if (traceState.lastSaveAction) {
+            text += ` save=${traceState.lastSaveAction}`;
+        }
+        return text;
+    }
+
+    function updateTraceDisplay(source, count) {
+        traceState.applySource = source;
+        traceState.ruleCount = count;
+        traceState.lastApplyAt = Date.now();
+        const text = buildTraceText();
+        paletteController?.setTrace(text);
+        traceState.lastSaveAction = null;
+    }
+
+    function runApplyRules(source, rules) {
+        const targetRules = rules || currentRules;
+        applyRules(targetRules);
+        const ruleCount = Array.isArray(targetRules) ? targetRules.length : 0;
+        updateTraceDisplay(source, ruleCount);
+    }
+
+    async function tracedLoad(source, loader) {
+        traceState.lastLoad = { source, at: Date.now(), count: 0, pageKey: traceState.pageKey };
+        const data = await loader();
+        const count = source === 'RULES'
+            ? (Array.isArray(data?.rules) ? data.rules.length : 0)
+            : data ? 1 : 0;
+        traceState.lastLoad = { source, at: Date.now(), count, pageKey: traceState.pageKey };
+        return data;
+    }
+
     const [rulesData, savedDraft, paletteState] = await Promise.all([
-        loadRules(),
-        loadDraft(),
-        loadPaletteState(),
+        tracedLoad('RULES', loadRules),
+        tracedLoad('DRAFT', loadDraft),
+        tracedLoad('PALETTE_STATE', loadPaletteState),
     ]);
 
     function waitForElement(selector, { root = document, timeoutMs = 8000, intervalMs = 100 } = {}) {
@@ -301,13 +348,14 @@
             },
         };
 
+        traceState.lastSaveAction = 'UPSERT';
         paletteController?.setStatus('保存中…');
         try {
             const data = await upsertRule(rule);
             currentRules = data.rules || [];
             draft = mergeDraft(draft, { id: ruleId, enabled: rule.enabled });
             await saveDraft(draft);
-            applyRules(currentRules);
+            runApplyRules('RULES', currentRules);
             updateReactState();
             const timeLabel = new Date().toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' });
             paletteController?.setStatus(`保存OK (${timeLabel})`);
@@ -328,19 +376,21 @@
     }
 
     async function handleDeleteRule(ruleId) {
+        traceState.lastSaveAction = 'DELETE';
         const data = await deleteRule(ruleId);
         currentRules = data.rules || [];
-        applyRules(currentRules);
+        runApplyRules('RULES', currentRules);
         updateReactState();
     }
 
     async function handleToggleRule(ruleId, enabled) {
+        traceState.lastSaveAction = 'UPSERT';
         const rule = currentRules.find(item => item.id === ruleId);
         if (!rule) return;
         const updated = { ...rule, enabled };
         const data = await upsertRule(updated);
         currentRules = data.rules || [];
-        applyRules(currentRules);
+        runApplyRules('RULES', currentRules);
         updateReactState();
     }
 
@@ -409,6 +459,7 @@
 
         paletteController = paletteModule.mountPaletteUI(container);
         paletteController.updateState(window.__aps_adapter_state);
+        paletteController.setTrace(buildTraceText());
     }
 
     await loadPaletteUI();
@@ -442,12 +493,12 @@
     const observer = new MutationObserver(() => {
         clearTimeout(observerTimer);
         observerTimer = setTimeout(() => {
-            applyRules(currentRules);
+            runApplyRules('PALETTE_STATE', currentRules);
         }, 500);
     });
 
     function init() {
-        applyRules(currentRules);
+        runApplyRules('RULES', currentRules);
         observer.observe(document.body, { childList: true, subtree: true, characterData: true });
     }
 
