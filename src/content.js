@@ -1,16 +1,20 @@
 (async () => {
+    // Prevent double initialization
+    if (document.querySelector('[data-aps-palette-container]')) {
+        console.log('[APS] Palette already mounted, skipping initialization');
+        return;
+    }
+
     const [
         storage,
         rulesEngine,
         selectorGen,
         domPickerModule,
-        paletteUIModule,
     ] = await Promise.all([
         import(chrome.runtime.getURL('src/storage.js')),
         import(chrome.runtime.getURL('src/rulesEngine.js')),
         import(chrome.runtime.getURL('src/selectorGen.js')),
         import(chrome.runtime.getURL('src/domPicker.js')),
-        import(chrome.runtime.getURL('src/paletteUI.js')),
     ]);
 
     const {
@@ -27,7 +31,6 @@
     const { applyRules, matchScope, getPageKey } = rulesEngine;
     const { generateSelector, generateRepeatedItemSelector } = selectorGen;
     const { createDomPicker } = domPickerModule;
-    const { createPaletteUI } = paletteUIModule;
 
     const pageKey = getPageKey();
     const defaultDraft = {
@@ -143,53 +146,8 @@
     let paletteMinimized = paletteState?.minimized ?? false;
     let lastSelectedElement = null;
     let pickerTarget = 'target';
-
-    const palette = createPaletteUI({
-        onTogglePicker: () => picker.togglePicker(),
-        onPickTargetChange: target => {
-            pickerTarget = target || 'target';
-        },
-        onGenerateListSelector: () => {
-            if (!lastSelectedElement) return;
-            const generated = generateRepeatedItemSelector(lastSelectedElement);
-            if (!generated) return;
-            draft = mergeDraft(draft, { list: { itemSelector: generated } });
-            palette.setListSelectorValue(generated);
-        },
-        onExport: handleExport,
-        onImport: handleImport,
-        onSaveRule: handleSaveRule,
-        onRuleEdit: handleEditRule,
-        onRuleDelete: handleDeleteRule,
-        onRuleToggle: handleToggleRule,
-        onClose: () => setPaletteVisible(false),
-        onMinimize: () => setPaletteMinimized(!paletteMinimized),
-        onDraftChange: newDraft => {
-            draft = mergeDraft(draft, newDraft);
-            saveDraft(draft);
-        },
-    });
-
-    const paletteHost = await waitForElement('body');
-    console.debug('[APS] append target =', paletteHost, 'selector=body', 'url=', location.href);
-    safeAppend(paletteHost, palette.element, { fallback: document.body, label: 'injectPalette' });
-    palette.setPageInfo(`${pageKey.host}${pageKey.path}`);
-    palette.setDraft(draft);
-
-    function setPaletteVisible(visible) {
-        paletteVisible = visible;
-        palette.setVisible(visible);
-        savePaletteState({ visible: paletteVisible, minimized: paletteMinimized });
-    }
-
-    function setPaletteMinimized(minimized) {
-        paletteMinimized = minimized;
-        palette.setMinimized(minimized);
-        savePaletteState({ visible: paletteVisible, minimized: paletteMinimized });
-    }
-
-    setPaletteVisible(paletteVisible);
-    setPaletteMinimized(paletteMinimized);
+    let pickerActive = false;
+    let targetDisplay = '未選択';
 
     function describeElement(element) {
         if (!element || element.nodeType !== 1) return '';
@@ -200,41 +158,55 @@
         return `${tag}${id}${classText}`;
     }
 
+    function getPageInfo() {
+        return `${pageKey.host}${pageKey.path}`;
+    }
+
+    function getScopedRules() {
+        return currentRules.filter(rule => matchScope(rule.scope));
+    }
+
+    function updateReactState() {
+        window.__aps_adapter_state = {
+            pageInfo: getPageInfo(),
+            draft: JSON.parse(JSON.stringify(draft)),
+            rules: getScopedRules(),
+            pickerActive,
+            visible: paletteVisible,
+            minimized: paletteMinimized,
+            targetDisplay,
+        };
+        if (window.__aps_react_update) {
+            window.__aps_react_update();
+        }
+    }
+
     const picker = createDomPicker({
         onSelect: (element, selector) => {
             lastSelectedElement = element;
-            palette.setTargetDisplay(describeElement(element));
+            targetDisplay = describeElement(element);
             if (pickerTarget === 'date') {
                 draft = mergeDraft(draft, { date: { dateSelector: selector } });
-                palette.setDateSelectorValue(selector);
             } else if (pickerTarget === 'header') {
                 draft = mergeDraft(draft, { date: { headerSelector: selector } });
-                palette.setHeaderSelectorValue(selector);
             } else {
-                palette.setSelectorValue(selector);
+                draft.targetSelector = selector;
                 if (draft.list?.enabled) {
                     const generated = generateRepeatedItemSelector(element);
                     if (generated) {
                         draft = mergeDraft(draft, { list: { itemSelector: generated } });
-                        palette.setListSelectorValue(generated);
                     }
                 }
             }
+            saveDraft(draft);
+            updateReactState();
         },
         onToggle: active => {
-            palette.setPickerActive(active);
+            pickerActive = active;
+            updateReactState();
         },
         getSelector: generateSelector,
     });
-
-    function refreshRulesList() {
-        const scoped = currentRules.filter(rule => matchScope(rule.scope));
-        palette.setRulesList(scoped);
-    }
-
-    function applyAllRules() {
-        applyRules(currentRules);
-    }
 
     function formatDate(date) {
         const pad = value => String(value).padStart(2, '0');
@@ -260,38 +232,27 @@
         a.href = url;
         a.download = filename;
         const exportHost = await waitForElement('body');
-        console.debug('[APS] append target =', exportHost, 'selector=body', 'url=', location.href);
         safeAppend(exportHost, a, { fallback: document.body, label: 'exportAnchor' });
         a.click();
         a.remove();
         URL.revokeObjectURL(url);
-        palette.setToast('エクスポート完了');
     }
 
     async function handleImport(payload, mode) {
-        try {
-            await importAllData(payload, mode);
-        } catch (err) {
-            palette.setToast('インポート失敗（形式が違います）');
-            return;
-        }
+        await importAllData(payload, mode);
         const rulesData = await loadRules();
         currentRules = rulesData.rules || [];
-        refreshRulesList();
-        applyAllRules();
-        palette.setToast('インポート完了');
+        updateReactState();
     }
 
-    function handleSaveRule(updatedDraft) {
+    async function handleSaveRule(updatedDraft) {
         const selector = updatedDraft.targetSelector?.trim();
         if (!selector) {
-            window.alert('対象の枠を選択してください。');
-            return;
+            throw new Error('対象の枠を選択してください');
         }
         const allowNoKeywords = updatedDraft.date?.enabled && updatedDraft.date?.applyWithoutKeyword;
         if (!updatedDraft.match?.keywords?.length && !allowNoKeywords) {
-            window.alert('キーワードを追加してください。');
-            return;
+            throw new Error('キーワードを追加してください');
         }
 
         const ruleId = updatedDraft.id || (crypto.randomUUID ? crypto.randomUUID() : String(Date.now()));
@@ -336,43 +297,119 @@
             },
         };
 
-        upsertRule(rule).then(data => {
-            currentRules = data.rules || [];
-            draft = { ...draft, id: ruleId, enabled: rule.enabled };
-            saveDraft(draft);
-            refreshRulesList();
-            applyAllRules();
-        });
+        const data = await upsertRule(rule);
+        currentRules = data.rules || [];
+        draft = mergeDraft(draft, { id: ruleId, enabled: rule.enabled });
+        await saveDraft(draft);
+        applyRules(currentRules);
+        updateReactState();
     }
 
     function handleEditRule(ruleId) {
         const rule = currentRules.find(item => item.id === ruleId);
         if (!rule) return;
         draft = mergeDraft(defaultDraft, rule);
-        palette.setDraft(draft);
         saveDraft(draft);
         if (!paletteVisible) setPaletteVisible(true);
+        updateReactState();
     }
 
-    function handleDeleteRule(ruleId) {
-        deleteRule(ruleId).then(data => {
-            currentRules = data.rules || [];
-            refreshRulesList();
-            applyAllRules();
-        });
+    async function handleDeleteRule(ruleId) {
+        const data = await deleteRule(ruleId);
+        currentRules = data.rules || [];
+        applyRules(currentRules);
+        updateReactState();
     }
 
-    function handleToggleRule(ruleId, enabled) {
+    async function handleToggleRule(ruleId, enabled) {
         const rule = currentRules.find(item => item.id === ruleId);
         if (!rule) return;
         const updated = { ...rule, enabled };
-        upsertRule(updated).then(data => {
-            currentRules = data.rules || [];
-            refreshRulesList();
-            applyAllRules();
-        });
+        const data = await upsertRule(updated);
+        currentRules = data.rules || [];
+        applyRules(currentRules);
+        updateReactState();
     }
 
+    function setPaletteVisible(visible) {
+        paletteVisible = visible;
+        savePaletteState({ visible: paletteVisible, minimized: paletteMinimized });
+        updateReactState();
+    }
+
+    function setPaletteMinimized(minimized) {
+        paletteMinimized = minimized;
+        savePaletteState({ visible: paletteVisible, minimized: paletteMinimized });
+        updateReactState();
+    }
+
+    function handleDraftChange(newDraft) {
+        draft = mergeDraft(draft, newDraft);
+        saveDraft(draft);
+    }
+
+    // Set up adapter callbacks for React UI
+    window.__aps_adapter_callbacks = {
+        onTogglePicker: () => picker.togglePicker(),
+        onPickTargetChange: target => {
+            pickerTarget = target || 'target';
+        },
+        onGenerateListSelector: () => {
+            if (!lastSelectedElement) return;
+            const generated = generateRepeatedItemSelector(lastSelectedElement);
+            if (!generated) return;
+            draft = mergeDraft(draft, { list: { itemSelector: generated } });
+            saveDraft(draft);
+            updateReactState();
+        },
+        onExport: handleExport,
+        onImport: handleImport,
+        onSaveRule: handleSaveRule,
+        onRuleEdit: handleEditRule,
+        onRuleDelete: handleDeleteRule,
+        onRuleToggle: handleToggleRule,
+        onClose: () => setPaletteVisible(false),
+        onMinimize: () => setPaletteMinimized(!paletteMinimized),
+        onDraftChange: handleDraftChange,
+    };
+
+    // Initialize React state
+    updateReactState();
+
+    // Load React palette UI
+    async function loadReactPalette() {
+        // Create container
+        const container = document.createElement('div');
+        container.setAttribute('data-aps-palette-container', '1');
+        container.id = 'aps-palette-container';
+
+        const paletteHost = await waitForElement('body');
+        safeAppend(paletteHost, container, { fallback: document.body, label: 'paletteContainer' });
+
+        // Load CSS
+        const cssUrl = chrome.runtime.getURL('dist/palette-ui.css');
+        const link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = cssUrl;
+        document.head.appendChild(link);
+
+        // Load JS
+        const jsUrl = chrome.runtime.getURL('dist/palette-ui.js');
+        const script = document.createElement('script');
+        script.src = jsUrl;
+        script.onload = () => {
+            if (window.__aps_mount_palette) {
+                window.__aps_mount_palette(container);
+                // Set initial visibility after mount
+                updateReactState();
+            }
+        };
+        document.head.appendChild(script);
+    }
+
+    await loadReactPalette();
+
+    // Message handlers
     window.addEventListener('message', event => {
         if (event.source !== window) return;
         if (event.data?.type === 'APS_PICKER_EXPAND_PARENT') {
@@ -401,13 +438,12 @@
     const observer = new MutationObserver(() => {
         clearTimeout(observerTimer);
         observerTimer = setTimeout(() => {
-            applyAllRules();
+            applyRules(currentRules);
         }, 500);
     });
 
     function init() {
-        refreshRulesList();
-        applyAllRules();
+        applyRules(currentRules);
         observer.observe(document.body, { childList: true, subtree: true, characterData: true });
     }
 
@@ -415,32 +451,3 @@
 })();
 
 console.log('[APS][CONTENT] loaded on', location.href);
-
-chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
-    console.log('[APS][CONTENT] message received:', msg);
-
-    if (msg?.type === 'APS_TOGGLE_PALETTE') {
-        let el = document.getElementById('aps-debug-panel');
-        if (!el) {
-            el = document.createElement('div');
-            el.id = 'aps-debug-panel';
-            el.textContent = 'APS PANEL (DEBUG)';
-            el.style.cssText = `
-        position:fixed;
-        top:10px;
-        right:10px;
-        z-index:2147483647;
-        background:#fff;
-        border:2px solid red;
-        padding:8px 12px;
-        font-size:12px;
-      `;
-            console.debug('[APS] append target =', document.documentElement, 'selector=documentElement', 'url=', location.href);
-            safeAppend(document.documentElement, el, { fallback: document.body, label: 'debugPanel' });
-        } else {
-            el.remove();
-        }
-        sendResponse({ ok: true });
-        return true;
-    }
-});

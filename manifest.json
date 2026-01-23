@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Aパレットサーチ",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "ページ内の任意“枠”を選択し、キーワード一致で枠を色分けする",
   "permissions": ["storage", "activeTab", "scripting", "tabs"],
   "host_permissions": ["<all_urls>"],
@@ -53,6 +53,8 @@
         "src/selectorGen.js",
         "src/domPicker.js",
         "src/paletteUI.js",
+        "dist/palette-ui.js",
+        "dist/palette-ui.css",
         "img/*"
       ],
       "matches": ["<all_urls>"]

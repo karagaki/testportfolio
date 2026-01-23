@@ -5,7 +5,7 @@ export function createDomPicker({ onSelect, onToggle, getSelector }) {
     const history = [];
 
     function isPaletteElement(target) {
-        return target?.closest?.('.aps-palette');
+        return target?.closest?.('.aps-palette') || target?.closest?.('[data-aps-palette-container]') || target?.closest?.('.aps-palette-react');
     }
 
     function setHover(element) {
