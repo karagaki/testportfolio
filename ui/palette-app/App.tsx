@@ -220,8 +220,6 @@ export default function App() {
     adapter.startPicker(target);
   }, []);
 
-  if (!visible) return null;
-
   const statusIcon = {
     idle: null,
     saving: <LoadingOutlined style={{ color: '#1890ff' }} />,
@@ -237,15 +235,21 @@ export default function App() {
   }[saveStatus];
 
   return (
-    <ConfigProvider
-      theme={{
-        token: {
-          fontSize: 12,
-          borderRadius: 4,
-        },
+    <div
+      style={{
+        display: visible ? 'block' : 'none',
+        pointerEvents: visible ? 'auto' : 'none',
       }}
     >
-      <Card
+      <ConfigProvider
+        theme={{
+          token: {
+            fontSize: 12,
+            borderRadius: 4,
+          },
+        }}
+      >
+        <Card
         className={`aps-palette-react ${minimized ? 'aps-minimized' : ''}`}
         size="small"
         title={
@@ -708,7 +712,8 @@ export default function App() {
             )}
           />
         )}
-      </Card>
-    </ConfigProvider>
+        </Card>
+      </ConfigProvider>
+    </div>
   );
 }
