@@ -48,6 +48,16 @@
             mode: 'includes',
             keywords: [],
         },
+        date: {
+            enabled: false,
+            applyWithoutKeyword: false,
+            sourceType: 'attr',
+            dateSelector: '',
+            dateAttr: 'data-date',
+            headerSelector: '',
+            headerFormat: 'jp_ym',
+            grayPreset: 'medium',
+        },
         paint: {
             type: 'highlight',
             bg: '#ffc0cb',
@@ -74,6 +84,10 @@
             match: {
                 ...baseDraft.match,
                 ...partial?.match,
+            },
+            date: {
+                ...baseDraft.date,
+                ...partial?.date,
             },
             paint: {
                 ...baseDraft.paint,
@@ -128,9 +142,13 @@
     let paletteVisible = paletteState?.visible ?? false;
     let paletteMinimized = paletteState?.minimized ?? false;
     let lastSelectedElement = null;
+    let pickerTarget = 'target';
 
     const palette = createPaletteUI({
         onTogglePicker: () => picker.togglePicker(),
+        onPickTargetChange: target => {
+            pickerTarget = target || 'target';
+        },
         onGenerateListSelector: () => {
             if (!lastSelectedElement) return;
             const generated = generateRepeatedItemSelector(lastSelectedElement);
@@ -186,12 +204,20 @@
         onSelect: (element, selector) => {
             lastSelectedElement = element;
             palette.setTargetDisplay(describeElement(element));
-            palette.setSelectorValue(selector);
-            if (draft.list?.enabled) {
-                const generated = generateRepeatedItemSelector(element);
-                if (generated) {
-                    draft = mergeDraft(draft, { list: { itemSelector: generated } });
-                    palette.setListSelectorValue(generated);
+            if (pickerTarget === 'date') {
+                draft = mergeDraft(draft, { date: { dateSelector: selector } });
+                palette.setDateSelectorValue(selector);
+            } else if (pickerTarget === 'header') {
+                draft = mergeDraft(draft, { date: { headerSelector: selector } });
+                palette.setHeaderSelectorValue(selector);
+            } else {
+                palette.setSelectorValue(selector);
+                if (draft.list?.enabled) {
+                    const generated = generateRepeatedItemSelector(element);
+                    if (generated) {
+                        draft = mergeDraft(draft, { list: { itemSelector: generated } });
+                        palette.setListSelectorValue(generated);
+                    }
                 }
             }
         },
@@ -262,7 +288,8 @@
             window.alert('対象の枠を選択してください。');
             return;
         }
-        if (!updatedDraft.match?.keywords?.length) {
+        const allowNoKeywords = updatedDraft.date?.enabled && updatedDraft.date?.applyWithoutKeyword;
+        if (!updatedDraft.match?.keywords?.length && !allowNoKeywords) {
             window.alert('キーワードを追加してください。');
             return;
         }
@@ -285,6 +312,16 @@
             match: {
                 mode: 'includes',
                 keywords: updatedDraft.match.keywords,
+            },
+            date: {
+                enabled: !!updatedDraft.date?.enabled,
+                applyWithoutKeyword: !!updatedDraft.date?.applyWithoutKeyword,
+                sourceType: updatedDraft.date?.sourceType || 'attr',
+                dateSelector: updatedDraft.date?.dateSelector || '',
+                dateAttr: updatedDraft.date?.dateAttr || 'data-date',
+                headerSelector: updatedDraft.date?.headerSelector || '',
+                headerFormat: updatedDraft.date?.headerFormat || 'jp_ym',
+                grayPreset: updatedDraft.date?.grayPreset || 'medium',
             },
             paint: {
                 type: updatedDraft.paint?.type || 'highlight',

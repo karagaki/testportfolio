@@ -19,6 +19,7 @@ function cloneDraft(draft) {
 
 export function createPaletteUI({
     onTogglePicker,
+    onPickTargetChange,
     onGenerateListSelector,
     onExport,
     onImport,
@@ -103,6 +104,94 @@ export function createPaletteUI({
     const keywordList = el('div', 'aps-keyword-list');
     keywordSection.append(keywordLabel, keywordRow, keywordList);
 
+    const dateSection = el('div', 'aps-section');
+    const dateLabel = el('div', 'aps-label', '日付機能');
+    const dateEnabledLabel = el('label', 'aps-checkbox');
+    const dateEnabledInput = el('input');
+    dateEnabledInput.type = 'checkbox';
+    const dateEnabledText = document.createTextNode(' 過去日付をグレー化');
+    dateEnabledLabel.append(dateEnabledInput, dateEnabledText);
+    const dateApplyLabel = el('label', 'aps-checkbox');
+    const dateApplyInput = el('input');
+    dateApplyInput.type = 'checkbox';
+    const dateApplyText = document.createTextNode(' キーワード一致なしでも適用（カレンダー全体向け）');
+    dateApplyLabel.append(dateApplyInput, dateApplyText);
+
+    const sourceTypeLabel = el('div', 'aps-label', '日付取得元');
+    const sourceTypeSelect = el('select', 'aps-input');
+    const optAttr = el('option');
+    optAttr.value = 'attr';
+    optAttr.textContent = '属性';
+    const optText = el('option');
+    optText.value = 'text';
+    optText.textContent = 'テキスト';
+    const optDayNumber = el('option');
+    optDayNumber.value = 'dayNumber';
+    optDayNumber.textContent = '日付番号 + 年月ヘッダ';
+    sourceTypeSelect.append(optAttr, optText, optDayNumber);
+
+    const dateSelectorLabel = el('div', 'aps-label', '日付要素セレクタ');
+    const dateSelectorRow = el('div', 'aps-row');
+    const dateSelectorInput = el('input', 'aps-input');
+    dateSelectorInput.type = 'text';
+    const dateSelectorBtn = el('button', 'aps-btn aps-btn-small', '日付要素を選択');
+    dateSelectorRow.append(dateSelectorInput, dateSelectorBtn);
+
+    const dateAttrLabel = el('div', 'aps-label', '日付属性名');
+    const dateAttrInput = el('input', 'aps-input');
+    dateAttrInput.type = 'text';
+
+    const headerSelectorLabel = el('div', 'aps-label', '年月ヘッダセレクタ');
+    const headerSelectorRow = el('div', 'aps-row');
+    const headerSelectorInput = el('input', 'aps-input');
+    headerSelectorInput.type = 'text';
+    const headerSelectorBtn = el('button', 'aps-btn aps-btn-small', '年月ヘッダを選択');
+    headerSelectorRow.append(headerSelectorInput, headerSelectorBtn);
+
+    const headerFormatLabel = el('div', 'aps-label', '年月フォーマット');
+    const headerFormatSelect = el('select', 'aps-input');
+    const optJpYm = el('option');
+    optJpYm.value = 'jp_ym';
+    optJpYm.textContent = '2026年1月';
+    const optYmSlash = el('option');
+    optYmSlash.value = 'ym_slash';
+    optYmSlash.textContent = '2026/1';
+    const optEnMonth = el('option');
+    optEnMonth.value = 'en_month_ym';
+    optEnMonth.textContent = 'January 2026';
+    headerFormatSelect.append(optJpYm, optYmSlash, optEnMonth);
+
+    const grayPresetLabel = el('div', 'aps-label', 'グレー強度');
+    const grayPresetSelect = el('select', 'aps-input');
+    const optWeak = el('option');
+    optWeak.value = 'weak';
+    optWeak.textContent = '弱';
+    const optMedium = el('option');
+    optMedium.value = 'medium';
+    optMedium.textContent = '中';
+    const optStrong = el('option');
+    optStrong.value = 'strong';
+    optStrong.textContent = '強';
+    grayPresetSelect.append(optWeak, optMedium, optStrong);
+
+    dateSection.append(
+        dateLabel,
+        dateEnabledLabel,
+        dateApplyLabel,
+        sourceTypeLabel,
+        sourceTypeSelect,
+        dateSelectorLabel,
+        dateSelectorRow,
+        dateAttrLabel,
+        dateAttrInput,
+        headerSelectorLabel,
+        headerSelectorRow,
+        headerFormatLabel,
+        headerFormatSelect,
+        grayPresetLabel,
+        grayPresetSelect
+    );
+
     const paintSection = el('div', 'aps-section');
     const paintLabel = el('div', 'aps-label', '表現');
     const paintRow = el('div', 'aps-row');
@@ -171,6 +260,7 @@ export function createPaletteUI({
         urlSection,
         listModeSection,
         keywordSection,
+        dateSection,
         paintSection,
         titleSection,
         saveBtn,
@@ -196,6 +286,16 @@ export function createPaletteUI({
         match: {
             mode: 'includes',
             keywords: [],
+        },
+        date: {
+            enabled: false,
+            applyWithoutKeyword: false,
+            sourceType: 'attr',
+            dateSelector: '',
+            dateAttr: 'data-date',
+            headerSelector: '',
+            headerFormat: 'jp_ym',
+            grayPreset: 'medium',
         },
         paint: {
             type: 'highlight',
@@ -240,6 +340,24 @@ export function createPaletteUI({
         listSelectorInput.value = draft.list?.itemSelector || '';
         listTools.style.display = draft.list?.enabled ? 'block' : 'none';
 
+        dateEnabledInput.checked = !!draft.date?.enabled;
+        dateApplyInput.checked = !!draft.date?.applyWithoutKeyword;
+        sourceTypeSelect.value = draft.date?.sourceType || 'attr';
+        dateSelectorInput.value = draft.date?.dateSelector || '';
+        dateAttrInput.value = draft.date?.dateAttr || 'data-date';
+        headerSelectorInput.value = draft.date?.headerSelector || '';
+        headerFormatSelect.value = draft.date?.headerFormat || 'jp_ym';
+        grayPresetSelect.value = draft.date?.grayPreset || 'medium';
+
+        const showAttr = sourceTypeSelect.value === 'attr';
+        const showHeader = sourceTypeSelect.value === 'dayNumber';
+        dateAttrLabel.style.display = showAttr ? 'block' : 'none';
+        dateAttrInput.style.display = showAttr ? 'block' : 'none';
+        headerSelectorLabel.style.display = showHeader ? 'block' : 'none';
+        headerSelectorRow.style.display = showHeader ? 'flex' : 'none';
+        headerFormatLabel.style.display = showHeader ? 'block' : 'none';
+        headerFormatSelect.style.display = showHeader ? 'block' : 'none';
+
         const isText = draft.paint.type === 'text';
         textColorLabel.style.display = isText ? 'block' : 'none';
         textColorInput.style.display = isText ? 'block' : 'none';
@@ -264,6 +382,10 @@ export function createPaletteUI({
                 ...draft.match,
                 ...partial.match,
             },
+            date: {
+                ...draft.date,
+                ...partial.date,
+            },
             list: {
                 ...draft.list,
                 ...partial.list,
@@ -281,7 +403,10 @@ export function createPaletteUI({
         emitDraftChange();
     }
 
-    pickerToggle.addEventListener('click', () => onTogglePicker?.());
+    pickerToggle.addEventListener('click', () => {
+        onPickTargetChange?.('target');
+        onTogglePicker?.();
+    });
     expandBtn.addEventListener('click', () => {
         window.postMessage({ type: 'APS_PICKER_EXPAND_PARENT' }, '*');
     });
@@ -361,6 +486,57 @@ export function createPaletteUI({
         }
     });
 
+    dateEnabledInput.addEventListener('change', () => {
+        draft.date.enabled = dateEnabledInput.checked;
+        emitDraftChange();
+    });
+
+    dateApplyInput.addEventListener('change', () => {
+        draft.date.applyWithoutKeyword = dateApplyInput.checked;
+        emitDraftChange();
+    });
+
+    sourceTypeSelect.addEventListener('change', () => {
+        draft.date.sourceType = sourceTypeSelect.value;
+        syncDraftToInputs();
+        emitDraftChange();
+    });
+
+    dateSelectorInput.addEventListener('input', () => {
+        draft.date.dateSelector = dateSelectorInput.value.trim();
+        emitDraftChange();
+    });
+
+    dateSelectorBtn.addEventListener('click', () => {
+        onPickTargetChange?.('date');
+        onTogglePicker?.();
+    });
+
+    dateAttrInput.addEventListener('input', () => {
+        draft.date.dateAttr = dateAttrInput.value.trim();
+        emitDraftChange();
+    });
+
+    headerSelectorInput.addEventListener('input', () => {
+        draft.date.headerSelector = headerSelectorInput.value.trim();
+        emitDraftChange();
+    });
+
+    headerSelectorBtn.addEventListener('click', () => {
+        onPickTargetChange?.('header');
+        onTogglePicker?.();
+    });
+
+    headerFormatSelect.addEventListener('change', () => {
+        draft.date.headerFormat = headerFormatSelect.value;
+        emitDraftChange();
+    });
+
+    grayPresetSelect.addEventListener('change', () => {
+        draft.date.grayPreset = grayPresetSelect.value;
+        emitDraftChange();
+    });
+
     saveBtn.addEventListener('click', () => onSaveRule?.(cloneDraft(draft)));
     closeBtn.addEventListener('click', () => onClose?.());
     minimizeBtn.addEventListener('click', () => onMinimize?.());
@@ -397,6 +573,18 @@ export function createPaletteUI({
     function setSelectorValue(selector) {
         selectorInput.value = selector || '';
         draft.targetSelector = selector || '';
+        emitDraftChange();
+    }
+
+    function setDateSelectorValue(selector) {
+        dateSelectorInput.value = selector || '';
+        draft.date.dateSelector = selector || '';
+        emitDraftChange();
+    }
+
+    function setHeaderSelectorValue(selector) {
+        headerSelectorInput.value = selector || '';
+        draft.date.headerSelector = selector || '';
         emitDraftChange();
     }
 
@@ -460,6 +648,8 @@ export function createPaletteUI({
         setPickerActive,
         setTargetDisplay,
         setSelectorValue,
+        setDateSelectorValue,
+        setHeaderSelectorValue,
         setListSelectorValue,
         setRulesList,
         setVisible,

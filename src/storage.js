@@ -30,6 +30,7 @@ function normalizeRules(data) {
     const rules = data.rules.map(rule => {
         const scope = rule.scope || {};
         const list = rule.list || {};
+        const date = rule.date || {};
         return {
             ...rule,
             scope: {
@@ -40,6 +41,18 @@ function normalizeRules(data) {
                 ...list,
                 enabled: !!list.enabled,
                 itemSelector: list.itemSelector || '',
+            },
+            date: {
+                enabled: !!date.enabled,
+                applyWithoutKeyword: !!date.applyWithoutKeyword,
+                sourceType: ['attr', 'text', 'dayNumber'].includes(date.sourceType) ? date.sourceType : 'attr',
+                dateSelector: date.dateSelector || '',
+                dateAttr: date.dateAttr || 'data-date',
+                headerSelector: date.headerSelector || '',
+                headerFormat: ['jp_ym', 'ym_slash', 'en_month_ym'].includes(date.headerFormat)
+                    ? date.headerFormat
+                    : 'jp_ym',
+                grayPreset: ['weak', 'medium', 'strong'].includes(date.grayPreset) ? date.grayPreset : 'medium',
             },
         };
     });
