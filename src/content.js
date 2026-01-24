@@ -697,7 +697,7 @@ if (window.__APS_PALETTE_MOUNTED__ || window.__APS_PALETTE_MOUNTING__) {
             // Create container
             const container = document.createElement('div');
             container.setAttribute('data-aps-palette-container', '1');
-            container.id = 'aps-palette-container';
+            if (!container.id) container.id = 'aps-react-root-' + Math.random().toString(36).slice(2);
 
             const paletteHost = await waitForElement('body');
             safeAppend(paletteHost, container, { fallback: document.body, label: 'paletteContainer' });
@@ -719,12 +719,27 @@ if (window.__APS_PALETTE_MOUNTED__ || window.__APS_PALETTE_MOUNTING__) {
                 const script = document.createElement('script');
                 script.src = jsUrl;
                 script.onload = () => {
-                    // React main.tsx exports window.__aps_mount_palette
-                    if (typeof window.__aps_mount_palette === 'function') {
-                        window.__aps_mount_palette(container);
-                        console.log('[APS] React UI mounted');
-                    } else {
-                        console.warn('[APS] React mount function not found');
+                    // MAIN world bridge: inject inline script to call mount function in MAIN world
+                    try {
+                        const cid = container.id;
+                        const call = document.createElement('script');
+                        call.textContent = `(() => {
+                            try {
+                                const el = document.getElementById(${JSON.stringify(cid)});
+                                if (el && typeof window.__aps_mount_palette === 'function') {
+                                    window.__aps_mount_palette(el);
+                                    console.log('[APS] React UI mounted');
+                                } else {
+                                    console.warn('[APS] React mount function not found');
+                                }
+                            } catch (e) {
+                                console.error('[APS] React mount call failed', e);
+                            }
+                        })();`;
+                        (document.documentElement || document.head).appendChild(call);
+                        call.remove();
+                    } catch (e) {
+                        console.error('[APS] Failed to inject mount caller', e);
                     }
                 };
                 script.onerror = (e) => {
