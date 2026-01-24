@@ -22,6 +22,10 @@
       "Bash(git add:*)",
       "Bash(git commit:*)",
       "Bash(else echo \"Already initialized\")"
+    ],
+    "additionalDirectories": [
+      "/Users/i/Desktop/Projects/A_パレットリビルド/dist",
+      "/Users/i/Desktop/Projects/A_パレットリビルド/dist"
     ]
   }
 }

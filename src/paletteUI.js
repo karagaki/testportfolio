@@ -1112,6 +1112,22 @@ export function mountPaletteUI(container) {
         palette.setStatusInfo(`ルール: ${rules?.length || 0}`);
     }
 
+    // ===== APS DIAGNOSTIC LOG 20260124 =====
+    setTimeout(() => {
+        const headers = container.querySelectorAll('.aps-step-header');
+        console.log('[APS_DIAG] step-header候補:', headers.length, '件');
+        if (headers.length > 0) {
+            const first = headers[0];
+            const cs = window.getComputedStyle(first);
+            console.log('[APS_DIAG] 先頭ヘッダー className:', first.className);
+            console.log('[APS_DIAG] 先頭ヘッダー computed bg:', cs.backgroundColor, 'fg:', cs.color);
+            console.log('[APS_DIAG] 先頭ヘッダー outline:', cs.outline);
+        }
+        const marker = getComputedStyle(document.documentElement).getPropertyValue('--APS_MARKER_20260124');
+        console.log('[APS_DIAG] CSSマーカー --APS_MARKER_20260124:', marker ? '存在' : '不在');
+    }, 500);
+    // ===== /APS DIAGNOSTIC LOG =====
+
     return {
         updateState,
         setStatus: palette.setStatus,

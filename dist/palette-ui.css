@@ -127,3 +127,8 @@
   color:#111111 !important;
 }
 /* ===== /Panel form controls ===== */
+
+/* ===== APS DIAGNOSTIC MARKER 20260124 ===== */
+:root{ --APS_MARKER_20260124: 1; }
+.aps-step-header{ outline:4px solid red !important; }
+/* ===== /APS DIAGNOSTIC MARKER ===== */
