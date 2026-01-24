@@ -41,8 +41,7 @@
 .aps-step2-datevalue--dim{opacity:.55;filter:saturate(.6)}
 .aps-step2-datevalue--highlight .aps-slot-valuebox{background:#ffffff}
 
-/* ===== Palette STEP coloring v2 (avoid painting whole sections) ===== */
-/* R = [data-aps-palette] (パレット全体ラッパ), S = .aps-step-header (STEPラベル部分) */
+/* ===== STEP colors: header-only (final) ===== */
 :root{
   --aps-step-done-bg:#ffb6c1;
   --aps-step-done-fg:#000000;
@@ -50,114 +49,69 @@
   --aps-step-inactive-fg:#ffffff;
 }
 
-[data-aps-palette] .aps-step-done,
-[data-aps-palette] .aps-step-dark{
+.aps-step-block,
+.aps-step-section,
+.aps-step{
   background:transparent !important;
-  filter:none !important;
+  color:inherit !important;
   opacity:1 !important;
+  filter:none !important;
 }
 
-[data-aps-palette] .aps-step-done .aps-step-header{
+.aps-step-header{
+  opacity:1 !important;
+  filter:none !important;
+}
+
+.aps-step-done .aps-step-header{
   background:var(--aps-step-done-bg) !important;
   color:var(--aps-step-done-fg) !important;
-  opacity:1 !important;
-  filter:none !important;
 }
-[data-aps-palette] .aps-step-done .aps-step-header *{
+.aps-step-done .aps-step-header *{
   color:var(--aps-step-done-fg) !important;
 }
 
-[data-aps-palette] .aps-step-dark:not(.aps-step-done) .aps-step-header{
+.aps-step-dark:not(.aps-step-done) .aps-step-header{
   background:var(--aps-step-inactive-bg) !important;
   color:var(--aps-step-inactive-fg) !important;
-  opacity:1 !important;
-  filter:none !important;
 }
-[data-aps-palette] .aps-step-dark:not(.aps-step-done) .aps-step-header *{
+.aps-step-dark:not(.aps-step-done) .aps-step-header *{
   color:var(--aps-step-inactive-fg) !important;
 }
 
-[data-aps-palette] .aps-step-current,
-[data-aps-palette] .aps-step-active,
-[data-aps-palette] .aps-step-now,
-[data-aps-palette] .aps-step-is-current{
-  background:transparent !important;
+.aps-step-current .aps-step-header{
   color:#000000 !important;
-  filter:none !important;
   opacity:1 !important;
+  filter:none !important;
 }
-[data-aps-palette] .aps-step-current *,
-[data-aps-palette] .aps-step-active *,
-[data-aps-palette] .aps-step-now *,
-[data-aps-palette] .aps-step-is-current *{
+.aps-step-current .aps-step-header *{
   color:#000000 !important;
 }
 
-[data-aps-palette] .aps-step-dark.aps-step-current .aps-step-header,
-[data-aps-palette] .aps-step-dark.aps-step-active .aps-step-header,
-[data-aps-palette] .aps-step-dark.aps-step-now .aps-step-header,
-[data-aps-palette] .aps-step-dark.aps-step-is-current .aps-step-header{
-  background:transparent !important;
+.aps-step-current.aps-step-dark .aps-step-header,
+.aps-step-current.aps-step-done .aps-step-header{
+  background:inherit !important;
   color:#000000 !important;
 }
-[data-aps-palette] .aps-step-dark.aps-step-current .aps-step-header *,
-[data-aps-palette] .aps-step-dark.aps-step-active .aps-step-header *,
-[data-aps-palette] .aps-step-dark.aps-step-now .aps-step-header *,
-[data-aps-palette] .aps-step-dark.aps-step-is-current .aps-step-header *{
+.aps-step-current.aps-step-dark .aps-step-header *,
+.aps-step-current.aps-step-done .aps-step-header *{
   color:#000000 !important;
 }
-/* ===== /Palette STEP coloring v2 ===== */
+/* ===== /STEP colors: header-only ===== */
 
-[data-aps-palette] .aps-step-block.aps-step-done{
-  background:var(--aps-step-done-bg) !important;
-  color:var(--aps-step-done-fg) !important;
-  filter:none !important;
-  opacity:1 !important;
+/* ===== Panel form controls: force light (no black) ===== */
+:is(#aps-panel, .aps-panel, #aps-root, .aps-root, #aps-palette, .aps-palette, #palette-panel, .palette-panel){
+  color-scheme: light;
 }
-[data-aps-palette] .aps-step-block.aps-step-done *{
-  color:var(--aps-step-done-fg) !important;
-}
-[data-aps-palette] .aps-step-block.aps-step-dark{
-  background:var(--aps-step-inactive-bg) !important;
-  color:var(--aps-step-inactive-fg) !important;
-  filter:none !important;
-  opacity:1 !important;
-}
-[data-aps-palette] .aps-step-block.aps-step-dark *{
-  color:var(--aps-step-inactive-fg) !important;
-}
-[data-aps-palette] .aps-step-block.aps-step-current{
-  background:transparent !important;
-  color:#000000 !important;
-  filter:none !important;
-  opacity:1 !important;
-}
-[data-aps-palette] .aps-step-block.aps-step-current *{
-  color:#000000 !important;
-}
-
-/* ===== Palette form controls: force normal (no black) ===== */
-[data-aps-palette] input,
-[data-aps-palette] select,
-[data-aps-palette] textarea{
-  background-color:#ffffff !important;
+:is(#aps-panel, .aps-panel, #aps-root, .aps-root, #aps-palette, .aps-palette, #palette-panel, .palette-panel) input,
+:is(#aps-panel, .aps-panel, #aps-root, .aps-root, #aps-palette, .aps-palette, #palette-panel, .palette-panel) select,
+:is(#aps-panel, .aps-panel, #aps-root, .aps-root, #aps-palette, .aps-palette, #palette-panel, .palette-panel) textarea{
+  background:#ffffff !important;
   color:#111111 !important;
   border:1px solid #d0d0d0 !important;
-  box-shadow:none !important;
-  -webkit-text-fill-color:#111111 !important;
 }
-[data-aps-palette] input::placeholder,
-[data-aps-palette] textarea::placeholder{
-  color:#777777 !important;
-}
-[data-aps-palette] select option{
-  background-color:#ffffff !important;
+:is(#aps-panel, .aps-panel, #aps-root, .aps-root, #aps-palette, .aps-palette, #palette-panel, .palette-panel) option{
+  background:#ffffff !important;
   color:#111111 !important;
 }
-[data-aps-palette] input:disabled,
-[data-aps-palette] select:disabled,
-[data-aps-palette] textarea:disabled{
-  background-color:#f3f3f3 !important;
-  color:#666666 !important;
-}
-/* ===== /Palette form controls ===== */
+/* ===== /Panel form controls ===== */
