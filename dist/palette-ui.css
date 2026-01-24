@@ -54,23 +54,26 @@
 .aps-step-done *{
   color:#111!important;
 }
-
-.aps-step-incomplete{
-  background:#333333!important;
-  color:#ffffff!important;
+.aps-step-inactive{
+  background:#999999!important;
+  color:#000000!important;
   opacity:1!important;
   filter:none!important;
 }
-.aps-step-incomplete *{
-  color:#ffffff!important;
+.aps-step-inactive *{
+  color:#000000!important;
 }
-
-/* もしSTEPブロックが内側要素で背景を持つ場合の保険（クラス名が存在する場合のみ効く） */
+.aps-step-inactive input,
+.aps-step-inactive textarea,
+.aps-step-inactive select{
+  background:#ffffff!important;
+  color:#000000!important;
+}
 .aps-step-done .aps-step-header,
 .aps-step-done .aps-step-body{
   background:transparent!important;
 }
-.aps-step-incomplete .aps-step-header,
-.aps-step-incomplete .aps-step-body{
+.aps-step-inactive .aps-step-header,
+.aps-step-inactive .aps-step-body{
   background:transparent!important;
 }
