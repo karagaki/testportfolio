@@ -713,36 +713,20 @@ if (window.__APS_PALETTE_MOUNTED__ || window.__APS_PALETTE_MOUNTING__) {
                 console.warn('[APS] Failed to load CSS:', e);
             }
 
-            // Load React bundle and mount
+            // Load React bundle and mount (isolated world; CSP-safe)
             try {
-                const jsUrl = chrome.runtime.getURL('dist/palette-ui.js');
-                const script = document.createElement('script');
-                script.src = jsUrl;
-                script.onload = () => {
-                    try {
-                        const cid = container.id;
+                if (typeof window.__aps_mount_palette !== 'function') {
+                    await import(chrome.runtime.getURL('dist/palette-ui.js'));
+                }
 
-                        if (!document.getElementById('aps-main-bridge')) {
-                            const s = document.createElement('script');
-                            s.id = 'aps-main-bridge';
-                            s.src = chrome.runtime.getURL('src/aps_main_bridge.js');
-                            s.onload = () => {
-                                try { s.remove(); } catch (_) {}
-                            };
-                            (document.documentElement || document.head).appendChild(s);
-                        }
-
-                        window.postMessage({ type: 'APS_MOUNT_PALETTE', containerId: cid }, '*');
-                    } catch (e) {
-                        console.error('[APS] Failed to request main-world mount', e);
-                    }
-                };
-                script.onerror = (e) => {
-                    console.error('[APS] Failed to load React bundle:', e);
-                };
-                document.head.appendChild(script);
+                if (typeof window.__aps_mount_palette === 'function') {
+                    window.__aps_mount_palette(container);
+                    console.log('[APS] React UI mounted (isolated world)');
+                } else {
+                    console.error('[APS] React mount function not found after import:', chrome.runtime.getURL('dist/palette-ui.js'));
+                }
             } catch (e) {
-                console.warn('[APS] Failed to inject React script:', e);
+                console.error('[APS] Failed to import/mount React UI (CSP-safe path):', e);
             }
         }
 
