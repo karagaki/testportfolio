@@ -384,10 +384,194 @@
         onToggle: active => {
             pickerActive = active;
             paletteController?.setPickerActive(active, pickerTarget);
+            if (active) {
+                showPickerFloatbar();
+            } else {
+                hidePickerFloatbar();
+            }
             updateReactState();
         },
         getSelector: generateSelector,
     });
+
+    let pickerFloatbarEl = null;
+    let pickerFloatbarConfirmBtn = null;
+
+    function ensurePickerFloatbar() {
+        if (pickerFloatbarEl) return pickerFloatbarEl;
+
+        const bar = document.createElement('div');
+        bar.className = 'aps-picker-floatbar';
+        bar.setAttribute('aria-hidden', 'true');
+
+        const mkBtn = (label, className) => {
+            const b = document.createElement('button');
+            b.type = 'button';
+            b.className = className || 'aps-btn aps-btn-small';
+            b.textContent = label;
+            return b;
+        };
+
+        const expand = mkBtn('範囲を広げる', 'aps-btn aps-btn-small');
+        const undo = mkBtn('1つ戻す', 'aps-btn aps-btn-small');
+        const confirm = mkBtn('決定', 'aps-btn aps-btn-small aps-picker-floatbar__primary');
+        const cancel = mkBtn('キャンセル', 'aps-btn aps-btn-small');
+
+        expand.addEventListener('click', () => {
+            picker.expandParent();
+            positionPickerFloatbar();
+            updatePickerFloatbarEnabled();
+        });
+        undo.addEventListener('click', () => {
+            picker.undo();
+            positionPickerFloatbar();
+            updatePickerFloatbarEnabled();
+        });
+        confirm.addEventListener('click', () => {
+            const cur = picker.getCurrent?.();
+            if (!cur) return;
+
+            if ((pickerTarget || 'target') === 'target') {
+                handleStep2TargetConfirmToggle();
+            }
+            picker.stopPicker();
+            hidePickerFloatbar();
+            updateReactState?.();
+        });
+        cancel.addEventListener('click', () => {
+            picker.stopPicker();
+            hidePickerFloatbar();
+            updateReactState?.();
+        });
+
+        bar.append(expand, undo, confirm, cancel);
+        document.documentElement.appendChild(bar);
+
+        pickerFloatbarEl = bar;
+        pickerFloatbarConfirmBtn = confirm;
+        return bar;
+    }
+
+    function showPickerFloatbar() {
+        ensurePickerFloatbar();
+        pickerFloatbarEl.setAttribute('aria-hidden', 'false');
+        positionPickerFloatbar();
+        updatePickerFloatbarEnabled();
+    }
+
+    function hidePickerFloatbar() {
+        if (!pickerFloatbarEl) return;
+        pickerFloatbarEl.setAttribute('aria-hidden', 'true');
+    }
+
+    function updatePickerFloatbarEnabled() {
+        if (!pickerFloatbarEl) return;
+        const hasCurrent = !!picker.getCurrent?.();
+        if (pickerFloatbarConfirmBtn) pickerFloatbarConfirmBtn.disabled = !hasCurrent;
+    }
+
+    function positionPickerFloatbar() {
+        if (!pickerFloatbarEl) return;
+        ensurePickerFloatbar();
+        const cur = picker.getCurrent?.();
+        if (!cur) return;
+        const rect = cur.getBoundingClientRect();
+        if (!rect.width && !rect.height) return;
+        const top = rect.bottom + 8;
+        const left = rect.right + 8;
+        pickerFloatbarEl.style.top = `${top}px`;
+        pickerFloatbarEl.style.left = `${left - pickerFloatbarEl.offsetWidth}px`;
+    }
+
+    let pickerFloatbarEl = null;
+    let pickerFloatbarConfirmBtn = null;
+
+    function ensurePickerFloatbar() {
+        if (pickerFloatbarEl) return pickerFloatbarEl;
+
+        const bar = document.createElement('div');
+        bar.className = 'aps-picker-floatbar';
+        bar.setAttribute('aria-hidden', 'true');
+
+        const mkBtn = (label, className) => {
+            const b = document.createElement('button');
+            b.type = 'button';
+            b.className = className || 'aps-btn aps-btn-small';
+            b.textContent = label;
+            return b;
+        };
+
+        const expand = mkBtn('範囲を広げる', 'aps-btn aps-btn-small');
+        const undo = mkBtn('1つ戻す', 'aps-btn aps-btn-small');
+        const confirm = mkBtn('決定', 'aps-btn aps-btn-small aps-picker-floatbar__primary');
+        const cancel = mkBtn('キャンセル', 'aps-btn aps-btn-small');
+
+        expand.addEventListener('click', () => {
+            picker.expandParent();
+            positionPickerFloatbar();
+            updatePickerFloatbarEnabled();
+        });
+        undo.addEventListener('click', () => {
+            picker.undo();
+            positionPickerFloatbar();
+            updatePickerFloatbarEnabled();
+        });
+        confirm.addEventListener('click', () => {
+            const cur = picker.getCurrent?.();
+            if (!cur) return;
+
+            if ((pickerTarget || 'target') === 'target') {
+                handleStep2TargetConfirmToggle();
+            }
+            picker.stopPicker();
+            hidePickerFloatbar();
+            updateReactState?.();
+        });
+        cancel.addEventListener('click', () => {
+            picker.stopPicker();
+            hidePickerFloatbar();
+            updateReactState?.();
+        });
+
+        bar.append(expand, undo, confirm, cancel);
+        document.documentElement.appendChild(bar);
+
+        pickerFloatbarEl = bar;
+        pickerFloatbarConfirmBtn = confirm;
+        return bar;
+    }
+
+    function showPickerFloatbar() {
+        ensurePickerFloatbar();
+        pickerFloatbarEl.setAttribute('aria-hidden', 'false');
+        positionPickerFloatbar();
+        updatePickerFloatbarEnabled();
+    }
+
+    function hidePickerFloatbar() {
+        if (!pickerFloatbarEl) return;
+        pickerFloatbarEl.setAttribute('aria-hidden', 'true');
+    }
+
+    function updatePickerFloatbarEnabled() {
+        if (!pickerFloatbarEl) return;
+        const hasCurrent = !!picker.getCurrent?.();
+        if (pickerFloatbarConfirmBtn) pickerFloatbarConfirmBtn.disabled = !hasCurrent;
+    }
+
+    function positionPickerFloatbar() {
+        if (!pickerFloatbarEl) return;
+        ensurePickerFloatbar();
+        const cur = picker.getCurrent?.();
+        if (!cur) return;
+        const rect = cur.getBoundingClientRect();
+        if (!rect.width && !rect.height) return;
+        const top = rect.bottom + 8 + window.scrollY;
+        const left = rect.right + 8 + window.scrollX;
+        pickerFloatbarEl.style.position = 'absolute';
+        pickerFloatbarEl.style.top = `${top}px`;
+        pickerFloatbarEl.style.left = `${left - pickerFloatbarEl.offsetWidth}px`;
+    }
 
     function formatDate(date) {
         const pad = value => String(value).padStart(2, '0');

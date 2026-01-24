@@ -233,3 +233,25 @@
     border-color: #3a3a3a;
     opacity: 1;
 }
+.aps-picker-floatbar{
+  position: fixed;
+  z-index: 2147483647;
+  display: none;
+  gap: 6px;
+  align-items: center;
+  padding: 6px;
+  border-radius: 10px;
+  background: rgba(255,255,255,.92);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 10px 26px rgba(0,0,0,.15);
+}
+.aps-picker-floatbar button{
+  font-size: 12px;
+  line-height: 1;
+  padding: 7px 10px;
+  border-radius: 8px;
+}
+.aps-picker-floatbar .aps-picker-floatbar__primary{
+  font-weight: 600;
+}
+.aps-picker-floatbar[aria-hidden="false"]{display:flex}
