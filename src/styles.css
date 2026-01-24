@@ -266,6 +266,10 @@
   --aps-step-inactive-fg:#ffffff;
 }
 
+.aps-step-block{
+  background:transparent !important;
+}
+
 .aps-step-header{
   opacity:1 !important;
   filter:none !important;
@@ -284,26 +288,6 @@
   color:var(--aps-step-inactive-fg) !important;
 }
 .aps-step-dark:not(.aps-step-done) .aps-step-header *{
-  color:var(--aps-step-inactive-fg) !important;
-}
-
-.aps-step-block.aps-step-done{
-  background:var(--aps-step-done-bg) !important;
-  color:var(--aps-step-done-fg) !important;
-  filter:none !important;
-  opacity:1 !important;
-}
-.aps-step-block.aps-step-done *{
-  color:var(--aps-step-done-fg) !important;
-}
-
-.aps-step-block.aps-step-dark{
-  background:var(--aps-step-inactive-bg) !important;
-  color:var(--aps-step-inactive-fg) !important;
-  filter:none !important;
-  opacity:1 !important;
-}
-.aps-step-block.aps-step-dark *{
   color:var(--aps-step-inactive-fg) !important;
 }
 
