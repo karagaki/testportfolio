@@ -632,6 +632,94 @@ function RulesList({
   );
 }
 
+// ===== New UI Skeleton (Phase 1) =====
+function NewPanelSkeleton({
+  pickerActive,
+  onClose,
+  onCancel,
+}: {
+  pickerActive: boolean;
+  onClose: () => void;
+  onCancel: () => void;
+}) {
+  // In phase1, badge states are static placeholders
+  // Will be connected to actual state in phase2
+  return (
+    <div className="aps2-root">
+      <div className="aps2-topbar">
+        <div className="aps2-title">Aパレットサーチ</div>
+        <div className="aps2-mode">
+          {pickerActive ? '選択モード：対象要素を選択中' : '編集モード'}
+        </div>
+        <div className="aps2-actions">
+          <button className="aps2-btn" onClick={onClose}>終了</button>
+          <button className="aps2-btn" onClick={onCancel}>キャンセル</button>
+        </div>
+      </div>
+
+      <div className="aps2-progress" role="tablist">
+        <button className="aps2-step is-done" data-step="target">対象</button>
+        <button className="aps2-step is-editing" data-step="element">要素</button>
+        <button className="aps2-step is-empty" data-step="condition">条件</button>
+        <button className="aps2-step is-empty" data-step="helper">補助</button>
+        <button className="aps2-step is-empty" data-step="save">保存</button>
+      </div>
+
+      <div className="aps2-cards">
+        <section className="aps2-card" data-card="target">
+          <header className="aps2-card-h">
+            <div className="aps2-card-t">対象</div>
+            <div className="aps2-badge is-done">完了</div>
+          </header>
+          <div className="aps2-card-b">
+            <div className="aps2-placeholder">ここに対象設定UI</div>
+          </div>
+        </section>
+
+        <section className="aps2-card" data-card="element">
+          <header className="aps2-card-h">
+            <div className="aps2-card-t">要素</div>
+            <div className="aps2-badge is-editing">編集中</div>
+          </header>
+          <div className="aps2-card-b">
+            <div className="aps2-placeholder">ここに要素選択UI</div>
+          </div>
+        </section>
+
+        <section className="aps2-card" data-card="condition">
+          <header className="aps2-card-h">
+            <div className="aps2-card-t">条件</div>
+            <div className="aps2-badge is-empty">未設定</div>
+          </header>
+          <div className="aps2-card-b">
+            <div className="aps2-placeholder">ここに条件UI</div>
+          </div>
+        </section>
+
+        <section className="aps2-card" data-card="helper">
+          <header className="aps2-card-h">
+            <div className="aps2-card-t">補助</div>
+            <div className="aps2-badge is-empty">未設定</div>
+          </header>
+          <div className="aps2-card-b">
+            <div className="aps2-placeholder">ここに補助条件UI</div>
+          </div>
+        </section>
+
+        <section className="aps2-card" data-card="save">
+          <header className="aps2-card-h">
+            <div className="aps2-card-t">保存・有効化</div>
+            <div className="aps2-badge is-empty">未設定</div>
+          </header>
+          <div className="aps2-card-b">
+            <div className="aps2-placeholder">ここに保存UI</div>
+          </div>
+        </section>
+      </div>
+    </div>
+  );
+}
+
 // ===== Main App =====
 
 export default function App() {
@@ -818,7 +906,16 @@ export default function App() {
   if (!visible) return null;
 
   return (
-    <div className={`ads-panel ${minimized ? 'ads-minimized' : ''}`}>
+    <>
+      {/* ===== New UI (Phase 1 skeleton) ===== */}
+      <NewPanelSkeleton
+        pickerActive={pickerActive}
+        onClose={() => adapter.closePalette()}
+        onCancel={() => adapter.closePalette()}
+      />
+
+      {/* ===== Old UI (hidden for phase1, kept for rollback) ===== */}
+      <div className={`ads-panel aps-legacy-hidden ${minimized ? 'ads-minimized' : ''}`}>
       {/* Header */}
       <div className="ads-panel-header">
         <span className="ads-panel-title">Aパレットサーチ</span>
@@ -905,5 +1002,6 @@ export default function App() {
         </span>
       </div>
     </div>
+    </>
   );
 }

@@ -555,3 +555,161 @@
 .ads-status-error {
   color: #bf2600;
 }
+
+/* ===== Legacy UI hidden (phase1) ===== */
+.aps-legacy-hidden {
+  display: none !important;
+}
+
+/* ===== APS2 new panel UI (phase1) ===== */
+.aps2-root {
+  position: fixed !important;
+  top: 10px !important;
+  right: 10px !important;
+  width: 420px !important;
+  max-height: 92vh;
+  overflow: auto;
+  box-sizing: border-box;
+  padding: 12px;
+  background: #f7f5f0;
+  border-radius: 12px;
+  font-family: var(--ads-font);
+  font-size: var(--ads-fs-body);
+  color: var(--ads-fg);
+  z-index: 2147483646 !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12), 0 0 1px rgba(0, 0, 0, 0.1);
+}
+
+.aps2-topbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: #efe9dc;
+  border-radius: 12px;
+}
+
+.aps2-title {
+  font-weight: 700;
+}
+
+.aps2-mode {
+  flex: 1;
+  opacity: 0.85;
+}
+
+.aps2-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.aps2-btn {
+  padding: 6px 10px;
+  border-radius: 10px;
+  border: 1px solid #d0c7b6;
+  background: #fff;
+  cursor: pointer;
+  font-family: var(--ads-font);
+  font-size: var(--ads-fs-body);
+}
+
+.aps2-btn:hover {
+  background: #f5f5f5;
+}
+
+.aps2-progress {
+  display: flex;
+  gap: 8px;
+  margin: 10px 0 12px;
+}
+
+.aps2-step {
+  flex: 1;
+  padding: 8px 6px;
+  border-radius: 10px;
+  border: 1px solid #d0d0d0;
+  background: #999;
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: var(--ads-font);
+  font-size: var(--ads-fs-small);
+}
+
+.aps2-step.is-empty {
+  background: #999;
+  color: #fff;
+}
+
+.aps2-step.is-editing {
+  background: #efe9dc;
+  color: #000;
+}
+
+.aps2-step.is-done {
+  background: #ffb6c1;
+  color: #000;
+}
+
+.aps2-cards {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+
+.aps2-card {
+  background: #fff;
+  border: 1px solid #e2ded6;
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.aps2-card-h {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  background: #f2f2f2;
+}
+
+.aps2-card-t {
+  font-weight: 800;
+}
+
+.aps2-badge {
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-weight: 700;
+  border: 1px solid #d0d0d0;
+  background: #999;
+  color: #fff;
+  font-size: var(--ads-fs-small);
+}
+
+.aps2-badge.is-empty {
+  background: #999;
+  color: #fff;
+}
+
+.aps2-badge.is-editing {
+  background: #efe9dc;
+  color: #000;
+}
+
+.aps2-badge.is-done {
+  background: #ffb6c1;
+  color: #000;
+}
+
+.aps2-card-b {
+  padding: 12px;
+}
+
+.aps2-placeholder {
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px dashed #cfc8bc;
+  background: #fafafa;
+  color: #666;
+}
+/* ===== /APS2 new panel UI ===== */
