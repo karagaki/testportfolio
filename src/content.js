@@ -222,6 +222,23 @@
         return currentRules.filter(rule => matchScope(rule.scope));
     }
 
+    function getStepState() {
+        const step1 = !!(draft.scope?.host || draft.scope?.pathPattern);
+        const step2 = !!(draft.targetSelector || draft.date?.dateSelector);
+        const step3 = !!(draft.paint?.type || draft.match?.keywords?.length > 0);
+        const step4 = !draftDirty && !!draft.id;
+        return { step1, step2, step3, step4 };
+    }
+
+    function getApplyState() {
+        if (draftDirty) return 'draft';
+        if (traceState.applySource === 'RULES' || traceState.applySource === 'PALETTE_STATE') {
+            return 'applied';
+        }
+        if (draft.id) return 'saved';
+        return 'draft';
+    }
+
     function updateReactState() {
         window.__aps_adapter_state = {
             pageInfo: getPageInfo(),
@@ -236,6 +253,8 @@
             window.__aps_react_update();
         }
         paletteController?.updateState(window.__aps_adapter_state);
+        paletteController?.setStepState(getStepState());
+        paletteController?.setApplyState(getApplyState());
     }
 
     const picker = createDomPicker({

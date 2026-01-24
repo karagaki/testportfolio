@@ -262,6 +262,31 @@ export function createPaletteUI({
     const rulesList = el('div', 'aps-rules');
     listSection.append(listLabel, rulesList);
 
+    // 工程見出し
+    const step1Header = el('div', 'aps-step-header');
+    const step1Title = el('span', 'aps-step-title', '① 対象');
+    const step1Chip = el('span', 'aps-step-chip', '未設定');
+    step1Chip.style.display = 'none';
+    step1Header.append(step1Title, step1Chip);
+
+    const step2Header = el('div', 'aps-step-header');
+    const step2Title = el('span', 'aps-step-title', '② 要素');
+    const step2Chip = el('span', 'aps-step-chip', '未設定');
+    step2Chip.style.display = 'none';
+    step2Header.append(step2Title, step2Chip);
+
+    const step3Header = el('div', 'aps-step-header');
+    const step3Title = el('span', 'aps-step-title', '③ 条件・表現');
+    const step3Chip = el('span', 'aps-step-chip', '未設定');
+    step3Chip.style.display = 'none';
+    step3Header.append(step3Title, step3Chip);
+
+    const step4Header = el('div', 'aps-step-header');
+    const step4Title = el('span', 'aps-step-title', '④ 保存');
+    const step4Chip = el('span', 'aps-step-chip', '未設定');
+    step4Chip.style.display = 'none';
+    step4Header.append(step4Title, step4Chip);
+
     const statusRow = el('div', 'aps-status-row');
     statusRow.style.display = 'flex';
     statusRow.style.justifyContent = 'space-between';
@@ -275,8 +300,9 @@ export function createPaletteUI({
     const dirtyChip = el('span', 'aps-dirty-chip');
     dirtyChip.style.display = 'none';
     dirtyChip.textContent = '未保存';
+    const applyStateLabel = el('span', 'aps-apply-state', '下書き');
     const statusInfo = el('span', 'aps-status-info', 'ルール: 0');
-    statusRow.append(statusLabel, dirtyChip, statusInfo);
+    statusRow.append(statusLabel, dirtyChip, applyStateLabel, statusInfo);
 
     const traceRow = el('div', 'aps-trace-row');
     traceRow.style.display = 'flex';
@@ -291,15 +317,19 @@ export function createPaletteUI({
     traceRow.append(traceText);
 
     body.append(
+        step1Header,
         pageSection,
+        urlSection,
+        step2Header,
         pickerToggle,
         pickerTools,
-        urlSection,
         listModeSection,
+        step3Header,
         keywordSection,
         dateSection,
         paintSection,
         titleSection,
+        step4Header,
         saveBtn,
         backupSection,
         statusRow,
@@ -718,6 +748,22 @@ export function createPaletteUI({
         traceText.textContent = text || '';
     }
 
+    function setStepState(stepState) {
+        step1Chip.style.display = stepState?.step1 ? 'none' : 'inline-block';
+        step2Chip.style.display = stepState?.step2 ? 'none' : 'inline-block';
+        step3Chip.style.display = stepState?.step3 ? 'none' : 'inline-block';
+        step4Chip.style.display = stepState?.step4 ? 'none' : 'inline-block';
+    }
+
+    function setApplyState(state) {
+        const labels = {
+            draft: '下書き',
+            saved: '保存済（未適用）',
+            applied: '適用済',
+        };
+        applyStateLabel.textContent = labels[state] || '下書き';
+    }
+
     return {
         element: root,
         setPageInfo,
@@ -736,6 +782,8 @@ export function createPaletteUI({
         setStatus,
         setStatusInfo,
         setTrace,
+        setStepState,
+        setApplyState,
     };
 }
 
@@ -776,5 +824,7 @@ export function mountPaletteUI(container) {
         setToast: palette.setToast,
         setDirty: palette.setDirty,
         setPickerActive: palette.setPickerActive,
+        setStepState: palette.setStepState,
+        setApplyState: palette.setApplyState,
     };
 }
