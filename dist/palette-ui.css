@@ -41,21 +41,12 @@
 .aps-step2-datevalue--dim{opacity:.55;filter:saturate(.6)}
 .aps-step2-datevalue--highlight .aps-slot-valuebox{background:#ffffff}
 
-/* ===== STEP colors: header-only (final) ===== */
+/* ===== STEP colors: block + header (final) ===== */
 :root{
   --aps-step-done-bg:#ffb6c1;
   --aps-step-done-fg:#000000;
   --aps-step-inactive-bg:#999999;
   --aps-step-inactive-fg:#ffffff;
-}
-
-.aps-step-block,
-.aps-step-section,
-.aps-step{
-  background:transparent !important;
-  color:inherit !important;
-  opacity:1 !important;
-  filter:none !important;
 }
 
 .aps-step-header{
@@ -79,6 +70,26 @@
   color:var(--aps-step-inactive-fg) !important;
 }
 
+.aps-step-block.aps-step-done{
+  background:var(--aps-step-done-bg) !important;
+  color:var(--aps-step-done-fg) !important;
+  filter:none !important;
+  opacity:1 !important;
+}
+.aps-step-block.aps-step-done *{
+  color:var(--aps-step-done-fg) !important;
+}
+
+.aps-step-block.aps-step-dark{
+  background:var(--aps-step-inactive-bg) !important;
+  color:var(--aps-step-inactive-fg) !important;
+  filter:none !important;
+  opacity:1 !important;
+}
+.aps-step-block.aps-step-dark *{
+  color:var(--aps-step-inactive-fg) !important;
+}
+
 .aps-step-current .aps-step-header{
   color:#000000 !important;
   opacity:1 !important;
@@ -97,8 +108,9 @@
 .aps-step-current.aps-step-done .aps-step-header *{
   color:#000000 !important;
 }
-/* ===== /STEP colors: header-only ===== */
+/* ===== /STEP colors: block + header ===== */
 
+/* ===== Panel form controls: force light (no black) ===== */
 /* ===== Panel form controls: force light (no black) ===== */
 :is(#aps-panel, .aps-panel, #aps-root, .aps-root, #aps-palette, .aps-palette, #palette-panel, .palette-panel){
   color-scheme: light;
