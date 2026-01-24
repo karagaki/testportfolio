@@ -108,6 +108,34 @@
 }
 /* ===== /Palette STEP coloring v2 ===== */
 
+[data-aps-palette] .aps-step-block.aps-step-done{
+  background:var(--aps-step-done-bg) !important;
+  color:var(--aps-step-done-fg) !important;
+  filter:none !important;
+  opacity:1 !important;
+}
+[data-aps-palette] .aps-step-block.aps-step-done *{
+  color:var(--aps-step-done-fg) !important;
+}
+[data-aps-palette] .aps-step-block.aps-step-dark{
+  background:var(--aps-step-inactive-bg) !important;
+  color:var(--aps-step-inactive-fg) !important;
+  filter:none !important;
+  opacity:1 !important;
+}
+[data-aps-palette] .aps-step-block.aps-step-dark *{
+  color:var(--aps-step-inactive-fg) !important;
+}
+[data-aps-palette] .aps-step-block.aps-step-current{
+  background:transparent !important;
+  color:#000000 !important;
+  filter:none !important;
+  opacity:1 !important;
+}
+[data-aps-palette] .aps-step-block.aps-step-current *{
+  color:#000000 !important;
+}
+
 /* ===== Palette form controls: force normal (no black) ===== */
 [data-aps-palette] input,
 [data-aps-palette] select,
