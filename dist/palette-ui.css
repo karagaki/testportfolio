@@ -45,3 +45,4 @@
 .aps-step2-datevalue--dim{opacity:.55;filter:saturate(.6)}
 .aps-step2-datevalue--highlight .aps-slot-valuebox{background:#ffffff}
 .aps-step-done{background:#ffb6c1!important;color:#111!important;opacity:1!important;filter:none!important}
+.aps-step-incomplete{background:#333333!important;color:#ffffff!important;opacity:1!important;filter:none!important}

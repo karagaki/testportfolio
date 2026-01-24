@@ -984,7 +984,9 @@ export function createPaletteUI({
         ];
         donePairs.forEach(([key, block]) => {
             if (!block) return;
-            block.classList.toggle('aps-step-done', !!stepState?.[key]);
+            const isComplete = stepState && stepState[key] === true;
+            block.classList.toggle('aps-step-done', isComplete);
+            block.classList.toggle('aps-step-incomplete', !isComplete);
         });
 
         const canSave = !!stepState?.step1 && !!stepState?.step2 && !!stepState?.step3_1 && !!stepState?.step3_2;
