@@ -233,6 +233,9 @@
     border-color: #3a3a3a;
     opacity: 1;
 }
+
+
+/* Picker floatbar (attached to selected outline) */
 .aps-picker-floatbar{
   position: fixed;
   z-index: 2147483647;

@@ -380,21 +380,18 @@
             setDraftDirty(true);
             saveDraft(draft);
             updateReactState();
-            if (picker.getActive()) {
-                showPickerFloatbar();
-            }
+            if (picker.getActive()) showPickerFloatbar();
         },
         onToggle: active => {
             pickerActive = active;
             paletteController?.setPickerActive(active, pickerTarget);
             updateReactState();
-            if (active) showPickerFloatbar();
-            else hidePickerFloatbar();
+            if (active) showPickerFloatbar(); else hidePickerFloatbar();
         },
         getSelector: generateSelector,
     });
 
-    // ===== Picker Floatbar (bottom-right of selected element) =====
+    // ===== Picker Floatbar (attach to selected outline bottom-left) =====
     let pickerFloatbarEl = null;
 
     function ensurePickerFloatbar() {
@@ -409,6 +406,9 @@
             b.type = 'button';
             b.className = className || 'aps-btn aps-btn-small';
             b.textContent = label;
+            // Picker中にボタン自体が選択対象にならないようにする
+            b.addEventListener('mousedown', e => { e.preventDefault(); e.stopPropagation(); }, true);
+            b.addEventListener('click', e => { e.stopPropagation(); }, true);
             return b;
         };
 
@@ -431,9 +431,11 @@
             const cur = picker.getCurrent();
             if (!cur) return;
 
+            // target選択の場合のみ「対象確定」まで進める
             if ((pickerTarget || 'target') === 'target') {
                 handleStep2TargetConfirmToggle();
             }
+
             picker.stopPicker();
             hidePickerFloatbar();
             updateReactState();
@@ -445,8 +447,12 @@
         });
 
         bar.append(expand, undo, confirm, cancel);
-        document.documentElement.appendChild(bar);
 
+        // bar自体もPickerに拾われないようにする
+        bar.addEventListener('mousedown', e => { e.preventDefault(); e.stopPropagation(); }, true);
+        bar.addEventListener('click', e => { e.stopPropagation(); }, true);
+
+        document.documentElement.appendChild(bar);
         pickerFloatbarEl = bar;
         return bar;
     }
@@ -475,27 +481,32 @@
         const cur = picker.getCurrent();
         if (!cur) return;
 
+        // 表示状態にしてからサイズ計測
+        pickerFloatbarEl.setAttribute('aria-hidden', 'false');
+
         const r = cur.getBoundingClientRect();
         const offset = 8;
 
-        if (pickerFloatbarEl.getAttribute('aria-hidden') !== 'false') {
-            pickerFloatbarEl.setAttribute('aria-hidden', 'false');
-        }
-
         const barRect = pickerFloatbarEl.getBoundingClientRect();
-        let left = r.right + offset;
-        let top = r.bottom + offset;
+
+        // 左下（枠に付随）: 要素内の左下に“食い込ませる”配置で誤クリックを減らす
+        let left = r.left + offset;
+        let top = r.bottom - barRect.height - offset;
 
         const vw = window.innerWidth;
         const vh = window.innerHeight;
 
-        if (left + barRect.width > vw - 6) left = Math.max(6, r.right - barRect.width - offset);
-        if (top + barRect.height > vh - 6) top = Math.max(6, r.bottom - barRect.height - offset);
+        if (left + barRect.width > vw - 6) left = Math.max(6, vw - barRect.width - 6);
+        if (left < 6) left = 6;
+
+        if (top + barRect.height > vh - 6) top = Math.max(6, vh - barRect.height - 6);
+        if (top < 6) top = 6;
 
         pickerFloatbarEl.style.left = `${Math.round(left)}px`;
         pickerFloatbarEl.style.top = `${Math.round(top)}px`;
     }
     // ===== /Picker Floatbar =====
+
 
     function formatDate(date) {
         const pad = value => String(value).padStart(2, '0');
@@ -693,11 +704,7 @@
 
     // Set up adapter callbacks for React UI
     window.__aps_adapter_callbacks = {
-        onTogglePicker: () => {
-            picker.togglePicker();
-            if (picker.getActive()) showPickerFloatbar();
-            else hidePickerFloatbar();
-        },
+        onTogglePicker: () => picker.togglePicker(),
         onPickTargetChange: target => {
             pickerTarget = target || 'target';
         },
@@ -723,6 +730,7 @@
         onDraftChange: handleDraftChange,
     };
 
+    // Picker floatbar follow
     window.addEventListener('scroll', () => {
         if (!picker.getActive()) return;
         positionPickerFloatbar();
@@ -732,6 +740,7 @@
         if (!picker.getActive()) return;
         positionPickerFloatbar();
     });
+
 
     // Initialize React state
     updateReactState();
