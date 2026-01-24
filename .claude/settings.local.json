@@ -21,7 +21,8 @@
       "Bash(then git init)",
       "Bash(git add:*)",
       "Bash(git commit:*)",
-      "Bash(else echo \"Already initialized\")"
+      "Bash(else echo \"Already initialized\")",
+      "Bash(npm run build:*)"
     ],
     "additionalDirectories": [
       "/Users/i/Desktop/Projects/A_パレットリビルド/dist",
