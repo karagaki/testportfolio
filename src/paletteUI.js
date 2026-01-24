@@ -40,6 +40,15 @@ export function createPaletteUI({
     const closeBtn = el('button', 'aps-icon-btn', '×');
     header.append(title, minimizeBtn, closeBtn);
 
+    const bannerContainer = el('div', 'aps-banner');
+    bannerContainer.style.display = 'none';
+    const bannerText = el('span', 'aps-banner-text', '選択モード：要素を選択中');
+    const bannerBtns = el('div', 'aps-banner-btns');
+    const bannerEndBtn = el('button', 'aps-btn aps-btn-small', '終了');
+    const bannerCancelBtn = el('button', 'aps-btn aps-btn-small', 'キャンセル');
+    bannerBtns.append(bannerEndBtn, bannerCancelBtn);
+    bannerContainer.append(bannerText, bannerBtns);
+
     const body = el('div', 'aps-body');
 
     const pageSection = el('div', 'aps-section');
@@ -263,8 +272,11 @@ export function createPaletteUI({
     statusRow.style.marginTop = '4px';
     statusRow.style.color = '#555';
     const statusLabel = el('span', 'aps-status-label', '未保存');
+    const dirtyChip = el('span', 'aps-dirty-chip');
+    dirtyChip.style.display = 'none';
+    dirtyChip.textContent = '未保存';
     const statusInfo = el('span', 'aps-status-info', 'ルール: 0');
-    statusRow.append(statusLabel, statusInfo);
+    statusRow.append(statusLabel, dirtyChip, statusInfo);
 
     const traceRow = el('div', 'aps-trace-row');
     traceRow.style.display = 'flex';
@@ -295,7 +307,7 @@ export function createPaletteUI({
         listSection
     );
 
-    root.append(header, body);
+    root.append(header, bannerContainer, body);
 
     let draft = {
         id: null,
@@ -567,6 +579,8 @@ export function createPaletteUI({
     saveBtn.addEventListener('click', () => onSaveRule?.(cloneDraft(draft)));
     closeBtn.addEventListener('click', () => onClose?.());
     minimizeBtn.addEventListener('click', () => onMinimize?.());
+    bannerEndBtn.addEventListener('click', () => onTogglePicker?.());
+    bannerCancelBtn.addEventListener('click', () => onTogglePicker?.());
     exportBtn.addEventListener('click', () => onExport?.());
     importBtn.addEventListener('click', () => importInput.click());
     importInput.addEventListener('change', () => {
@@ -588,9 +602,19 @@ export function createPaletteUI({
         pageValue.textContent = text || '';
     }
 
-    function setPickerActive(active) {
+    function setPickerActive(active, target) {
         pickerToggle.textContent = active ? '選択終了' : '要素を選択';
         pickerTools.style.display = active ? 'block' : 'none';
+        bannerContainer.style.display = active ? 'flex' : 'none';
+        if (active) {
+            if (target === 'date') {
+                bannerText.textContent = '選択モード：日付要素を選択中';
+            } else if (target === 'header') {
+                bannerText.textContent = '選択モード：年月ヘッダを選択中';
+            } else {
+                bannerText.textContent = '選択モード：要素を選択中';
+            }
+        }
     }
 
     function setTargetDisplay(text) {
@@ -665,8 +689,21 @@ export function createPaletteUI({
         syncDraftToInputs();
     }
 
-    function setToast(message) {
+    let toastTimer = null;
+    function setToast(message, ttlMs = 2000) {
+        clearTimeout(toastTimer);
         toast.textContent = message || '';
+        toast.style.display = message ? 'block' : 'none';
+        if (message && ttlMs > 0) {
+            toastTimer = setTimeout(() => {
+                toast.textContent = '';
+                toast.style.display = 'none';
+            }, ttlMs);
+        }
+    }
+
+    function setDirty(isDirty) {
+        dirtyChip.style.display = isDirty ? 'inline-block' : 'none';
     }
 
     function setStatus(text) {
@@ -695,6 +732,7 @@ export function createPaletteUI({
         setMinimized,
         setDraft,
         setToast,
+        setDirty,
         setStatus,
         setStatusInfo,
         setTrace,
@@ -735,5 +773,8 @@ export function mountPaletteUI(container) {
         updateState,
         setStatus: palette.setStatus,
         setTrace: palette.setTrace,
+        setToast: palette.setToast,
+        setDirty: palette.setDirty,
+        setPickerActive: palette.setPickerActive,
     };
 }

@@ -198,6 +198,12 @@
     let pickerTarget = 'target';
     let pickerActive = false;
     let targetDisplay = '未選択';
+    let draftDirty = false;
+
+    function setDraftDirty(isDirty) {
+        draftDirty = isDirty;
+        paletteController?.setDirty(isDirty);
+    }
 
     function describeElement(element) {
         if (!element || element.nodeType !== 1) return '';
@@ -249,11 +255,13 @@
                     }
                 }
             }
+            setDraftDirty(true);
             saveDraft(draft);
             updateReactState();
         },
         onToggle: active => {
             pickerActive = active;
+            paletteController?.setPickerActive(active, pickerTarget);
             updateReactState();
         },
         getSelector: generateSelector,
@@ -299,11 +307,13 @@
     async function handleSaveRule(updatedDraft) {
         const selector = updatedDraft.targetSelector?.trim();
         if (!selector) {
-            throw new Error('対象の枠を選択してください');
+            paletteController?.setToast('保存できない：対象の枠を選択してください', 4000);
+            return;
         }
         const allowNoKeywords = updatedDraft.date?.enabled && updatedDraft.date?.applyWithoutKeyword;
         if (!updatedDraft.match?.keywords?.length && !allowNoKeywords) {
-            throw new Error('キーワードを追加してください');
+            paletteController?.setToast('保存できない：キーワードを追加してください', 4000);
+            return;
         }
 
         const ruleId = updatedDraft.id || (crypto.randomUUID ? crypto.randomUUID() : String(Date.now()));
@@ -349,20 +359,23 @@
         };
 
         traceState.lastSaveAction = 'UPSERT';
+        paletteController?.setToast('保存中…', 0);
         paletteController?.setStatus('保存中…');
         try {
             const data = await upsertRule(rule);
             currentRules = data.rules || [];
             draft = mergeDraft(draft, { id: ruleId, enabled: rule.enabled });
             await saveDraft(draft);
+            setDraftDirty(false);
             runApplyRules('RULES', currentRules);
             updateReactState();
             const timeLabel = new Date().toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' });
+            paletteController?.setToast(`保存OK (${timeLabel})`, 2000);
             paletteController?.setStatus(`保存OK (${timeLabel})`);
         } catch (error) {
             const reason = String(error?.message || '保存エラー').split('\n')[0].slice(0, 20);
+            paletteController?.setToast(`保存失敗：${reason}`, 4000);
             paletteController?.setStatus(`保存失敗 (${reason})`);
-            throw error;
         }
     }
 
@@ -408,8 +421,8 @@
 
     function handleDraftChange(newDraft) {
         draft = mergeDraft(draft, newDraft);
+        setDraftDirty(true);
         saveDraft(draft);
-        paletteController?.setStatus('未保存');
     }
 
     // Set up adapter callbacks for React UI
@@ -423,6 +436,7 @@
             const generated = generateRepeatedItemSelector(lastSelectedElement);
             if (!generated) return;
             draft = mergeDraft(draft, { list: { itemSelector: generated } });
+            setDraftDirty(true);
             saveDraft(draft);
             updateReactState();
         },
