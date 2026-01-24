@@ -14,3 +14,26 @@
 .aps-step-light{background:#fff!important;color:#111!important;opacity:1!important;transition:background .12s ease,color .12s ease,opacity .12s ease}
 .aps-step-dark{background:#1e1e1e!important;color:#eaeaea!important;opacity:.55!important;filter:saturate(.6);transition:background .12s ease,color .12s ease,opacity .12s ease}
 .aps-step-dark input,.aps-step-dark select,.aps-step-dark button{background:#2a2a2a!important;color:#eaeaea!important;border-color:#3a3a3a!important;opacity:1!important}
+.aps-slot-section{display:flex;flex-direction:column;gap:6px;margin:4px 0}
+.aps-slot-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.aps-slot-label{font-size:12px;font-weight:500;color:#555;min-width:72px}
+.aps-slot-controls{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.aps-slot-status{font-size:11px;color:#666;background:#f5f5f5;border-radius:999px;padding:2px 7px}
+.aps-slot-status--set{color:#096dd9;background:#e6f7ff;font-weight:500}
+.aps-badge{font-size:11px;padding:2px 8px;border-radius:999px;background:#f5f5f5;color:#555}
+.aps-badge--required{background:#fff1f0;color:#a8071a}
+.aps-badge--optional{background:#e6f7ff;color:#0050b3}
+.aps-step-dark .aps-slot-status{background:#2b2b2b;color:#f5f5f5}
+.aps-step-dark .aps-badge{background:#3a3a3a;color:#f5f5f5}
+.aps-badge--skip{background:#faf2e8;color:#ad4e00}
+.aps-step2-confirm{display:flex;gap:6px;align-items:center;margin-left:72px}
+.aps-step2-confirm-btn{border-radius:999px;background:#f0f0f0;color:#222;font-size:11px;padding:3px 10px;font-weight:500;border:none;cursor:pointer}
+.aps-step2-confirm-btn--active{background:#ffe58f;color:#613400;font-weight:600}
+.aps-step2-datemode{display:flex;gap:6px;align-items:center;margin-left:72px;flex-wrap:wrap}
+.aps-step2-datemode-label{font-size:11px;color:#444;margin-right:4px}
+.aps-step2-datemode-btn{border-radius:999px;background:#f0f4ff;color:#222;font-size:11px;padding:3px 10px;font-weight:500;border:none;cursor:pointer}
+.aps-step2-datemode-btn--active{background:#bae7ff;color:#0050b3;font-weight:600}
+.aps-step2-date-selector--highlight{background:#1890ff!important;color:#fff!important;border-color:#1890ff!important}
+.aps-slot-row--dim{opacity:.6;filter:saturate(.6)}
+.aps-slot-row--highlight{background:rgba(24,144,255,.12);border-radius:6px}
+.aps-slot-row--confirmed{background:rgba(102,227,132,.12);border-radius:6px}

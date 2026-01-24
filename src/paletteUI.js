@@ -30,6 +30,8 @@ export function createPaletteUI({
     onClose,
     onMinimize,
     onDraftChange,
+    onStep2TargetConfirmToggle,
+    onStep2DateModeChange,
 }) {
     const root = el('div', 'aps-palette');
     root.setAttribute('data-aps-palette', '1');
@@ -181,7 +183,7 @@ export function createPaletteUI({
     const dateSelectorInput = el('input', 'aps-input');
     dateSelectorInput.type = 'text';
     const dateSelectorBtn = el('button', 'aps-btn aps-btn-small', '日付要素を選択');
-    dateSelectorRow.append(dateSelectorInput, dateSelectorBtn);
+    dateSelectorRow.append(dateSelectorInput);
 
     const headerSelectorLabel = el('div', 'aps-label', '年月ヘッダセレクタ');
     const headerSelectorRow = el('div', 'aps-row');
@@ -292,6 +294,36 @@ export function createPaletteUI({
     step2Header.append(step2Title, step2Chip);
     step2Header.dataset.step = 'step2';
 
+    const slotSection = el('div', 'aps-slot-section');
+    const targetSlotRow = el('div', 'aps-slot-row');
+    const targetSlotLabel = el('span', 'aps-slot-label', '対象要素');
+    const targetSlotControls = el('div', 'aps-slot-controls');
+    const targetSlotStatus = el('span', 'aps-slot-status', '未設定');
+    targetSlotControls.append(pickerToggle, targetSlotStatus);
+    targetSlotRow.append(targetSlotLabel, targetSlotControls);
+
+    const targetConfirmArea = el('div', 'aps-step2-confirm');
+    const targetConfirmBtn = el('button', 'aps-btn aps-btn-small aps-step2-confirm-btn', '対象を確定');
+    targetConfirmArea.append(targetConfirmBtn);
+    targetConfirmArea.style.display = 'none';
+
+    const dateModeArea = el('div', 'aps-step2-datemode');
+    const dateModeLabel = el('span', 'aps-step2-datemode-label', '日付の有無');
+    const dateModeNeedBtn = el('button', 'aps-btn aps-btn-small aps-step2-datemode-btn', '日付を指定する');
+    const dateModeSkipBtn = el('button', 'aps-btn aps-btn-small aps-step2-datemode-btn', '日付は指定しない');
+    dateModeArea.append(dateModeLabel, dateModeNeedBtn, dateModeSkipBtn);
+    dateModeArea.style.display = 'none';
+
+    const dateSlotRow = el('div', 'aps-slot-row');
+    const dateSlotLabel = el('span', 'aps-slot-label', '日付要素');
+    const dateSlotControls = el('div', 'aps-slot-controls');
+    const dateSlotStatus = el('span', 'aps-slot-status', '未設定');
+    const dateRequirementBadge = el('span', 'aps-badge aps-badge--optional', '任意');
+    dateSlotControls.append(dateSelectorBtn, dateSlotStatus, dateRequirementBadge);
+    dateSlotRow.append(dateSlotLabel, dateSlotControls);
+
+    slotSection.append(targetSlotRow, targetConfirmArea, dateModeArea, dateSlotRow);
+
     const step3_1Header = el('div', 'aps-step-header');
     const step3_1Title = el('span', 'aps-step-title', '③-1 条件タイプ');
     const step3_1Chip = el('span', 'aps-step-chip', '未設定');
@@ -312,13 +344,6 @@ export function createPaletteUI({
     step3_3Chip.style.display = 'none';
     step3_3Header.append(step3_3Title, step3_3Chip);
     step3_3Header.dataset.step = 'step3_3';
-
-    const step4Header = el('div', 'aps-step-header');
-    const step4Title = el('span', 'aps-step-title', '④ 日付要素選択');
-    const step4Chip = el('span', 'aps-step-chip', '未設定');
-    step4Chip.style.display = 'none';
-    step4Header.append(step4Title, step4Chip);
-    step4Header.dataset.step = 'step4';
 
     const step5Header = el('div', 'aps-step-header');
     const step5Title = el('span', 'aps-step-title', '⑤ 保存・有効化');
@@ -366,7 +391,7 @@ export function createPaletteUI({
 
     const step2Block = el('div', 'aps-step-block');
     step2Block.dataset.step = 'step2';
-    step2Block.append(step2Header, pickerToggle, pickerTools);
+    step2Block.append(step2Header, slotSection, pickerTools);
 
     const step3_1Block = el('div', 'aps-step-block');
     step3_1Block.dataset.step = 'step3_1';
@@ -382,7 +407,7 @@ export function createPaletteUI({
 
     const step4Block = el('div', 'aps-step-block');
     step4Block.dataset.step = 'step4';
-    step4Block.append(step4Header, dateSelectorSection);
+    step4Block.append(dateSelectorSection);
 
     const step5Block = el('div', 'aps-step-block');
     step5Block.dataset.step = 'step5';
@@ -694,6 +719,16 @@ export function createPaletteUI({
         reader.readAsText(file);
     });
 
+    targetConfirmBtn.addEventListener('click', () => {
+        onStep2TargetConfirmToggle?.();
+    });
+    dateModeNeedBtn.addEventListener('click', () => {
+        onStep2DateModeChange?.('need');
+    });
+    dateModeSkipBtn.addEventListener('click', () => {
+        onStep2DateModeChange?.('skip');
+    });
+
     function setPageInfo(text) {
         pageValue.textContent = text || '';
     }
@@ -708,7 +743,7 @@ export function createPaletteUI({
             } else if (target === 'header') {
                 bannerText.textContent = '選択モード：年月ヘッダを選択中';
             } else {
-                bannerText.textContent = '選択モード：要素を選択中';
+                bannerText.textContent = '選択モード：対象要素を選択中';
             }
         }
     }
@@ -850,13 +885,57 @@ export function createPaletteUI({
         });
     }
 
+    function setStep2ConfirmState(state = {}) {
+        const { targetSelected, targetConfirmed } = state;
+        const showConfirm = !!targetSelected;
+        targetConfirmArea.style.display = showConfirm ? 'flex' : 'none';
+        targetConfirmBtn.textContent = targetConfirmed ? '対象を再選択' : '対象を確定';
+        targetConfirmBtn.classList.toggle('aps-step2-confirm-btn--active', !!targetConfirmed);
+        targetSlotRow.classList.toggle('aps-slot-row--confirmed', !!targetConfirmed);
+    }
+
+    function setStep2DateModeState(state = {}) {
+        const { targetConfirmed, dateMode = 'unset', dateSelected } = state;
+        const showDateMode = !!targetConfirmed;
+        dateModeArea.style.display = showDateMode ? 'flex' : 'none';
+        dateModeNeedBtn.classList.toggle('aps-step2-datemode-btn--active', dateMode === 'need');
+        dateModeSkipBtn.classList.toggle('aps-step2-datemode-btn--active', dateMode === 'skip');
+        const shouldHighlightDate = targetConfirmed && dateMode === 'need' && !dateSelected;
+        dateSlotRow.classList.toggle('aps-slot-row--dim', targetConfirmed && dateMode === 'skip');
+        dateSlotRow.classList.toggle('aps-slot-row--highlight', shouldHighlightDate);
+        dateSelectorBtn.classList.toggle('aps-step2-date-selector--highlight', shouldHighlightDate);
+    }
+
+    function setSlotStatus(status = {}) {
+        const { targetSelected, dateSelected, dateMode = 'unset' } = status;
+        if (typeof targetSelected === 'boolean') {
+            const text = targetSelected ? '設定済' : '未設定';
+            targetSlotStatus.textContent = text;
+            targetSlotStatus.classList.toggle('aps-slot-status--set', !!targetSelected);
+        }
+        if (typeof dateSelected === 'boolean') {
+            const text = dateSelected ? '設定済' : '未設定';
+            dateSlotStatus.textContent = text;
+            dateSlotStatus.classList.toggle('aps-slot-status--set', !!dateSelected);
+        }
+        const normalizedMode = dateMode || 'unset';
+        let badgeText = '未決定';
+        if (normalizedMode === 'need') badgeText = '必須';
+        else if (normalizedMode === 'skip') badgeText = '指定しない';
+        const isNeed = normalizedMode === 'need';
+        const isSkip = normalizedMode === 'skip';
+        dateRequirementBadge.textContent = badgeText;
+        dateRequirementBadge.classList.toggle('aps-badge--required', isNeed);
+        dateRequirementBadge.classList.toggle('aps-badge--skip', isSkip);
+        dateRequirementBadge.classList.toggle('aps-badge--optional', !isNeed && !isSkip);
+    }
+
     function setStepState(stepState) {
         step1Chip.style.display = stepState?.step1 ? 'none' : 'inline-block';
         step2Chip.style.display = stepState?.step2 ? 'none' : 'inline-block';
         step3_1Chip.style.display = stepState?.step3_1 ? 'none' : 'inline-block';
         step3_2Chip.style.display = stepState?.step3_2 ? 'none' : 'inline-block';
         step3_3Chip.style.display = stepState?.step3_3 ? 'none' : 'inline-block';
-        step4Chip.style.display = stepState?.step4 ? 'none' : 'inline-block';
         step5Chip.style.display = stepState?.step5 ? 'none' : 'inline-block';
 
         const allowStep2 = !!stepState?.step1;
@@ -897,6 +976,9 @@ export function createPaletteUI({
         setTrace,
         setStepState,
         setGuideMessage,
+        setStep2ConfirmState,
+        setStep2DateModeState,
+        setSlotStatus,
         setActiveStep,
         setApplyState,
     };
@@ -941,6 +1023,9 @@ export function mountPaletteUI(container) {
         setPickerActive: palette.setPickerActive,
         setStepState: palette.setStepState,
         setGuideMessage: palette.setGuideMessage,
+        setStep2ConfirmState: palette.setStep2ConfirmState,
+        setStep2DateModeState: palette.setStep2DateModeState,
+        setSlotStatus: palette.setSlotStatus,
         setActiveStep: palette.setActiveStep,
         setApplyState: palette.setApplyState,
     };

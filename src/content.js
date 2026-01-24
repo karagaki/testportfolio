@@ -76,6 +76,10 @@
             fg: '',
             border: 'rgba(0,0,0,0.15)',
         },
+        step2: {
+            targetConfirmed: false,
+            dateMode: 'unset',
+        },
         meta: {
             title: '',
         },
@@ -104,6 +108,10 @@
             paint: {
                 ...baseDraft.paint,
                 ...partial?.paint,
+            },
+            step2: {
+                ...baseDraft.step2,
+                ...partial?.step2,
             },
             meta: {
                 ...baseDraft.meta,
@@ -222,13 +230,36 @@
         return currentRules.filter(rule => matchScope(rule.scope));
     }
 
-    function getStepState() {
+    function getSlotStatus() {
+        const targetValue = draft.targetSelector?.trim();
+        const dateValue = draft.date?.dateSelector?.trim();
+        const needsDate = Boolean(draft.date?.enabled);
+        const targetConfirmed = Boolean(draft.step2?.targetConfirmed);
+        const dateMode = draft.step2?.dateMode || 'unset';
+        return {
+            targetSelected: Boolean(targetValue),
+            dateSelected: Boolean(dateValue),
+            dateRequired: needsDate,
+            targetConfirmed,
+            dateMode,
+        };
+    }
+
+    function isStep2Ready(status) {
+        if (!status.targetConfirmed) return false;
+        if (status.dateMode === 'need') return status.dateSelected;
+        if (status.dateMode === 'skip') return true;
+        return false;
+    }
+
+    function getStepState(slotStatus) {
+        const status = slotStatus || getSlotStatus();
         const step1 = !!(draft.scope?.host || draft.scope?.pathPattern);
-        const step2 = !!(draft.targetSelector || draft.date?.dateSelector);
+        const step2 = status.targetSelected && isStep2Ready(status);
         const keywordsProvided = Array.isArray(draft.match?.keywords) && draft.match.keywords.length > 0;
         const conditionTypeSelected = !!(draft.list?.enabled || draft.date?.enabled || keywordsProvided);
         const listSelectorProvided = draft.list?.itemSelector?.trim();
-        const dateSelectorProvided = draft.date?.dateSelector?.trim();
+        const dateSelectorProvided = status.dateSelected;
         const conditionContentProvided = !!(
             keywordsProvided ||
             (draft.list?.enabled && listSelectorProvided) ||
@@ -237,13 +268,18 @@
         const step3_1 = conditionTypeSelected;
         const step3_2 = conditionContentProvided;
         const step3_3 = true; // auxiliary step is optional
-        const step4 = !draft.date?.enabled || Boolean(draft.date?.dateSelector?.trim());
+        const step4 = status.dateMode !== 'need' || status.dateSelected;
         const step5 = !draftDirty;
         return { step1, step2, step3_1, step3_2, step3_3, step4, step5 };
     }
 
-    function getActiveStep(stepState) {
+    function getActiveStep(stepState, slotStatus) {
         if (!stepState) return null;
+        if (!stepState?.step1) return 'step1';
+        if (!slotStatus?.targetSelected) return 'step2';
+        if (!slotStatus?.targetConfirmed) return 'step2';
+        if (slotStatus?.dateMode === 'unset') return 'step2';
+        if (slotStatus?.dateMode === 'need' && !slotStatus?.dateSelected) return 'step2';
         const order = ['step1', 'step2', 'step3_1', 'step3_2', 'step4', 'step5'];
         for (const key of order) {
             if (key === 'step4' && !draft.date?.enabled) continue;
@@ -252,12 +288,21 @@
         return null;
     }
 
-    function getGuideMessage(stepState) {
+    function getGuideMessage(stepState, slotStatus) {
         if (!stepState?.step1) {
-            return '次に、対象（ページ／サイト）を決めてください';
+            return '対象を決めてください';
         }
-        if (!stepState?.step2) {
-            return '次に、要素を選択してください';
+        if (!slotStatus?.targetSelected) {
+            return '対象要素を選択してください';
+        }
+        if (!slotStatus?.targetConfirmed) {
+            return '範囲を調整して「対象を確定」してください';
+        }
+        if (slotStatus?.dateMode === 'unset') {
+            return '日付を指定するか選んでください';
+        }
+        if (slotStatus?.dateMode === 'need' && !slotStatus?.dateSelected) {
+            return '日付要素を選択してください';
         }
         if (!stepState?.step3_1) {
             return '条件の種類を選択してください';
@@ -297,10 +342,21 @@
             window.__aps_react_update();
         }
         paletteController?.updateState(window.__aps_adapter_state);
-        const stepState = getStepState();
+        const slotStatus = getSlotStatus();
+        const stepState = getStepState(slotStatus);
+        paletteController?.setSlotStatus(slotStatus);
+        paletteController?.setStep2ConfirmState({
+            targetSelected: slotStatus.targetSelected,
+            targetConfirmed: slotStatus.targetConfirmed,
+        });
+        paletteController?.setStep2DateModeState({
+            targetConfirmed: slotStatus.targetConfirmed,
+            dateMode: slotStatus.dateMode,
+            dateSelected: slotStatus.dateSelected,
+        });
         paletteController?.setStepState(stepState);
-        paletteController?.setGuideMessage(getGuideMessage(stepState));
-        paletteController?.setActiveStep(getActiveStep(stepState));
+        paletteController?.setGuideMessage(getGuideMessage(stepState, slotStatus));
+        paletteController?.setActiveStep(getActiveStep(stepState, slotStatus));
         paletteController?.setApplyState(getApplyState());
     }
 
@@ -485,6 +541,42 @@
         updateReactState();
     }
 
+    function handleStep2TargetConfirmToggle() {
+        const slotStatus = getSlotStatus();
+        if (!slotStatus.targetSelected) return;
+        const nextConfirmed = !slotStatus.targetConfirmed;
+        const nextMode = nextConfirmed ? (draft.step2?.dateMode || 'unset') : 'unset';
+        draft = mergeDraft(draft, {
+            step2: {
+                ...draft.step2,
+                targetConfirmed: nextConfirmed,
+                dateMode: nextMode,
+            },
+        });
+        setDraftDirty(true);
+        saveDraft(draft);
+        if (nextConfirmed) {
+            paletteController?.setToast('対象を確定しました', 1500);
+        }
+        updateReactState();
+    }
+
+    function handleStep2DateModeChange(mode) {
+        if (!['need', 'skip'].includes(mode)) return;
+        const slotStatus = getSlotStatus();
+        if (!slotStatus.targetConfirmed) return;
+        if ((draft.step2?.dateMode || 'unset') === mode) return;
+        draft = mergeDraft(draft, {
+            step2: {
+                ...draft.step2,
+                dateMode: mode,
+            },
+        });
+        setDraftDirty(true);
+        saveDraft(draft);
+        updateReactState();
+    }
+
     function handleDraftChange(newDraft) {
         draft = mergeDraft(draft, newDraft);
         setDraftDirty(true);
@@ -497,6 +589,8 @@
         onPickTargetChange: target => {
             pickerTarget = target || 'target';
         },
+        onStep2TargetConfirmToggle: handleStep2TargetConfirmToggle,
+        onStep2DateModeChange: handleStep2DateModeChange,
         onGenerateListSelector: () => {
             if (!lastSelectedElement) return;
             const generated = generateRepeatedItemSelector(lastSelectedElement);
