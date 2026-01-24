@@ -12,16 +12,6 @@
 .aps-disabled{opacity:.5!important;pointer-events:none!important}
 .aps-step-block{border-radius:6px;padding:4px 0;margin-bottom:4px}
 .aps-step-light{background:#fff!important;color:#111!important;opacity:1!important;transition:background .12s ease,color .12s ease,opacity .12s ease}
-.aps-step-dark {
-  background: #999999 !important;
-  color: #000000 !important;
-  opacity: 1 !important;
-  filter: none;
-}
-.aps-step-dark input,.aps-step-dark select,.aps-step-dark button{background:#2a2a2a!important;color:#eaeaea!important;border-color:#3a3a3a!important;opacity:1!important}
-.aps-step-dark * {
-  color: #000000 !important;
-}
 .aps-slot-section{display:flex;flex-direction:column;gap:6px;margin:4px 0}
 .aps-slot-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .aps-slot-label{font-size:12px;font-weight:500;color:#555;min-width:72px}
@@ -31,8 +21,6 @@
 .aps-badge{font-size:11px;padding:2px 8px;border-radius:999px;background:#f5f5f5;color:#555}
 .aps-badge--required{background:#fff1f0;color:#a8071a}
 .aps-badge--optional{background:#e6f7ff;color:#0050b3}
-.aps-step-dark .aps-slot-status{background:#2b2b2b;color:#f5f5f5}
-.aps-step-dark .aps-badge{background:#3a3a3a;color:#f5f5f5}
 .aps-badge--skip{background:#faf2e8;color:#ad4e00}
 .aps-step2-confirm{display:flex;gap:6px;align-items:center;margin-left:72px}
 .aps-step2-confirm-btn{border-radius:999px;background:#f0f0f0;color:#222;font-size:11px;padding:3px 10px;font-weight:500;border:none;cursor:pointer}
@@ -52,36 +40,90 @@
 .aps-step2-confirm-label{font-size:12px;padding:7px 10px;border-radius:8px;background:#e6e6e6;color:#111;opacity:.9;user-select:none}
 .aps-step2-datevalue--dim{opacity:.55;filter:saturate(.6)}
 .aps-step2-datevalue--highlight .aps-slot-valuebox{background:#ffffff}
-/* STEP色の最終上書き（既存テーマの干渉を無効化） */
+
+/* ===== STEP state colors (final spec) ===== */
+/* ベージュ（現状UIの初期色を維持したいので、ここは「上書きしない」が基本。
+   ただし選択モード等で壊されるケースがあるため、"現在STEP" クラスがある場合のみ固定する。 */
+:root{
+  --aps-step-done-bg:#ffb6c1;
+  --aps-step-done-fg:#000000;
+  --aps-step-inactive-bg:#999999;
+  --aps-step-inactive-fg:#ffffff;
+  /* 初期ベージュは既存CSSに合わせたいので、値は固定せず fall back で使う */
+}
+
+/* 完了STEP：ピンク＋黒 */
 .aps-step-done{
-  background:#ffb6c1!important;
-  color:#111!important;
-  opacity:1!important;
-  filter:none!important;
+  background:var(--aps-step-done-bg) !important;
+  color:var(--aps-step-done-fg) !important;
+  opacity:1 !important;
+  filter:none !important;
 }
 .aps-step-done *{
-  color:#111!important;
+  color:var(--aps-step-done-fg) !important;
 }
-.aps-step-inactive{
-  background:#999999!important;
-  color:#000000!important;
-  opacity:1!important;
-  filter:none!important;
+
+/* 未開始STEP：グレー＋白（従来の .aps-step-dark を「未開始」の意味として再定義） */
+.aps-step-dark:not(.aps-step-done){
+  background:var(--aps-step-inactive-bg) !important;
+  color:var(--aps-step-inactive-fg) !important;
+  opacity:1 !important;
+  filter:none !important;
 }
-.aps-step-inactive *{
-  color:#000000!important;
+.aps-step-dark:not(.aps-step-done) *{
+  color:var(--aps-step-inactive-fg) !important;
 }
-.aps-step-inactive input,
-.aps-step-inactive textarea,
-.aps-step-inactive select{
-  background:#ffffff!important;
-  color:#000000!important;
+
+/* 現在STEP：初期ベージュを維持（黒字想定）。ベージュ自体は既存テーマに委ね、壊されるのだけ防ぐ。
+   "現在STEP" のクラス名がどれか不明なため、一般的な候補をまとめて扱う。 */
+.aps-step-current,
+.aps-step-active,
+.aps-step-now,
+.aps-step-is-current{
+  /* 背景色は既存のベージュを優先。ここでは「黒/灰の上書き」を無効化する目的で透明指定はしない。 */
+  opacity:1 !important;
+  filter:none !important;
+  color:#000000 !important;
 }
-.aps-step-done .aps-step-header,
-.aps-step-done .aps-step-body{
-  background:transparent!important;
+.aps-step-current *,
+.aps-step-active *,
+.aps-step-now *,
+.aps-step-is-current *{
+  color:#000000 !important;
 }
-.aps-step-inactive .aps-step-header,
-.aps-step-inactive .aps-step-body{
-  background:transparent!important;
+
+/* もし現在STEPにも .aps-step-dark が併用されてしまう実装が残っている場合に備え、現在STEPを最優先にする */
+.aps-step-dark.aps-step-current,
+.aps-step-dark.aps-step-active,
+.aps-step-dark.aps-step-now,
+.aps-step-dark.aps-step-is-current{
+  background:inherit !important; /* 初期ベージュ側に戻す */
+  color:#000000 !important;
 }
+.aps-step-dark.aps-step-current *,
+.aps-step-dark.aps-step-active *,
+.aps-step-dark.aps-step-now *,
+.aps-step-dark.aps-step-is-current *{
+  color:#000000 !important;
+}
+/* ===== /STEP state colors ===== */
+
+/* ===== Panel form controls: keep normal (not black) ===== */
+.aps-panel input,
+.aps-panel select,
+.aps-panel textarea{
+  background:#ffffff !important;
+  color:#111111 !important;
+  border:1px solid #d0d0d0 !important;
+}
+.aps-panel input::placeholder,
+.aps-panel textarea::placeholder{
+  color:#777777 !important;
+}
+.aps-panel button,
+.aps-panel .aps-btn,
+.aps-panel .aps-button{
+  background:#ffffff;
+  color:#111111;
+}
+/* ===== /Panel form controls ===== */
