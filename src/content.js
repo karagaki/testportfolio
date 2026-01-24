@@ -225,9 +225,53 @@
     function getStepState() {
         const step1 = !!(draft.scope?.host || draft.scope?.pathPattern);
         const step2 = !!(draft.targetSelector || draft.date?.dateSelector);
-        const step3 = !!(draft.paint?.type || draft.match?.keywords?.length > 0);
-        const step4 = !draftDirty && !!draft.id;
-        return { step1, step2, step3, step4 };
+        const keywordsProvided = Array.isArray(draft.match?.keywords) && draft.match.keywords.length > 0;
+        const conditionTypeSelected = !!(draft.list?.enabled || draft.date?.enabled || keywordsProvided);
+        const listSelectorProvided = draft.list?.itemSelector?.trim();
+        const dateSelectorProvided = draft.date?.dateSelector?.trim();
+        const conditionContentProvided = !!(
+            keywordsProvided ||
+            (draft.list?.enabled && listSelectorProvided) ||
+            (draft.date?.enabled && dateSelectorProvided)
+        );
+        const step3_1 = conditionTypeSelected;
+        const step3_2 = conditionContentProvided;
+        const step3_3 = true; // auxiliary step is optional
+        const step4 = !draft.date?.enabled || Boolean(draft.date?.dateSelector?.trim());
+        const step5 = !draftDirty;
+        return { step1, step2, step3_1, step3_2, step3_3, step4, step5 };
+    }
+
+    function getActiveStep(stepState) {
+        if (!stepState) return null;
+        const order = ['step1', 'step2', 'step3_1', 'step3_2', 'step4', 'step5'];
+        for (const key of order) {
+            if (key === 'step4' && !draft.date?.enabled) continue;
+            if (!stepState[key]) return key;
+        }
+        return null;
+    }
+
+    function getGuideMessage(stepState) {
+        if (!stepState?.step1) {
+            return '次に、対象（ページ／サイト）を決めてください';
+        }
+        if (!stepState?.step2) {
+            return '次に、要素を選択してください';
+        }
+        if (!stepState?.step3_1) {
+            return '条件の種類を選択してください';
+        }
+        if (!stepState?.step3_2) {
+            return '条件内容を入力してください';
+        }
+        if (draft.date?.enabled && !stepState?.step4) {
+            return '日付要素を選択してください';
+        }
+        if (!stepState?.step5) {
+            return '内容を確認して保存してください';
+        }
+        return '';
     }
 
     function getApplyState() {
@@ -253,7 +297,10 @@
             window.__aps_react_update();
         }
         paletteController?.updateState(window.__aps_adapter_state);
-        paletteController?.setStepState(getStepState());
+        const stepState = getStepState();
+        paletteController?.setStepState(stepState);
+        paletteController?.setGuideMessage(getGuideMessage(stepState));
+        paletteController?.setActiveStep(getActiveStep(stepState));
         paletteController?.setApplyState(getApplyState());
     }
 

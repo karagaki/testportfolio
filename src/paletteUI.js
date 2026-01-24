@@ -55,8 +55,10 @@ export function createPaletteUI({
     const pageLabel = el('div', 'aps-label', '現在ページ');
     const pageValue = el('div', 'aps-page');
     pageSection.append(pageLabel, pageValue);
+    pageSection.dataset.step = 'step1';
 
     const pickerToggle = el('button', 'aps-btn aps-picker-toggle', '要素を選択');
+    pickerToggle.dataset.step = 'step2';
 
     const pickerTools = el('div', 'aps-picker-tools');
     const pickerActions = el('div', 'aps-picker-actions');
@@ -70,6 +72,7 @@ export function createPaletteUI({
     selectorInput.type = 'text';
 
     pickerTools.append(pickerActions, targetDisplay, selectorLabel, selectorInput);
+    pickerTools.dataset.step = 'step2';
 
     const urlSection = el('div', 'aps-section');
     const urlLabel = el('div', 'aps-label', '対象URL');
@@ -88,6 +91,7 @@ export function createPaletteUI({
     const applyAllText = document.createTextNode(' このホスト内の全ページに適用');
     applyAllLabel.append(applyAllInput, applyAllText);
     urlSection.append(urlLabel, urlRow, applyAllLabel);
+    urlSection.dataset.step = 'step1';
 
     const listModeSection = el('div', 'aps-section');
     const listModeLabel = el('label', 'aps-checkbox');
@@ -102,6 +106,7 @@ export function createPaletteUI({
     const listGenerateBtn = el('button', 'aps-btn aps-btn-small', '現在の選択から類似セレクタ生成');
     listTools.append(listSelectorLabel, listSelectorInput, listGenerateBtn);
     listModeSection.append(listModeLabel, listTools);
+    listModeSection.dataset.step = 'step3_1';
 
     const keywordSection = el('div', 'aps-section');
     const keywordLabel = el('div', 'aps-label', 'キーワード');
@@ -112,8 +117,9 @@ export function createPaletteUI({
     keywordRow.append(keywordInput, keywordAdd);
     const keywordList = el('div', 'aps-keyword-list');
     keywordSection.append(keywordLabel, keywordRow, keywordList);
+    keywordSection.dataset.step = 'step3_2';
 
-    const dateSection = el('div', 'aps-section');
+    const dateAuxSection = el('div', 'aps-section');
     const dateLabel = el('div', 'aps-label', '日付機能');
     const dateEnabledLabel = el('label', 'aps-checkbox');
     const dateEnabledInput = el('input');
@@ -139,16 +145,43 @@ export function createPaletteUI({
     optDayNumber.textContent = '日付番号 + 年月ヘッダ';
     sourceTypeSelect.append(optAttr, optSourceText, optDayNumber);
 
+    const dateAttrLabel = el('div', 'aps-label', '日付属性名');
+    const dateAttrInput = el('input', 'aps-input');
+    dateAttrInput.type = 'text';
+
+    const grayPresetLabel = el('div', 'aps-label', 'グレー強度');
+    const grayPresetSelect = el('select', 'aps-input');
+    const optWeak = el('option');
+    optWeak.value = 'weak';
+    optWeak.textContent = '弱';
+    const optMedium = el('option');
+    optMedium.value = 'medium';
+    optMedium.textContent = '中';
+    const optStrong = el('option');
+    optStrong.value = 'strong';
+    optStrong.textContent = '強';
+    grayPresetSelect.append(optWeak, optMedium, optStrong);
+
+    dateAuxSection.append(
+        dateLabel,
+        dateEnabledLabel,
+        dateApplyLabel,
+        sourceTypeLabel,
+        sourceTypeSelect,
+        dateAttrLabel,
+        dateAttrInput,
+        grayPresetLabel,
+        grayPresetSelect
+    );
+    dateAuxSection.dataset.step = 'step3_3';
+
+    const dateSelectorSection = el('div', 'aps-section');
     const dateSelectorLabel = el('div', 'aps-label', '日付要素セレクタ');
     const dateSelectorRow = el('div', 'aps-row');
     const dateSelectorInput = el('input', 'aps-input');
     dateSelectorInput.type = 'text';
     const dateSelectorBtn = el('button', 'aps-btn aps-btn-small', '日付要素を選択');
     dateSelectorRow.append(dateSelectorInput, dateSelectorBtn);
-
-    const dateAttrLabel = el('div', 'aps-label', '日付属性名');
-    const dateAttrInput = el('input', 'aps-input');
-    dateAttrInput.type = 'text';
 
     const headerSelectorLabel = el('div', 'aps-label', '年月ヘッダセレクタ');
     const headerSelectorRow = el('div', 'aps-row');
@@ -170,36 +203,15 @@ export function createPaletteUI({
     optEnMonth.textContent = 'January 2026';
     headerFormatSelect.append(optJpYm, optYmSlash, optEnMonth);
 
-    const grayPresetLabel = el('div', 'aps-label', 'グレー強度');
-    const grayPresetSelect = el('select', 'aps-input');
-    const optWeak = el('option');
-    optWeak.value = 'weak';
-    optWeak.textContent = '弱';
-    const optMedium = el('option');
-    optMedium.value = 'medium';
-    optMedium.textContent = '中';
-    const optStrong = el('option');
-    optStrong.value = 'strong';
-    optStrong.textContent = '強';
-    grayPresetSelect.append(optWeak, optMedium, optStrong);
-
-    dateSection.append(
-        dateLabel,
-        dateEnabledLabel,
-        dateApplyLabel,
-        sourceTypeLabel,
-        sourceTypeSelect,
+    dateSelectorSection.append(
         dateSelectorLabel,
         dateSelectorRow,
-        dateAttrLabel,
-        dateAttrInput,
         headerSelectorLabel,
         headerSelectorRow,
         headerFormatLabel,
-        headerFormatSelect,
-        grayPresetLabel,
-        grayPresetSelect
+        headerFormatSelect
     );
+    dateSelectorSection.dataset.step = 'step4';
 
     const paintSection = el('div', 'aps-section');
     const paintLabel = el('div', 'aps-label', '表現');
@@ -219,6 +231,7 @@ export function createPaletteUI({
     typeSelect.append(optHighlight, optText, optCollapse);
     paintRow.append(colorInput, typeSelect);
     paintSection.append(paintLabel, paintRow);
+    paintSection.dataset.step = 'step3_3';
 
     const textColorLabel = el('div', 'aps-label', '文字色');
     const textColorInput = el('input', 'aps-input');
@@ -230,8 +243,10 @@ export function createPaletteUI({
     const titleInput = el('input', 'aps-input');
     titleInput.type = 'text';
     titleSection.append(titleLabel, titleInput);
+    titleSection.dataset.step = 'step3_3';
 
     const saveBtn = el('button', 'aps-btn aps-save', '保存して有効化');
+    saveBtn.dataset.step = 'step4';
 
     const backupSection = el('div', 'aps-section');
     const backupLabel = el('div', 'aps-label', 'バックアップ');
@@ -268,24 +283,49 @@ export function createPaletteUI({
     const step1Chip = el('span', 'aps-step-chip', '未設定');
     step1Chip.style.display = 'none';
     step1Header.append(step1Title, step1Chip);
+    step1Header.dataset.step = 'step1';
 
     const step2Header = el('div', 'aps-step-header');
     const step2Title = el('span', 'aps-step-title', '② 要素');
     const step2Chip = el('span', 'aps-step-chip', '未設定');
     step2Chip.style.display = 'none';
     step2Header.append(step2Title, step2Chip);
+    step2Header.dataset.step = 'step2';
 
-    const step3Header = el('div', 'aps-step-header');
-    const step3Title = el('span', 'aps-step-title', '③ 条件・表現');
-    const step3Chip = el('span', 'aps-step-chip', '未設定');
-    step3Chip.style.display = 'none';
-    step3Header.append(step3Title, step3Chip);
+    const step3_1Header = el('div', 'aps-step-header');
+    const step3_1Title = el('span', 'aps-step-title', '③-1 条件タイプ');
+    const step3_1Chip = el('span', 'aps-step-chip', '未設定');
+    step3_1Chip.style.display = 'none';
+    step3_1Header.append(step3_1Title, step3_1Chip);
+    step3_1Header.dataset.step = 'step3_1';
+
+    const step3_2Header = el('div', 'aps-step-header');
+    const step3_2Title = el('span', 'aps-step-title', '③-2 条件内容');
+    const step3_2Chip = el('span', 'aps-step-chip', '未設定');
+    step3_2Chip.style.display = 'none';
+    step3_2Header.append(step3_2Title, step3_2Chip);
+    step3_2Header.dataset.step = 'step3_2';
+
+    const step3_3Header = el('div', 'aps-step-header');
+    const step3_3Title = el('span', 'aps-step-title', '③-3 補助条件');
+    const step3_3Chip = el('span', 'aps-step-chip', '未設定');
+    step3_3Chip.style.display = 'none';
+    step3_3Header.append(step3_3Title, step3_3Chip);
+    step3_3Header.dataset.step = 'step3_3';
 
     const step4Header = el('div', 'aps-step-header');
-    const step4Title = el('span', 'aps-step-title', '④ 保存');
+    const step4Title = el('span', 'aps-step-title', '④ 日付要素選択');
     const step4Chip = el('span', 'aps-step-chip', '未設定');
     step4Chip.style.display = 'none';
     step4Header.append(step4Title, step4Chip);
+    step4Header.dataset.step = 'step4';
+
+    const step5Header = el('div', 'aps-step-header');
+    const step5Title = el('span', 'aps-step-title', '⑤ 保存・有効化');
+    const step5Chip = el('span', 'aps-step-chip', '未設定');
+    step5Chip.style.display = 'none';
+    step5Header.append(step5Title, step5Chip);
+    step5Header.dataset.step = 'step5';
 
     const statusRow = el('div', 'aps-status-row');
     statusRow.style.display = 'flex';
@@ -304,6 +344,10 @@ export function createPaletteUI({
     const statusInfo = el('span', 'aps-status-info', 'ルール: 0');
     statusRow.append(statusLabel, dirtyChip, applyStateLabel, statusInfo);
 
+    const guideLine = el('div', 'aps-guide-line');
+    guideLine.style.display = 'none';
+    guideLine.textContent = '';
+
     const traceRow = el('div', 'aps-trace-row');
     traceRow.style.display = 'flex';
     traceRow.style.justifyContent = 'space-between';
@@ -316,23 +360,45 @@ export function createPaletteUI({
     const traceText = el('span', 'aps-trace-text', 'apply=UNKNOWN last=--:--:-- count=0 host=');
     traceRow.append(traceText);
 
+    const step1Block = el('div', 'aps-step-block');
+    step1Block.dataset.step = 'step1';
+    step1Block.append(step1Header, pageSection, urlSection);
+
+    const step2Block = el('div', 'aps-step-block');
+    step2Block.dataset.step = 'step2';
+    step2Block.append(step2Header, pickerToggle, pickerTools);
+
+    const step3_1Block = el('div', 'aps-step-block');
+    step3_1Block.dataset.step = 'step3_1';
+    step3_1Block.append(step3_1Header, listModeSection);
+
+    const step3_2Block = el('div', 'aps-step-block');
+    step3_2Block.dataset.step = 'step3_2';
+    step3_2Block.append(step3_2Header, keywordSection, paintSection, titleSection);
+
+    const step3_3Block = el('div', 'aps-step-block');
+    step3_3Block.dataset.step = 'step3_3';
+    step3_3Block.append(step3_3Header, dateAuxSection);
+
+    const step4Block = el('div', 'aps-step-block');
+    step4Block.dataset.step = 'step4';
+    step4Block.append(step4Header, dateSelectorSection);
+
+    const step5Block = el('div', 'aps-step-block');
+    step5Block.dataset.step = 'step5';
+    step5Block.append(step5Header, saveBtn);
+
     body.append(
-        step1Header,
-        pageSection,
-        urlSection,
-        step2Header,
-        pickerToggle,
-        pickerTools,
-        listModeSection,
-        step3Header,
-        keywordSection,
-        dateSection,
-        paintSection,
-        titleSection,
-        step4Header,
-        saveBtn,
+        step1Block,
+        step2Block,
+        step3_1Block,
+        step3_2Block,
+        step3_3Block,
+        step4Block,
+        step5Block,
         backupSection,
         statusRow,
+        guideLine,
         traceRow,
         listSection
     );
@@ -748,11 +814,58 @@ export function createPaletteUI({
         traceText.textContent = text || '';
     }
 
+    function setGuideMessage(text) {
+        if (!text) {
+            guideLine.textContent = '';
+            guideLine.style.display = 'none';
+            return;
+        }
+        guideLine.textContent = text;
+        guideLine.style.display = 'block';
+    }
+
+    function applyButtonState(button, enabled) {
+        if (!button) return;
+        button.disabled = !enabled;
+        button.classList.toggle('aps-disabled', !enabled);
+    }
+
+    function setActiveStep(stepKey) {
+        const blocks = root.querySelectorAll('.aps-step-block');
+        blocks.forEach(block => {
+            const attr = block.dataset.step || '';
+            if (!attr) return;
+            if (!stepKey) {
+                block.classList.add('aps-step-light');
+                block.classList.remove('aps-step-dark');
+                return;
+            }
+            if (attr === stepKey) {
+                block.classList.add('aps-step-light');
+                block.classList.remove('aps-step-dark');
+            } else {
+                block.classList.add('aps-step-dark');
+                block.classList.remove('aps-step-light');
+            }
+        });
+    }
+
     function setStepState(stepState) {
         step1Chip.style.display = stepState?.step1 ? 'none' : 'inline-block';
         step2Chip.style.display = stepState?.step2 ? 'none' : 'inline-block';
-        step3Chip.style.display = stepState?.step3 ? 'none' : 'inline-block';
+        step3_1Chip.style.display = stepState?.step3_1 ? 'none' : 'inline-block';
+        step3_2Chip.style.display = stepState?.step3_2 ? 'none' : 'inline-block';
+        step3_3Chip.style.display = stepState?.step3_3 ? 'none' : 'inline-block';
         step4Chip.style.display = stepState?.step4 ? 'none' : 'inline-block';
+        step5Chip.style.display = stepState?.step5 ? 'none' : 'inline-block';
+
+        const allowStep2 = !!stepState?.step1;
+        applyButtonState(pickerToggle, allowStep2);
+        applyButtonState(dateSelectorBtn, allowStep2);
+        applyButtonState(listGenerateBtn, allowStep2);
+
+        const canSave = !!stepState?.step1 && !!stepState?.step2 && !!stepState?.step3_1 && !!stepState?.step3_2;
+        applyButtonState(saveBtn, canSave);
     }
 
     function setApplyState(state) {
@@ -783,6 +896,8 @@ export function createPaletteUI({
         setStatusInfo,
         setTrace,
         setStepState,
+        setGuideMessage,
+        setActiveStep,
         setApplyState,
     };
 }
@@ -825,6 +940,8 @@ export function mountPaletteUI(container) {
         setDirty: palette.setDirty,
         setPickerActive: palette.setPickerActive,
         setStepState: palette.setStepState,
+        setGuideMessage: palette.setGuideMessage,
+        setActiveStep: palette.setActiveStep,
         setApplyState: palette.setApplyState,
     };
 }

@@ -203,3 +203,33 @@
 .aps-picker-selected {
     outline: 2px dashed #ff7f50 !important;
 }
+
+.aps-step-block {
+    border-radius: 6px;
+    padding: 4px 0;
+    margin-bottom: 4px;
+}
+
+.aps-step-light {
+    background: #ffffff;
+    color: #111;
+    opacity: 1;
+    transition: background 120ms ease, color 120ms ease, opacity 120ms ease;
+}
+
+.aps-step-dark {
+    background: #1e1e1e;
+    color: #eaeaea;
+    opacity: 0.55;
+    filter: saturate(0.6);
+    transition: background 120ms ease, color 120ms ease, opacity 120ms ease;
+}
+
+.aps-step-dark input,
+.aps-step-dark select,
+.aps-step-dark button {
+    background: #2a2a2a;
+    color: #eaeaea;
+    border-color: #3a3a3a;
+    opacity: 1;
+}
