@@ -242,6 +242,8 @@
             dateRequired: needsDate,
             targetConfirmed,
             dateMode,
+            targetValue: targetValue || '',
+            dateValue: dateValue || '',
         };
     }
 
@@ -348,6 +350,7 @@
         paletteController?.setStep2ConfirmState({
             targetSelected: slotStatus.targetSelected,
             targetConfirmed: slotStatus.targetConfirmed,
+            targetValue: slotStatus.targetValue,
         });
         paletteController?.setStep2DateModeState({
             targetConfirmed: slotStatus.targetConfirmed,

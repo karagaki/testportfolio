@@ -304,8 +304,11 @@ export function createPaletteUI({
 
     const targetConfirmArea = el('div', 'aps-step2-confirm');
     const targetConfirmBtn = el('button', 'aps-btn aps-btn-small aps-step2-confirm-btn', '対象を確定');
-    targetConfirmArea.append(targetConfirmBtn);
-    targetConfirmArea.style.display = 'none';
+    const targetValueBox = el('div', 'aps-slot-valuebox');
+    const targetValueText = el('div', 'aps-slot-valuetext', '未決定');
+    targetValueBox.append(targetValueText);
+    targetConfirmArea.append(targetValueBox, targetConfirmBtn);
+    targetConfirmArea.style.display = 'flex';
 
     const dateModeArea = el('div', 'aps-step2-datemode');
     const dateModeLabel = el('span', 'aps-step2-datemode-label', '日付の有無');
@@ -322,7 +325,14 @@ export function createPaletteUI({
     dateSlotControls.append(dateSelectorBtn, dateSlotStatus, dateRequirementBadge);
     dateSlotRow.append(dateSlotLabel, dateSlotControls);
 
-    slotSection.append(targetSlotRow, targetConfirmArea, dateModeArea, dateSlotRow);
+    const dateValueArea = el('div', 'aps-step2-datevalue');
+    const dateValueBox = el('div', 'aps-slot-valuebox');
+    const dateValueText = el('div', 'aps-slot-valuetext', '未決定');
+    const dateConfirmLabel = el('span', 'aps-step2-confirm-label', '対象を確定');
+    dateValueBox.append(dateValueText);
+    dateValueArea.append(dateValueBox, dateConfirmLabel);
+
+    slotSection.append(targetSlotRow, targetConfirmArea, dateModeArea, dateSlotRow, dateValueArea);
 
     const step3_1Header = el('div', 'aps-step-header');
     const step3_1Title = el('span', 'aps-step-title', '③-1 条件タイプ');
@@ -886,12 +896,17 @@ export function createPaletteUI({
     }
 
     function setStep2ConfirmState(state = {}) {
-        const { targetSelected, targetConfirmed } = state;
-        const showConfirm = !!targetSelected;
-        targetConfirmArea.style.display = showConfirm ? 'flex' : 'none';
+        const { targetSelected, targetConfirmed, targetValue } = state;
+
+        const v = (targetValue || '').trim();
+        targetValueText.textContent = v ? v : '未決定';
+        targetValueBox.classList.toggle('aps-slot-valuebox--set', !!v);
+
+        targetConfirmBtn.disabled = !targetSelected;
         targetConfirmBtn.textContent = targetConfirmed ? '対象を再選択' : '対象を確定';
         targetConfirmBtn.classList.toggle('aps-step2-confirm-btn--active', !!targetConfirmed);
         targetSlotRow.classList.toggle('aps-slot-row--confirmed', !!targetConfirmed);
+        targetConfirmArea.style.display = 'flex';
     }
 
     function setStep2DateModeState(state = {}) {
@@ -904,10 +919,25 @@ export function createPaletteUI({
         dateSlotRow.classList.toggle('aps-slot-row--dim', targetConfirmed && dateMode === 'skip');
         dateSlotRow.classList.toggle('aps-slot-row--highlight', shouldHighlightDate);
         dateSelectorBtn.classList.toggle('aps-step2-date-selector--highlight', shouldHighlightDate);
+        const isSkip = targetConfirmed && dateMode === 'skip';
+        const isNeedMissing = targetConfirmed && dateMode === 'need' && !dateSelected;
+        dateValueArea.classList.toggle('aps-step2-datevalue--dim', isSkip);
+        dateValueArea.classList.toggle('aps-step2-datevalue--highlight', isNeedMissing);
     }
 
     function setSlotStatus(status = {}) {
         const { targetSelected, dateSelected, dateMode = 'unset' } = status;
+        const tv = (status.targetValue || '').trim();
+        const dv = (status.dateValue || '').trim();
+
+        if (targetValueText) {
+            targetValueText.textContent = tv ? tv : '未決定';
+            targetValueBox.classList.toggle('aps-slot-valuebox--set', !!tv);
+        }
+        if (dateValueText) {
+            dateValueText.textContent = dv ? dv : '未決定';
+            dateValueBox.classList.toggle('aps-slot-valuebox--set', !!dv);
+        }
         if (typeof targetSelected === 'boolean') {
             const text = targetSelected ? '設定済' : '未設定';
             targetSlotStatus.textContent = text;
@@ -942,6 +972,20 @@ export function createPaletteUI({
         applyButtonState(pickerToggle, allowStep2);
         applyButtonState(dateSelectorBtn, allowStep2);
         applyButtonState(listGenerateBtn, allowStep2);
+
+        const donePairs = [
+            ['step1', step1Block],
+            ['step2', step2Block],
+            ['step3_1', step3_1Block],
+            ['step3_2', step3_2Block],
+            ['step3_3', step3_3Block],
+            ['step4', step4Block],
+            ['step5', step5Block],
+        ];
+        donePairs.forEach(([key, block]) => {
+            if (!block) return;
+            block.classList.toggle('aps-step-done', !!stepState?.[key]);
+        });
 
         const canSave = !!stepState?.step1 && !!stepState?.step2 && !!stepState?.step3_1 && !!stepState?.step3_2;
         applyButtonState(saveBtn, canSave);
