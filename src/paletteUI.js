@@ -418,6 +418,7 @@ export function createPaletteUI({
     const step4Block = el('div', 'aps-step-block');
     step4Block.dataset.step = 'step4';
     step4Block.append(dateSelectorSection);
+    const step4Header = step4Block ? step4Block.querySelector('.aps-step-header') : null;
 
     const step5Block = el('div', 'aps-step-block');
     step5Block.dataset.step = 'step5';
@@ -447,7 +448,7 @@ export function createPaletteUI({
         { key: 'step3_3', block: step3_3Block, header: step3_3Header },
         { key: 'step4', block: step4Block, header: step4Header },
         { key: 'step5', block: step5Block, header: step5Header },
-    ];
+    ].filter(entry => entry && entry.block);
 
     let draft = {
         id: null,
