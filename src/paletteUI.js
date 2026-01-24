@@ -439,6 +439,15 @@ export function createPaletteUI({
     );
 
     root.append(header, bannerContainer, body);
+    const STEP_ENTRIES = [
+        { key: 'step1', block: step1Block, header: step1Header },
+        { key: 'step2', block: step2Block, header: step2Header },
+        { key: 'step3_1', block: step3_1Block, header: step3_1Header },
+        { key: 'step3_2', block: step3_2Block, header: step3_2Header },
+        { key: 'step3_3', block: step3_3Block, header: step3_3Header },
+        { key: 'step4', block: step4Block, header: step4Header },
+        { key: 'step5', block: step5Block, header: step5Header },
+    ];
 
     let draft = {
         id: null,
@@ -576,6 +585,7 @@ export function createPaletteUI({
     pickerToggle.addEventListener('click', () => {
         onPickTargetChange?.('target');
         onTogglePicker?.();
+        dumpStepState('pickerToggle-click');
     });
     expandBtn.addEventListener('click', () => {
         window.postMessage({ type: 'APS_PICKER_EXPAND_PARENT' }, '*');
@@ -731,6 +741,7 @@ export function createPaletteUI({
 
     targetConfirmBtn.addEventListener('click', () => {
         onStep2TargetConfirmToggle?.();
+        dumpStepState('targetConfirm-click');
     });
     dateModeNeedBtn.addEventListener('click', () => {
         onStep2DateModeChange?.('need');
@@ -979,20 +990,10 @@ export function createPaletteUI({
         applyButtonState(dateSelectorBtn, allowStep2);
         applyButtonState(listGenerateBtn, allowStep2);
 
-        const donePairs = [
-            ['step1', step1Block],
-            ['step2', step2Block],
-            ['step3_1', step3_1Block],
-            ['step3_2', step3_2Block],
-            ['step3_3', step3_3Block],
-            ['step4', step4Block],
-            ['step5', step5Block],
-        ];
-
         const normalizedState = stepState || {};
         const currentStepKey = getCurrentStepKey(normalizedState);
 
-        donePairs.forEach(([k, b]) => {
+        STEP_ENTRIES.forEach(({ key: k, block: b }) => {
             if (!b) return;
 
             b.classList.remove(
@@ -1014,6 +1015,33 @@ export function createPaletteUI({
 
         const canSave = !!stepState?.step1 && !!stepState?.step2 && !!stepState?.step3_1 && !!stepState?.step3_2;
         applyButtonState(saveBtn, canSave);
+
+        dumpStepState('setStepState', normalizedState);
+    }
+
+    function getComputedColors(el) {
+        if (!el || typeof window === 'undefined') return { backgroundColor: '', color: '' };
+        const style = window.getComputedStyle(el);
+        return {
+            backgroundColor: style.backgroundColor,
+            color: style.color,
+        };
+    }
+
+    function dumpStepState(context = 'dump', normalizedState = {}) {
+        STEP_ENTRIES.forEach(({ key, block, header }) => {
+            if (!block) return;
+            const blockClass = block.className || '';
+            const headerClass = header?.className || '';
+            const blockStyle = getComputedColors(block);
+            const headerStyle = getComputedColors(header);
+            const isDone = blockClass.includes('aps-step-done');
+            const isCurrent = blockClass.includes('aps-step-current');
+            const isDark = blockClass.includes('aps-step-dark');
+            console.log(
+                `[APS_STEP_DUMP] ${context} stepKey=${key} done=${isDone} current=${isCurrent} dark=${isDark} | blockClass="${blockClass}" headerClass="${headerClass}" | blockBG=${blockStyle.backgroundColor} blockFG=${blockStyle.color} | headBG=${headerStyle.backgroundColor} headFG=${headerStyle.color}`
+            );
+        });
     }
 
     function setApplyState(state) {
