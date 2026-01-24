@@ -1,16 +1,52 @@
+/* ===== Atlassian Design System Tokens ===== */
+:root {
+    /* 角丸 */
+    --aps-radius-sm: 4px;
+    --aps-radius-md: 6px;
+    --aps-radius-lg: 8px;
+
+    /* 余白 */
+    --aps-space-xs: 4px;
+    --aps-space-sm: 6px;
+    --aps-space-md: 8px;
+    --aps-space-lg: 12px;
+
+    /* 影 */
+    --aps-shadow-card: 0 1px 3px rgba(0, 0, 0, 0.12);
+    --aps-shadow-overlay: 0 6px 18px rgba(0, 0, 0, 0.18);
+
+    /* 境界線 */
+    --aps-border-subtle: 1px solid rgba(0, 0, 0, 0.1);
+    --aps-border-default: 1px solid #c5c0b8;
+
+    /* STEP状態色トークン（ユーザー指定の意味色） */
+    --aps-step-todo-bg: #e8e8e8;
+    --aps-step-todo-fg: #555555;
+    --aps-step-current-bg: #f7f5f2;
+    --aps-step-current-fg: #000000;
+    --aps-step-done-bg: #ffb6c1;
+    --aps-step-done-fg: #000000;
+
+    /* フォント */
+    --aps-font-family: "Segoe UI", Arial, sans-serif;
+    --aps-font-size-sm: 11px;
+    --aps-font-size-md: 12px;
+}
+/* ===== /Atlassian Design System Tokens ===== */
+
 .aps-palette {
     position: fixed;
     top: 12px;
     right: 12px;
     width: 320px;
     background: #f7f5f2;
-    border: 1px solid #c5c0b8;
-    border-radius: 8px;
+    border: var(--aps-border-default);
+    border-radius: var(--aps-radius-lg);
     z-index: 2147483647;
-    font-family: "Segoe UI", Arial, sans-serif;
-    font-size: 12px;
+    font-family: var(--aps-font-family);
+    font-size: var(--aps-font-size-md);
     color: #2a2a2a;
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
+    box-shadow: var(--aps-shadow-overlay);
 }
 
 .aps-header {
@@ -204,33 +240,64 @@
     outline: 2px dashed #ff7f50 !important;
 }
 
+/* ===== STEP Block / Card (ADS風) ===== */
 .aps-step-block {
-    border-radius: 6px;
-    padding: 4px 0;
-    margin-bottom: 4px;
+    border-radius: var(--aps-radius-md);
+    padding: var(--aps-space-xs) var(--aps-space-sm);
+    margin-bottom: var(--aps-space-xs);
+    border: var(--aps-border-subtle);
+    box-shadow: var(--aps-shadow-card);
+    transition: background 120ms ease, color 120ms ease, opacity 120ms ease;
 }
 
+/* ===== STEP状態3クラス（唯一の真実） ===== */
+.aps-step-block.aps-step--todo {
+    background: var(--aps-step-todo-bg) !important;
+    color: var(--aps-step-todo-fg) !important;
+    opacity: 0.7;
+}
+
+.aps-step-block.aps-step--current {
+    background: var(--aps-step-current-bg) !important;
+    color: var(--aps-step-current-fg) !important;
+    opacity: 1;
+}
+
+.aps-step-block.aps-step--done {
+    background: var(--aps-step-done-bg) !important;
+    color: var(--aps-step-done-fg) !important;
+    opacity: 1;
+}
+
+/* ヘッダーは透明にしてSTEPブロックの背景に従属 */
+.aps-step-header {
+    background: transparent !important;
+    display: flex;
+    align-items: center;
+    gap: var(--aps-space-sm);
+    padding: var(--aps-space-xs) 0;
+}
+
+/* 旧クラス無効化（互換性維持のため残すが、STEPには効かない） */
 .aps-step-light {
     background: #ffffff;
     color: #111;
     opacity: 1;
-    transition: background 120ms ease, color 120ms ease, opacity 120ms ease;
 }
 
 .aps-step-dark {
-    background: #1e1e1e;
-    color: #eaeaea;
-    opacity: 0.55;
-    filter: saturate(0.6);
-    transition: background 120ms ease, color 120ms ease, opacity 120ms ease;
+    background: transparent;
+    color: inherit;
+    opacity: 1;
+    filter: none;
 }
 
 .aps-step-dark input,
 .aps-step-dark select,
 .aps-step-dark button {
-    background: #2a2a2a;
-    color: #eaeaea;
-    border-color: #3a3a3a;
+    background: inherit;
+    color: inherit;
+    border-color: inherit;
     opacity: 1;
 }
 
@@ -258,79 +325,90 @@
 .aps-picker-floatbar .aps-picker-floatbar__primary{font-weight:600}
 .aps-picker-floatbar[aria-hidden="false"]{display:flex}
 
-/* ===== step colors final 2026-01-24 ===== */
-:root{
-  --aps-step-done-bg:#ffb6c1;
-  --aps-step-done-fg:#000000;
-  --aps-step-inactive-bg:#999999;
-  --aps-step-inactive-fg:#ffffff;
+/* ===== Lozenge（状態ラベル） ===== */
+.aps-step-lozenge {
+    display: inline-block;
+    padding: 2px 6px;
+    font-size: 10px;
+    font-weight: 600;
+    border-radius: 3px;
+    background: rgba(0, 0, 0, 0.06);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    margin-left: auto;
 }
 
-.aps-step-block{
-  background:transparent !important;
+.aps-step--todo .aps-step-lozenge {
+    background: rgba(0, 0, 0, 0.08);
+    color: #666;
 }
 
-.aps-step-header{
-  opacity:1 !important;
-  filter:none !important;
+.aps-step--current .aps-step-lozenge {
+    background: rgba(0, 0, 0, 0.05);
+    color: #333;
+    border-color: rgba(0, 0, 0, 0.15);
 }
 
-.aps-step-done .aps-step-header{
-  background:var(--aps-step-done-bg) !important;
-  color:var(--aps-step-done-fg) !important;
-}
-.aps-step-done .aps-step-header *{
-  color:var(--aps-step-done-fg) !important;
+.aps-step--done .aps-step-lozenge {
+    background: rgba(255, 255, 255, 0.5);
+    color: #333;
+    border-color: rgba(0, 0, 0, 0.15);
 }
 
-.aps-step-dark:not(.aps-step-done) .aps-step-header{
-  background:var(--aps-step-inactive-bg) !important;
-  color:var(--aps-step-inactive-fg) !important;
-}
-.aps-step-dark:not(.aps-step-done) .aps-step-header *{
-  color:var(--aps-step-inactive-fg) !important;
-}
-
-.aps-step-current .aps-step-header{
-  color:#000000 !important;
-  opacity:1 !important;
-  filter:none !important;
-}
-.aps-step-current .aps-step-header *{
-  color:#000000 !important;
+/* ===== 旧クラス無効化（STEPには影響しない） ===== */
+.aps-step-done,
+.aps-step-current,
+.aps-step-incomplete,
+.aps-step-inactive {
+    /* 旧クラスは何もしない */
 }
 
-.aps-step-current.aps-step-dark .aps-step-header,
-.aps-step-current.aps-step-done .aps-step-header{
-  background:inherit !important;
-  color:#000000 !important;
-}
-.aps-step-current.aps-step-dark .aps-step-header *,
-.aps-step-current.aps-step-done .aps-step-header *{
-  color:#000000 !important;
-}
-
+/* ===== フォーム要素（常に明るい背景） ===== */
 .aps-palette input,
 .aps-palette select,
-.aps-palette textarea{
-  background:#ffffff !important;
-  color:#111111 !important;
-  border:1px solid #d0d0d0 !important;
-  box-shadow:none !important;
-  -webkit-text-fill-color:#111111 !important;
+.aps-palette textarea {
+    background: #ffffff !important;
+    color: #111111 !important;
+    border: 1px solid #d0d0d0 !important;
+    box-shadow: none !important;
+    -webkit-text-fill-color: #111111 !important;
 }
+
 .aps-palette input::placeholder,
-.aps-palette textarea::placeholder{
-  color:#777777 !important;
+.aps-palette textarea::placeholder {
+    color: #777777 !important;
 }
-.aps-palette select option{
-  background:#ffffff !important;
-  color:#111111 !important;
+
+.aps-palette select option {
+    background: #ffffff !important;
+    color: #111111 !important;
 }
+
 .aps-palette input:disabled,
 .aps-palette select:disabled,
-.aps-palette textarea:disabled{
-  background:#f3f3f3 !important;
-  color:#666666 !important;
+.aps-palette textarea:disabled {
+    background: #f3f3f3 !important;
+    color: #666666 !important;
 }
-/* ===== /step colors final ===== */
+
+/* ===== ADS風ボタン ===== */
+.aps-btn {
+    border-radius: var(--aps-radius-md);
+    transition: background 100ms ease, border-color 100ms ease;
+}
+
+.aps-btn:hover:not(:disabled) {
+    background: #f0f0f0;
+    border-color: #888;
+}
+
+.aps-btn:focus {
+    outline: 2px solid #4c9aff;
+    outline-offset: 1px;
+}
+
+.aps-btn.aps-disabled,
+.aps-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+/* ===== /ADS step panel styles ===== */

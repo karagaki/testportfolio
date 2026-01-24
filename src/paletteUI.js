@@ -284,14 +284,16 @@ export function createPaletteUI({
     const step1Title = el('span', 'aps-step-title', '① 対象');
     const step1Chip = el('span', 'aps-step-chip', '未設定');
     step1Chip.style.display = 'none';
-    step1Header.append(step1Title, step1Chip);
+    const step1Lozenge = el('span', 'aps-step-lozenge', '未開始');
+    step1Header.append(step1Title, step1Chip, step1Lozenge);
     step1Header.dataset.step = 'step1';
 
     const step2Header = el('div', 'aps-step-header');
     const step2Title = el('span', 'aps-step-title', '② 要素');
     const step2Chip = el('span', 'aps-step-chip', '未設定');
     step2Chip.style.display = 'none';
-    step2Header.append(step2Title, step2Chip);
+    const step2Lozenge = el('span', 'aps-step-lozenge', '未開始');
+    step2Header.append(step2Title, step2Chip, step2Lozenge);
     step2Header.dataset.step = 'step2';
 
     const slotSection = el('div', 'aps-slot-section');
@@ -338,28 +340,32 @@ export function createPaletteUI({
     const step3_1Title = el('span', 'aps-step-title', '③-1 条件タイプ');
     const step3_1Chip = el('span', 'aps-step-chip', '未設定');
     step3_1Chip.style.display = 'none';
-    step3_1Header.append(step3_1Title, step3_1Chip);
+    const step3_1Lozenge = el('span', 'aps-step-lozenge', '未開始');
+    step3_1Header.append(step3_1Title, step3_1Chip, step3_1Lozenge);
     step3_1Header.dataset.step = 'step3_1';
 
     const step3_2Header = el('div', 'aps-step-header');
     const step3_2Title = el('span', 'aps-step-title', '③-2 条件内容');
     const step3_2Chip = el('span', 'aps-step-chip', '未設定');
     step3_2Chip.style.display = 'none';
-    step3_2Header.append(step3_2Title, step3_2Chip);
+    const step3_2Lozenge = el('span', 'aps-step-lozenge', '未開始');
+    step3_2Header.append(step3_2Title, step3_2Chip, step3_2Lozenge);
     step3_2Header.dataset.step = 'step3_2';
 
     const step3_3Header = el('div', 'aps-step-header');
     const step3_3Title = el('span', 'aps-step-title', '③-3 補助条件');
     const step3_3Chip = el('span', 'aps-step-chip', '未設定');
     step3_3Chip.style.display = 'none';
-    step3_3Header.append(step3_3Title, step3_3Chip);
+    const step3_3Lozenge = el('span', 'aps-step-lozenge', '未開始');
+    step3_3Header.append(step3_3Title, step3_3Chip, step3_3Lozenge);
     step3_3Header.dataset.step = 'step3_3';
 
     const step5Header = el('div', 'aps-step-header');
     const step5Title = el('span', 'aps-step-title', '⑤ 保存・有効化');
     const step5Chip = el('span', 'aps-step-chip', '未設定');
     step5Chip.style.display = 'none';
-    step5Header.append(step5Title, step5Chip);
+    const step5Lozenge = el('span', 'aps-step-lozenge', '未開始');
+    step5Header.append(step5Title, step5Chip, step5Lozenge);
     step5Header.dataset.step = 'step5';
 
     const statusRow = el('div', 'aps-status-row');
@@ -415,10 +421,17 @@ export function createPaletteUI({
     step3_3Block.dataset.step = 'step3_3';
     step3_3Block.append(step3_3Header, dateAuxSection);
 
+    const step4Header = el('div', 'aps-step-header');
+    const step4Title = el('span', 'aps-step-title', '④ 日付セレクタ');
+    const step4Chip = el('span', 'aps-step-chip', '未設定');
+    step4Chip.style.display = 'none';
+    const step4Lozenge = el('span', 'aps-step-lozenge', '未開始');
+    step4Header.append(step4Title, step4Chip, step4Lozenge);
+    step4Header.dataset.step = 'step4';
+
     const step4Block = el('div', 'aps-step-block');
     step4Block.dataset.step = 'step4';
-    step4Block.append(dateSelectorSection);
-    const step4Header = step4Block ? step4Block.querySelector('.aps-step-header') : null;
+    step4Block.append(step4Header, dateSelectorSection);
 
     const step5Block = el('div', 'aps-step-block');
     step5Block.dataset.step = 'step5';
@@ -441,13 +454,13 @@ export function createPaletteUI({
 
     root.append(header, bannerContainer, body);
     const STEP_ENTRIES = [
-        { key: 'step1', block: step1Block, header: step1Header },
-        { key: 'step2', block: step2Block, header: step2Header },
-        { key: 'step3_1', block: step3_1Block, header: step3_1Header },
-        { key: 'step3_2', block: step3_2Block, header: step3_2Header },
-        { key: 'step3_3', block: step3_3Block, header: step3_3Header },
-        { key: 'step4', block: step4Block, header: step4Header },
-        { key: 'step5', block: step5Block, header: step5Header },
+        { key: 'step1', block: step1Block, header: step1Header, lozenge: step1Lozenge },
+        { key: 'step2', block: step2Block, header: step2Header, lozenge: step2Lozenge },
+        { key: 'step3_1', block: step3_1Block, header: step3_1Header, lozenge: step3_1Lozenge },
+        { key: 'step3_2', block: step3_2Block, header: step3_2Header, lozenge: step3_2Lozenge },
+        { key: 'step3_3', block: step3_3Block, header: step3_3Header, lozenge: step3_3Lozenge },
+        { key: 'step4', block: step4Block, header: step4Header, lozenge: step4Lozenge },
+        { key: 'step5', block: step5Block, header: step5Header, lozenge: step5Lozenge },
     ].filter(entry => entry && entry.block);
 
     let draft = {
@@ -974,30 +987,48 @@ export function createPaletteUI({
 
     const STEP_ORDER = ['step1', 'step2', 'step3_1', 'step3_2', 'step3_3', 'step4', 'step5'];
 
+    function normalizeStepStateForUI(raw) {
+        const normalized = { ...raw };
+        let foundIncomplete = false;
+        for (const key of STEP_ORDER) {
+            if (foundIncomplete) {
+                normalized[key] = false;
+            } else if (!raw[key]) {
+                foundIncomplete = true;
+                normalized[key] = false;
+            }
+        }
+        return normalized;
+    }
+
     function getCurrentStepKey(normalizedState) {
         return STEP_ORDER.find(key => !normalizedState[key]) || null;
     }
 
     function setStepState(stepState) {
-        step1Chip.style.display = stepState?.step1 ? 'none' : 'inline-block';
-        step2Chip.style.display = stepState?.step2 ? 'none' : 'inline-block';
-        step3_1Chip.style.display = stepState?.step3_1 ? 'none' : 'inline-block';
-        step3_2Chip.style.display = stepState?.step3_2 ? 'none' : 'inline-block';
-        step3_3Chip.style.display = stepState?.step3_3 ? 'none' : 'inline-block';
-        step5Chip.style.display = stepState?.step5 ? 'none' : 'inline-block';
+        const normalizedState = normalizeStepStateForUI(stepState || {});
+        const currentStepKey = getCurrentStepKey(normalizedState);
 
-        const allowStep2 = !!stepState?.step1;
+        step1Chip.style.display = normalizedState.step1 ? 'none' : 'inline-block';
+        step2Chip.style.display = normalizedState.step2 ? 'none' : 'inline-block';
+        step3_1Chip.style.display = normalizedState.step3_1 ? 'none' : 'inline-block';
+        step3_2Chip.style.display = normalizedState.step3_2 ? 'none' : 'inline-block';
+        step3_3Chip.style.display = normalizedState.step3_3 ? 'none' : 'inline-block';
+        step4Chip.style.display = normalizedState.step4 ? 'none' : 'inline-block';
+        step5Chip.style.display = normalizedState.step5 ? 'none' : 'inline-block';
+
+        const allowStep2 = !!normalizedState.step1;
         applyButtonState(pickerToggle, allowStep2);
         applyButtonState(dateSelectorBtn, allowStep2);
         applyButtonState(listGenerateBtn, allowStep2);
 
-        const normalizedState = stepState || {};
-        const currentStepKey = getCurrentStepKey(normalizedState);
-
-        STEP_ENTRIES.forEach(({ key: k, block: b }) => {
+        STEP_ENTRIES.forEach(({ key: k, block: b, lozenge: l }) => {
             if (!b) return;
 
             b.classList.remove(
+                'aps-step--todo',
+                'aps-step--current',
+                'aps-step--done',
                 'aps-step-done',
                 'aps-step-current',
                 'aps-step-dark',
@@ -1006,15 +1037,18 @@ export function createPaletteUI({
             );
 
             if (normalizedState[k]) {
-                b.classList.add('aps-step-done');
+                b.classList.add('aps-step--done');
+                if (l) l.textContent = '完了';
             } else if (currentStepKey === k) {
-                b.classList.add('aps-step-current');
+                b.classList.add('aps-step--current');
+                if (l) l.textContent = '現在';
             } else {
-                b.classList.add('aps-step-dark');
+                b.classList.add('aps-step--todo');
+                if (l) l.textContent = '未開始';
             }
         });
 
-        const canSave = !!stepState?.step1 && !!stepState?.step2 && !!stepState?.step3_1 && !!stepState?.step3_2;
+        const canSave = !!normalizedState.step1 && !!normalizedState.step2 && !!normalizedState.step3_1 && !!normalizedState.step3_2;
         applyButtonState(saveBtn, canSave);
 
         dumpStepState('setStepState', normalizedState);
