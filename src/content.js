@@ -254,6 +254,19 @@
         return false;
     }
 
+    const STEP_SEQUENCE = ['step1', 'step2', 'step3_1', 'step3_2', 'step3_3', 'step4', 'step5'];
+
+    function normalizeStepState(rawState = {}) {
+        const normalized = {};
+        let previousDone = true;
+        for (const step of STEP_SEQUENCE) {
+            const done = Boolean(rawState[step]);
+            normalized[step] = done && previousDone;
+            previousDone = normalized[step];
+        }
+        return normalized;
+    }
+
     function getStepState(slotStatus) {
         const status = slotStatus || getSlotStatus();
         const step1 = !!(draft.scope?.host || draft.scope?.pathPattern);
@@ -272,7 +285,7 @@
         const step3_3 = true; // auxiliary step is optional
         const step4 = status.dateMode !== 'need' || status.dateSelected;
         const step5 = !draftDirty;
-        return { step1, step2, step3_1, step3_2, step3_3, step4, step5 };
+        return normalizeStepState({ step1, step2, step3_1, step3_2, step3_3, step4, step5 });
     }
 
     function getActiveStep(stepState, slotStatus) {

@@ -960,6 +960,12 @@ export function createPaletteUI({
         dateRequirementBadge.classList.toggle('aps-badge--optional', !isNeed && !isSkip);
     }
 
+    const STEP_ORDER = ['step1', 'step2', 'step3_1', 'step3_2', 'step3_3', 'step4', 'step5'];
+
+    function getCurrentStepKey(normalizedState) {
+        return STEP_ORDER.find(key => !normalizedState[key]) || null;
+    }
+
     function setStepState(stepState) {
         step1Chip.style.display = stepState?.step1 ? 'none' : 'inline-block';
         step2Chip.style.display = stepState?.step2 ? 'none' : 'inline-block';
@@ -983,14 +989,27 @@ export function createPaletteUI({
             ['step5', step5Block],
         ];
 
+        const normalizedState = stepState || {};
+        const currentStepKey = getCurrentStepKey(normalizedState);
+
         donePairs.forEach(([k, b]) => {
             if (!b) return;
 
-            // 完了判定を厳密化（true 以外は未完了扱い）
-            const isComplete = (stepState && stepState[k] === true);
+            b.classList.remove(
+                'aps-step-done',
+                'aps-step-current',
+                'aps-step-dark',
+                'aps-step-incomplete',
+                'aps-step-inactive'
+            );
 
-            b.classList.toggle('aps-step-done', isComplete);
-            b.classList.toggle('aps-step-inactive', !isComplete);
+            if (normalizedState[k]) {
+                b.classList.add('aps-step-done');
+            } else if (currentStepKey === k) {
+                b.classList.add('aps-step-current');
+            } else {
+                b.classList.add('aps-step-dark');
+            }
         });
 
         const canSave = !!stepState?.step1 && !!stepState?.step2 && !!stepState?.step3_1 && !!stepState?.step3_2;
