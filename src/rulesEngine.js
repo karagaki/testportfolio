@@ -2,6 +2,10 @@ function normalizeText(text) {
     return (text ?? '').toString().trim().toLowerCase();
 }
 
+function getScopeKey() {
+    return location.host + location.pathname;
+}
+
 function getLocalTodayStart() {
     const now = new Date();
     return new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
@@ -176,10 +180,12 @@ function clearTextColorDeep(root) {
     });
 }
 
-function clearPainted() {
+function clearPainted(scopeKey) {
     const painted = document.querySelectorAll('.aps-painted');
     painted.forEach(node => {
-        unpaintNode(node);
+        if (node.dataset.apsScopeKey === scopeKey) {
+            unpaintNode(node);
+        }
     });
 }
 
@@ -188,6 +194,7 @@ function applyPaint(node, rule) {
     const type = paint.type || 'highlight';
 
     node.classList.add('aps-painted');
+    node.dataset.apsScopeKey = getScopeKey();
     node.setAttribute('data-aps-type', type);
 
     if (type === 'highlight') {
@@ -206,13 +213,18 @@ function applyPaint(node, rule) {
 }
 
 export function applyRules(rules) {
-    clearPainted();
     if (!Array.isArray(rules) || !rules.length) return;
 
-    rules
+    const scopeKey = getScopeKey();
+    const activeRules = rules
         .filter(rule => rule?.enabled !== false)
-        .filter(rule => matchScope(rule.scope))
-        .forEach(rule => {
+        .filter(rule => matchScope(rule.scope));
+
+    if (!activeRules.length) return;
+
+    clearPainted(scopeKey);
+
+    activeRules.forEach(rule => {
             if (!Array.isArray(rule.match?.keywords)) return;
             let nodes = [];
             try {
