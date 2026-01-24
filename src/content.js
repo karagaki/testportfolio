@@ -719,27 +719,22 @@ if (window.__APS_PALETTE_MOUNTED__ || window.__APS_PALETTE_MOUNTING__) {
                 const script = document.createElement('script');
                 script.src = jsUrl;
                 script.onload = () => {
-                    // MAIN world bridge: inject inline script to call mount function in MAIN world
                     try {
                         const cid = container.id;
-                        const call = document.createElement('script');
-                        call.textContent = `(() => {
-                            try {
-                                const el = document.getElementById(${JSON.stringify(cid)});
-                                if (el && typeof window.__aps_mount_palette === 'function') {
-                                    window.__aps_mount_palette(el);
-                                    console.log('[APS] React UI mounted');
-                                } else {
-                                    console.warn('[APS] React mount function not found');
-                                }
-                            } catch (e) {
-                                console.error('[APS] React mount call failed', e);
-                            }
-                        })();`;
-                        (document.documentElement || document.head).appendChild(call);
-                        call.remove();
+
+                        if (!document.getElementById('aps-main-bridge')) {
+                            const s = document.createElement('script');
+                            s.id = 'aps-main-bridge';
+                            s.src = chrome.runtime.getURL('src/aps_main_bridge.js');
+                            s.onload = () => {
+                                try { s.remove(); } catch (_) {}
+                            };
+                            (document.documentElement || document.head).appendChild(s);
+                        }
+
+                        window.postMessage({ type: 'APS_MOUNT_PALETTE', containerId: cid }, '*');
                     } catch (e) {
-                        console.error('[APS] Failed to inject mount caller', e);
+                        console.error('[APS] Failed to request main-world mount', e);
                     }
                 };
                 script.onerror = (e) => {

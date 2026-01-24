@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "A_パレットリビルド",
-  "version": "1.2.38",
+  "version": "1.2.39",
   "description": "ページ内の任意“枠”を選択し、キーワード一致で枠を色分けする",
   "permissions": ["storage", "activeTab", "scripting", "tabs"],
   "host_permissions": ["<all_urls>"],
@@ -53,6 +53,7 @@
         "src/rulesEngine.js",
         "src/selectorGen.js",
         "src/domPicker.js",
+        "src/aps_main_bridge.js",
         "src/paletteUI.js",
         "dist/palette-ui.js",
         "dist/palette-ui.css",
