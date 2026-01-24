@@ -251,7 +251,5 @@
   padding: 7px 10px;
   border-radius: 8px;
 }
-.aps-picker-floatbar .aps-picker-floatbar__primary{
-  font-weight: 600;
-}
+.aps-picker-floatbar .aps-picker-floatbar__primary{font-weight:600}
 .aps-picker-floatbar[aria-hidden="false"]{display:flex}

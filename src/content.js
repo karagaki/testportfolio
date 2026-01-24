@@ -380,22 +380,22 @@
             setDraftDirty(true);
             saveDraft(draft);
             updateReactState();
+            if (picker.getActive()) {
+                showPickerFloatbar();
+            }
         },
         onToggle: active => {
             pickerActive = active;
             paletteController?.setPickerActive(active, pickerTarget);
-            if (active) {
-                showPickerFloatbar();
-            } else {
-                hidePickerFloatbar();
-            }
             updateReactState();
+            if (active) showPickerFloatbar();
+            else hidePickerFloatbar();
         },
         getSelector: generateSelector,
     });
 
+    // ===== Picker Floatbar (bottom-right of selected element) =====
     let pickerFloatbarEl = null;
-    let pickerFloatbarConfirmBtn = null;
 
     function ensurePickerFloatbar() {
         if (pickerFloatbarEl) return pickerFloatbarEl;
@@ -428,7 +428,7 @@
             updatePickerFloatbarEnabled();
         });
         confirm.addEventListener('click', () => {
-            const cur = picker.getCurrent?.();
+            const cur = picker.getCurrent();
             if (!cur) return;
 
             if ((pickerTarget || 'target') === 'target') {
@@ -436,19 +436,18 @@
             }
             picker.stopPicker();
             hidePickerFloatbar();
-            updateReactState?.();
+            updateReactState();
         });
         cancel.addEventListener('click', () => {
             picker.stopPicker();
             hidePickerFloatbar();
-            updateReactState?.();
+            updateReactState();
         });
 
         bar.append(expand, undo, confirm, cancel);
         document.documentElement.appendChild(bar);
 
         pickerFloatbarEl = bar;
-        pickerFloatbarConfirmBtn = confirm;
         return bar;
     }
 
@@ -466,22 +465,37 @@
 
     function updatePickerFloatbarEnabled() {
         if (!pickerFloatbarEl) return;
-        const hasCurrent = !!picker.getCurrent?.();
-        if (pickerFloatbarConfirmBtn) pickerFloatbarConfirmBtn.disabled = !hasCurrent;
+        const hasCurrent = !!picker.getCurrent();
+        const btn = pickerFloatbarEl.querySelector('.aps-picker-floatbar__primary');
+        if (btn) btn.disabled = !hasCurrent;
     }
 
     function positionPickerFloatbar() {
         if (!pickerFloatbarEl) return;
-        ensurePickerFloatbar();
-        const cur = picker.getCurrent?.();
+        const cur = picker.getCurrent();
         if (!cur) return;
-        const rect = cur.getBoundingClientRect();
-        if (!rect.width && !rect.height) return;
-        const top = rect.bottom + 8;
-        const left = rect.right + 8;
-        pickerFloatbarEl.style.top = `${top}px`;
-        pickerFloatbarEl.style.left = `${left - pickerFloatbarEl.offsetWidth}px`;
+
+        const r = cur.getBoundingClientRect();
+        const offset = 8;
+
+        if (pickerFloatbarEl.getAttribute('aria-hidden') !== 'false') {
+            pickerFloatbarEl.setAttribute('aria-hidden', 'false');
+        }
+
+        const barRect = pickerFloatbarEl.getBoundingClientRect();
+        let left = r.right + offset;
+        let top = r.bottom + offset;
+
+        const vw = window.innerWidth;
+        const vh = window.innerHeight;
+
+        if (left + barRect.width > vw - 6) left = Math.max(6, r.right - barRect.width - offset);
+        if (top + barRect.height > vh - 6) top = Math.max(6, r.bottom - barRect.height - offset);
+
+        pickerFloatbarEl.style.left = `${Math.round(left)}px`;
+        pickerFloatbarEl.style.top = `${Math.round(top)}px`;
     }
+    // ===== /Picker Floatbar =====
 
     function formatDate(date) {
         const pad = value => String(value).padStart(2, '0');
@@ -679,7 +693,11 @@
 
     // Set up adapter callbacks for React UI
     window.__aps_adapter_callbacks = {
-        onTogglePicker: () => picker.togglePicker(),
+        onTogglePicker: () => {
+            picker.togglePicker();
+            if (picker.getActive()) showPickerFloatbar();
+            else hidePickerFloatbar();
+        },
         onPickTargetChange: target => {
             pickerTarget = target || 'target';
         },
@@ -704,6 +722,16 @@
         onMinimize: () => setPaletteMinimized(!paletteMinimized),
         onDraftChange: handleDraftChange,
     };
+
+    window.addEventListener('scroll', () => {
+        if (!picker.getActive()) return;
+        positionPickerFloatbar();
+    }, { passive: true });
+
+    window.addEventListener('resize', () => {
+        if (!picker.getActive()) return;
+        positionPickerFloatbar();
+    });
 
     // Initialize React state
     updateReactState();
