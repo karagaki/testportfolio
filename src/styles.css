@@ -257,3 +257,96 @@
 }
 .aps-picker-floatbar .aps-picker-floatbar__primary{font-weight:600}
 .aps-picker-floatbar[aria-hidden="false"]{display:flex}
+
+/* ===== step colors final 2026-01-24 ===== */
+:root{
+  --aps-step-done-bg:#ffb6c1;
+  --aps-step-done-fg:#000000;
+  --aps-step-inactive-bg:#999999;
+  --aps-step-inactive-fg:#ffffff;
+}
+
+.aps-step-header{
+  opacity:1 !important;
+  filter:none !important;
+}
+
+.aps-step-done .aps-step-header{
+  background:var(--aps-step-done-bg) !important;
+  color:var(--aps-step-done-fg) !important;
+}
+.aps-step-done .aps-step-header *{
+  color:var(--aps-step-done-fg) !important;
+}
+
+.aps-step-dark:not(.aps-step-done) .aps-step-header{
+  background:var(--aps-step-inactive-bg) !important;
+  color:var(--aps-step-inactive-fg) !important;
+}
+.aps-step-dark:not(.aps-step-done) .aps-step-header *{
+  color:var(--aps-step-inactive-fg) !important;
+}
+
+.aps-step-block.aps-step-done{
+  background:var(--aps-step-done-bg) !important;
+  color:var(--aps-step-done-fg) !important;
+  filter:none !important;
+  opacity:1 !important;
+}
+.aps-step-block.aps-step-done *{
+  color:var(--aps-step-done-fg) !important;
+}
+
+.aps-step-block.aps-step-dark{
+  background:var(--aps-step-inactive-bg) !important;
+  color:var(--aps-step-inactive-fg) !important;
+  filter:none !important;
+  opacity:1 !important;
+}
+.aps-step-block.aps-step-dark *{
+  color:var(--aps-step-inactive-fg) !important;
+}
+
+.aps-step-current .aps-step-header{
+  color:#000000 !important;
+  opacity:1 !important;
+  filter:none !important;
+}
+.aps-step-current .aps-step-header *{
+  color:#000000 !important;
+}
+
+.aps-step-current.aps-step-dark .aps-step-header,
+.aps-step-current.aps-step-done .aps-step-header{
+  background:inherit !important;
+  color:#000000 !important;
+}
+.aps-step-current.aps-step-dark .aps-step-header *,
+.aps-step-current.aps-step-done .aps-step-header *{
+  color:#000000 !important;
+}
+
+.aps-palette input,
+.aps-palette select,
+.aps-palette textarea{
+  background:#ffffff !important;
+  color:#111111 !important;
+  border:1px solid #d0d0d0 !important;
+  box-shadow:none !important;
+  -webkit-text-fill-color:#111111 !important;
+}
+.aps-palette input::placeholder,
+.aps-palette textarea::placeholder{
+  color:#777777 !important;
+}
+.aps-palette select option{
+  background:#ffffff !important;
+  color:#111111 !important;
+}
+.aps-palette input:disabled,
+.aps-palette select:disabled,
+.aps-palette textarea:disabled{
+  background:#f3f3f3 !important;
+  color:#666666 !important;
+}
+/* ===== /step colors final ===== */
