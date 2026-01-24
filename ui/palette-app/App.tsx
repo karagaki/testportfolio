@@ -6,6 +6,7 @@ import './ads.css';
 // ===== Types =====
 type StepKey = 'step1' | 'step2' | 'step3_1' | 'step3_2' | 'step3_3' | 'step4' | 'step5';
 type StepState = 'inactive' | 'current' | 'done';
+type CardKey = 'target' | 'element' | 'condition' | 'helper' | 'save';
 
 interface StepConfig {
   key: StepKey;
@@ -637,10 +638,16 @@ function NewPanelSkeleton({
   pickerActive,
   onClose,
   onCancel,
+  onStepClick,
+  cardRefs,
+  cardContents,
 }: {
   pickerActive: boolean;
   onClose: () => void;
   onCancel: () => void;
+  onStepClick: (key: CardKey) => void;
+  cardRefs: Record<CardKey, React.RefObject<HTMLElement>>;
+  cardContents: Record<CardKey, React.ReactNode>;
 }) {
   // In phase1, badge states are static placeholders
   // Will be connected to actual state in phase2
@@ -658,61 +665,61 @@ function NewPanelSkeleton({
       </div>
 
       <div className="aps2-progress" role="tablist">
-        <button className="aps2-step is-done" data-step="target">対象</button>
-        <button className="aps2-step is-editing" data-step="element">要素</button>
-        <button className="aps2-step is-empty" data-step="condition">条件</button>
-        <button className="aps2-step is-empty" data-step="helper">補助</button>
-        <button className="aps2-step is-empty" data-step="save">保存</button>
+        <button className="aps2-step is-done" data-step="target" onClick={() => onStepClick('target')}>対象</button>
+        <button className="aps2-step is-editing" data-step="element" onClick={() => onStepClick('element')}>要素</button>
+        <button className="aps2-step is-empty" data-step="condition" onClick={() => onStepClick('condition')}>条件</button>
+        <button className="aps2-step is-empty" data-step="helper" onClick={() => onStepClick('helper')}>補助</button>
+        <button className="aps2-step is-empty" data-step="save" onClick={() => onStepClick('save')}>保存</button>
       </div>
 
       <div className="aps2-cards">
-        <section className="aps2-card" data-card="target">
+        <section className="aps2-card" data-card="target" ref={cardRefs.target}>
           <header className="aps2-card-h">
             <div className="aps2-card-t">対象</div>
             <div className="aps2-badge is-done">完了</div>
           </header>
           <div className="aps2-card-b">
-            <div className="aps2-placeholder">ここに対象設定UI</div>
+            {cardContents.target}
           </div>
         </section>
 
-        <section className="aps2-card" data-card="element">
+        <section className="aps2-card" data-card="element" ref={cardRefs.element}>
           <header className="aps2-card-h">
             <div className="aps2-card-t">要素</div>
             <div className="aps2-badge is-editing">編集中</div>
           </header>
           <div className="aps2-card-b">
-            <div className="aps2-placeholder">ここに要素選択UI</div>
+            {cardContents.element}
           </div>
         </section>
 
-        <section className="aps2-card" data-card="condition">
+        <section className="aps2-card" data-card="condition" ref={cardRefs.condition}>
           <header className="aps2-card-h">
             <div className="aps2-card-t">条件</div>
             <div className="aps2-badge is-empty">未設定</div>
           </header>
           <div className="aps2-card-b">
-            <div className="aps2-placeholder">ここに条件UI</div>
+            {cardContents.condition}
           </div>
         </section>
 
-        <section className="aps2-card" data-card="helper">
+        <section className="aps2-card" data-card="helper" ref={cardRefs.helper}>
           <header className="aps2-card-h">
             <div className="aps2-card-t">補助</div>
             <div className="aps2-badge is-empty">未設定</div>
           </header>
           <div className="aps2-card-b">
-            <div className="aps2-placeholder">ここに補助条件UI</div>
+            {cardContents.helper}
           </div>
         </section>
 
-        <section className="aps2-card" data-card="save">
+        <section className="aps2-card" data-card="save" ref={cardRefs.save}>
           <header className="aps2-card-h">
             <div className="aps2-card-t">保存・有効化</div>
             <div className="aps2-badge is-empty">未設定</div>
           </header>
           <div className="aps2-card-b">
-            <div className="aps2-placeholder">ここに保存UI</div>
+            {cardContents.save}
           </div>
         </section>
       </div>
@@ -736,6 +743,11 @@ export default function App() {
   const [importMode, setImportMode] = useState<'merge' | 'replace'>('merge');
   const [activeStep, setActiveStep] = useState<StepKey>('step1');
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const targetCardRef = useRef<HTMLDivElement>(null);
+  const elementCardRef = useRef<HTMLDivElement>(null);
+  const conditionCardRef = useRef<HTMLDivElement>(null);
+  const helperCardRef = useRef<HTMLDivElement>(null);
+  const saveCardRef = useRef<HTMLDivElement>(null);
 
   const syncFromGlobal = useCallback(() => {
     const state = adapter.getState();
@@ -851,6 +863,21 @@ export default function App() {
     }
   };
 
+  const cardRefs = useMemo(() => ({
+    target: targetCardRef,
+    element: elementCardRef,
+    condition: conditionCardRef,
+    helper: helperCardRef,
+    save: saveCardRef,
+  }), []);
+
+  const handleCardStepClick = useCallback((key: CardKey) => {
+    const ref = cardRefs[key];
+    if (ref?.current) {
+      ref.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, [cardRefs]);
+
   const renderStepContent = () => {
     switch (activeStep) {
       case 'step1':
@@ -903,6 +930,66 @@ export default function App() {
     }
   };
 
+  const cardContents = useMemo(() => ({
+    target: <Step1Content draft={draft} onChange={handleDraftChange} pageInfo={pageInfo} />,
+    element: (
+      <Step2Content
+        draft={draft}
+        onChange={handleDraftChange}
+        pickerActive={pickerActive}
+        targetDisplay={targetDisplay}
+        onStartPicker={handleStartPicker}
+      />
+    ),
+    condition: (
+      <>
+        <Step3_1Content
+          draft={draft}
+          onChange={handleDraftChange}
+          onGenerateListSelector={() => adapter.generateListSelector()}
+        />
+        <Step3_2Content
+          draft={draft}
+          onChange={handleDraftChange}
+          keywordInput={keywordInput}
+          setKeywordInput={setKeywordInput}
+          onAddKeyword={handleAddKeyword}
+          onRemoveKeyword={handleRemoveKeyword}
+        />
+      </>
+    ),
+    helper: (
+      <>
+        <Step3_3Content draft={draft} onChange={handleDraftChange} />
+        <Step4Content draft={draft} onChange={handleDraftChange} onStartPicker={handleStartPicker} />
+      </>
+    ),
+    save: (
+      <Step5Content
+        draft={draft}
+        saveStatus={saveStatus}
+        saveMessage={saveMessage}
+        canSave={canSave}
+        onSave={handleSave}
+      />
+    ),
+  }), [
+    draft,
+    pageInfo,
+    handleDraftChange,
+    pickerActive,
+    targetDisplay,
+    handleStartPicker,
+    keywordInput,
+    setKeywordInput,
+    handleAddKeyword,
+    handleRemoveKeyword,
+    saveStatus,
+    saveMessage,
+    canSave,
+    handleSave,
+  ]);
+
   if (!visible) return null;
 
   return (
@@ -911,7 +998,10 @@ export default function App() {
       <NewPanelSkeleton
         pickerActive={pickerActive}
         onClose={() => adapter.closePalette()}
-        onCancel={() => adapter.closePalette()}
+        onCancel={() => adapter.stopPicker()}
+        onStepClick={handleCardStepClick}
+        cardRefs={cardRefs}
+        cardContents={cardContents}
       />
 
       {/* ===== Old UI (hidden for phase1, kept for rollback) ===== */}
