@@ -52,6 +52,10 @@
     top: var(--aps-space-sm);
     right: var(--aps-space-sm);
     width: 320px;
+    max-height: calc(100vh - 20px);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
     background: #f7f5f2;
     border: var(--aps-border-default);
     border-radius: var(--aps-radius-lg);
@@ -60,6 +64,12 @@
     font-size: var(--aps-font-size-md);
     color: #2a2a2a;
     box-shadow: var(--aps-shadow-overlay);
+}
+
+.aps-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: var(--aps-space-sm);
 }
 
 .aps-header {
@@ -82,10 +92,6 @@
     padding: 2px 6px;
     cursor: pointer;
     margin-left: 4px;
-}
-
-.aps-body {
-    padding: var(--aps-space-sm);
 }
 
 .aps-section {
