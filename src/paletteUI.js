@@ -982,11 +982,15 @@ export function createPaletteUI({
             ['step4', step4Block],
             ['step5', step5Block],
         ];
-        donePairs.forEach(([key, block]) => {
-            if (!block) return;
-            const isComplete = stepState && stepState[key] === true;
-            block.classList.toggle('aps-step-done', isComplete);
-            block.classList.toggle('aps-step-incomplete', !isComplete);
+
+        donePairs.forEach(([k, b]) => {
+            if (!b) return;
+
+            // 完了判定を厳密化（true 以外は未完了扱い）
+            const isComplete = (stepState && stepState[k] === true);
+
+            b.classList.toggle('aps-step-done', isComplete);
+            b.classList.toggle('aps-step-incomplete', !isComplete);
         });
 
         const canSave = !!stepState?.step1 && !!stepState?.step2 && !!stepState?.step3_1 && !!stepState?.step3_2;
