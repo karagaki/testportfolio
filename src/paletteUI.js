@@ -865,6 +865,12 @@ export function createPaletteUI({
         button.classList.toggle('aps-disabled', !enabled);
     }
 
+    function applyStepLock(block, locked) {
+        if (!block) return;
+        block.classList.toggle('aps-step-locked', !!locked);
+        block.setAttribute('aria-disabled', locked ? 'true' : 'false');
+    }
+
     function setActiveStep(stepKey) {
         const blocks = root.querySelectorAll('.aps-step-block');
         blocks.forEach(block => {
@@ -939,9 +945,29 @@ export function createPaletteUI({
         step5Chip.style.display = stepState?.step5 ? 'none' : 'inline-block';
 
         const allowStep2 = !!stepState?.step1;
+
+        // STEP2: 要素選択（対象）は step1 完了で許可
         applyButtonState(pickerToggle, allowStep2);
-        applyButtonState(dateSelectorBtn, allowStep2);
+
+        // STEP2: 日付要素の選択は「対象確定」＋「日付を指定する」選択時のみ許可
+        const targetConfirmed = !!draft?.step2?.targetConfirmed;
+        const dateMode = draft?.step2?.dateMode || 'unset';
+        const allowDatePick = allowStep2 && targetConfirmed && dateMode === 'need';
+        applyButtonState(dateSelectorBtn, allowDatePick);
+
+        // リスト生成も step1 完了で許可
         applyButtonState(listGenerateBtn, allowStep2);
+
+        const lockAfterStep2 = !stepState?.step2;
+        const lockAfterStep3_1 = !stepState?.step3_1;
+        const lockAfterStep3_2 = !stepState?.step3_2;
+
+        applyStepLock(step3_1Block, lockAfterStep2);
+        applyStepLock(step3_2Block, lockAfterStep2 || lockAfterStep3_1);
+        applyStepLock(step3_3Block, lockAfterStep2 || lockAfterStep3_1 || lockAfterStep3_2);
+
+        applyStepLock(step4Block, lockAfterStep2 || lockAfterStep3_1 || lockAfterStep3_2);
+        applyStepLock(step5Block, lockAfterStep2 || lockAfterStep3_1 || lockAfterStep3_2);
 
         const canSave = !!stepState?.step1 && !!stepState?.step2 && !!stepState?.step3_1 && !!stepState?.step3_2;
         applyButtonState(saveBtn, canSave);
