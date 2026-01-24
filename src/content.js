@@ -406,9 +406,6 @@
             b.type = 'button';
             b.className = className || 'aps-btn aps-btn-small';
             b.textContent = label;
-            // Picker中にボタン自体が選択対象にならないようにする
-            b.addEventListener('mousedown', e => { e.preventDefault(); e.stopPropagation(); }, true);
-            b.addEventListener('click', e => { e.stopPropagation(); }, true);
             return b;
         };
 
@@ -448,9 +445,6 @@
 
         bar.append(expand, undo, confirm, cancel);
 
-        // bar自体もPickerに拾われないようにする
-        bar.addEventListener('mousedown', e => { e.preventDefault(); e.stopPropagation(); }, true);
-        bar.addEventListener('click', e => { e.stopPropagation(); }, true);
 
         document.documentElement.appendChild(bar);
         pickerFloatbarEl = bar;

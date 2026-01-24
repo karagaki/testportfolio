@@ -247,6 +247,7 @@
   background: rgba(255,255,255,.92);
   backdrop-filter: blur(8px);
   box-shadow: 0 10px 26px rgba(0,0,0,.15);
+  pointer-events:auto!important;
 }
 .aps-picker-floatbar button{
   font-size: 12px;
