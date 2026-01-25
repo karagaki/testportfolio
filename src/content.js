@@ -23,6 +23,195 @@ if (window.__APS_PALETTE_MOUNTED__ || window.__APS_PALETTE_MOUNTING__) {
             return;
         }
 
+        const DEBUG_PANEL_VIS_DEFAULT = false;
+        const DEBUG_PANEL_VIS_STORAGE_KEY = 'aps_debug_panel_vis';
+        const DEBUG_PANEL_VIS_BUFFER_KEY = 'aps_debug_panel_vis_buffer_v1';
+        const DEBUG_PANEL_VIS_BUFFER_SIZE = 50;
+        const DEBUG_PANEL_VIS_INTERVAL_MS = 1000;
+        let panelVisDebugActive = false;
+
+        function describeElement(el) {
+            if (!el || !el.tagName) return 'null';
+            const parts = [el.tagName.toLowerCase()];
+            if (el.id) parts.push(`#${el.id}`);
+            if (el.classList && el.classList.length) {
+                const classes = Array.from(el.classList).slice(0, 3).join('.');
+                if (classes) parts.push(`.${classes}`);
+            }
+            return parts.join('');
+        }
+
+        function pickComputedStyle(el) {
+            if (!el) return null;
+            const style = window.getComputedStyle(el);
+            return {
+                display: style.display,
+                visibility: style.visibility,
+                opacity: style.opacity,
+                height: style.height,
+                width: style.width,
+                pointerEvents: style.pointerEvents,
+                zIndex: style.zIndex,
+            };
+        }
+
+        function getParentChainInfo(el, depth = 3) {
+            const chain = [];
+            let current = el?.parentElement || null;
+            for (let i = 0; i < depth && current; i += 1) {
+                chain.push({
+                    el: describeElement(current),
+                    style: pickComputedStyle(current),
+                });
+                current = current.parentElement;
+            }
+            return chain;
+        }
+
+        function scheduleDebugBufferFlush(buffer, timerRef) {
+            if (!chrome?.storage?.local) return;
+            if (timerRef.current) return;
+            timerRef.current = setTimeout(() => {
+                chrome.storage.local.set({ [DEBUG_PANEL_VIS_BUFFER_KEY]: buffer }, () => {
+                    timerRef.current = null;
+                });
+            }, 200);
+        }
+
+        function createPanelVisLogger() {
+            const buffer = [];
+            const timerRef = { current: null };
+
+            function push(entry) {
+                const payload = {
+                    ts: Date.now(),
+                    iso: new Date().toISOString(),
+                    ...entry,
+                };
+                buffer.push(payload);
+                if (buffer.length > DEBUG_PANEL_VIS_BUFFER_SIZE) {
+                    buffer.splice(0, buffer.length - DEBUG_PANEL_VIS_BUFFER_SIZE);
+                }
+                console.log('[APS_DEBUG_PANEL_VIS]', payload);
+                scheduleDebugBufferFlush(buffer, timerRef);
+            }
+
+            return { buffer, push };
+        }
+
+        function resolvePanelRoot(container) {
+            if (!container) return null;
+            return container.querySelector('.ads-panel, .aps2-root, .aps-palette-react') || container;
+        }
+
+        function startPanelVisibilityDebug(container) {
+            if (!container || panelVisDebugActive) return;
+            panelVisDebugActive = true;
+            const logger = createPanelVisLogger();
+            const state = {
+                lastTarget: null,
+                observer: null,
+                timerId: null,
+            };
+
+            function nodeListHasTarget(list, target) {
+                if (!list || !target) return false;
+                for (const node of list) {
+                    if (node === target) return true;
+                    if (node?.contains && node.contains(target)) return true;
+                }
+                return false;
+            }
+
+            function attachObserver(target) {
+                if (state.observer) state.observer.disconnect();
+                if (!target?.parentElement) return;
+                const parent = target.parentElement;
+                const observer = new MutationObserver(mutations => {
+                    for (const mutation of mutations) {
+                        if (mutation.type === 'attributes' && mutation.target === target) {
+                            logger.push({
+                                type: 'attr',
+                                target: describeElement(target),
+                                attribute: mutation.attributeName,
+                            });
+                            continue;
+                        }
+                        if (mutation.type === 'childList') {
+                            if (nodeListHasTarget(mutation.removedNodes, target) || nodeListHasTarget(mutation.addedNodes, target)) {
+                                logger.push({
+                                    type: 'child',
+                                    target: describeElement(target),
+                                    parent: describeElement(mutation.target),
+                                    removed: Array.from(mutation.removedNodes || []).map(describeElement),
+                                    added: Array.from(mutation.addedNodes || []).map(describeElement),
+                                });
+                            }
+                        }
+                    }
+                });
+                observer.observe(parent, {
+                    childList: true,
+                    subtree: true,
+                    attributes: true,
+                    attributeFilter: ['class', 'style', 'hidden', 'aria-hidden'],
+                });
+                state.observer = observer;
+                logger.push({
+                    type: 'observer',
+                    target: describeElement(target),
+                    parent: describeElement(parent),
+                });
+            }
+
+            function tick() {
+                const target = resolvePanelRoot(container);
+                if (!target) {
+                    logger.push({ type: 'missing', target: 'null' });
+                    return;
+                }
+                if (target !== state.lastTarget) {
+                    state.lastTarget = target;
+                    logger.push({ type: 'target', target: describeElement(target) });
+                    attachObserver(target);
+                }
+                const rect = target.getBoundingClientRect();
+                logger.push({
+                    type: 'interval',
+                    target: describeElement(target),
+                    isConnected: Boolean(target.isConnected),
+                    rect: {
+                        x: Math.round(rect.x),
+                        y: Math.round(rect.y),
+                        w: Math.round(rect.width),
+                        h: Math.round(rect.height),
+                    },
+                    style: pickComputedStyle(target),
+                    parents: getParentChainInfo(target, 3),
+                });
+            }
+
+            state.timerId = setInterval(tick, DEBUG_PANEL_VIS_INTERVAL_MS);
+            tick();
+        }
+
+        function maybeStartPanelVisibilityDebug(container) {
+            if (!container || panelVisDebugActive) return;
+            try {
+                if (chrome?.storage?.local) {
+                    chrome.storage.local.get({ [DEBUG_PANEL_VIS_STORAGE_KEY]: DEBUG_PANEL_VIS_DEFAULT }, data => {
+                        if (data?.[DEBUG_PANEL_VIS_STORAGE_KEY]) {
+                            startPanelVisibilityDebug(container);
+                        }
+                    });
+                    return;
+                }
+            } catch {}
+            if (DEBUG_PANEL_VIS_DEFAULT) {
+                startPanelVisibilityDebug(container);
+            }
+        }
+
         // Prevent double initialization by DOM check
         if (document.querySelector('[data-aps-palette-container]')) {
             console.log('[APS] Palette container already exists, skipping');
@@ -714,6 +903,7 @@ if (window.__APS_PALETTE_MOUNTED__ || window.__APS_PALETTE_MOUNTING__) {
             // Create container
             const container = document.createElement('div');
             container.setAttribute('data-aps-palette-container', '1');
+            container.setAttribute('data-aps-panel', '1');
             if (!container.id) container.id = 'aps-react-root-' + Math.random().toString(36).slice(2);
 
             const paletteHost = await waitForElement('body');
@@ -739,6 +929,7 @@ if (window.__APS_PALETTE_MOUNTED__ || window.__APS_PALETTE_MOUNTING__) {
                 if (typeof window.__aps_mount_palette === 'function') {
                     window.__aps_mount_palette(container);
                     console.log('[APS] React UI mounted (isolated world)');
+                    maybeStartPanelVisibilityDebug(container);
                 } else {
                     console.error('[APS] React mount function not found after import:', chrome.runtime.getURL('dist/palette-ui.js'));
                 }
