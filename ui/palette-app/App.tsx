@@ -827,7 +827,7 @@ function NewPanelSkeleton({
   return (
     <div className="aps2-root">
       <div className="aps2-topbar">
-        <div className="aps2-title">Aパレットサーチ</div>
+        <div className="aps2-title">A_パレットリビルド</div>
         <div className="aps2-mode">
           {pickerActive ? '選択モード：対象要素を選択中' : '編集モード'}
         </div>

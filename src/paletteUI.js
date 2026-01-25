@@ -37,7 +37,7 @@ export function createPaletteUI({
     root.setAttribute('data-aps-palette', '1');
 
     const header = el('div', 'aps-header');
-    const title = el('div', 'aps-title', 'Aパレットサーチ');
+    const title = el('div', 'aps-title', 'A_パレットリビルド');
     const minimizeBtn = el('button', 'aps-icon-btn', '_');
     const closeBtn = el('button', 'aps-icon-btn', '×');
     header.append(title, minimizeBtn, closeBtn);
