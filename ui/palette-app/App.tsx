@@ -140,19 +140,19 @@ function StepNav({
   onStepClick: (key: StepKey) => void;
 }) {
   return (
-    <div className="ads-step-nav">
+    <div className="aps-step-nav">
       {steps.map(step => {
         const state = states[step.key];
         const isActive = step.key === activeStep;
         return (
           <div
             key={step.key}
-            className={`ads-step-item ads-step-item--${state}${isActive ? ' is-active' : ''}`}
+            className={`aps-step-item aps-step-item--${state}${isActive ? ' is-active' : ''}`}
             onClick={() => onStepClick(step.key)}
             style={{ cursor: state !== 'inactive' ? 'pointer' : 'default' }}
           >
-            <span className="ads-step-number">{step.number}</span>
-            <span className="ads-step-label">{step.label}</span>
+            <span className="aps-step-number">{step.number}</span>
+            <span className="aps-step-label">{step.label}</span>
           </div>
         );
       })}
@@ -162,7 +162,7 @@ function StepNav({
 
 function SectionMessage({ children, variant = 'default' }: { children: React.ReactNode; variant?: 'default' | 'warning' }) {
   return (
-    <div className={`ads-section-message ${variant === 'warning' ? 'ads-section-message--warning' : ''}`}>
+    <div className={`aps-section-message ${variant === 'warning' ? 'aps-section-message--warning' : ''}`}>
       {children}
     </div>
   );
@@ -170,8 +170,8 @@ function SectionMessage({ children, variant = 'default' }: { children: React.Rea
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div className="ads-field">
-      <label className="ads-field-label">{label}</label>
+    <div className="aps-field">
+      <label className="aps-field-label">{label}</label>
       {children}
     </div>
   );
@@ -189,8 +189,8 @@ function Step1Content({
   pageInfo: string;
 }) {
   return (
-    <div className="ads-card">
-      <div className="ads-card-title">1 対象URL</div>
+    <div className="aps-card">
+      <div className="aps-card-title">1 対象URL</div>
       <SectionMessage>このルールを適用するURLを設定します</SectionMessage>
 
       <div style={{ marginBottom: 12, fontSize: 11, color: '#6b778c' }}>
@@ -200,14 +200,14 @@ function Step1Content({
       <Field label="パスパターン">
         <input
           type="text"
-          className="ads-field-input"
+          className="aps-field-input"
           value={draft.scope.pathPattern}
           onChange={e => onChange({ scope: { ...draft.scope, pathPattern: e.target.value } })}
           placeholder="例: /calendar/*"
         />
       </Field>
 
-      <label className="ads-checkbox">
+      <label className="aps-checkbox">
         <input
           type="checkbox"
           checked={draft.scope.useWildcard}
@@ -216,7 +216,7 @@ function Step1Content({
         * をワイルドカードとして使用
       </label>
 
-      <label className="ads-checkbox" style={{ marginTop: 8 }}>
+      <label className="aps-checkbox" style={{ marginTop: 8 }}>
         <input
           type="checkbox"
           checked={draft.scope.applyToAllPaths}
@@ -242,21 +242,21 @@ function Step2Content({
   onStartPicker: (target: PickerTarget) => void;
 }) {
   return (
-    <div className="ads-card">
-      <div className="ads-card-title">2 対象要素</div>
+    <div className="aps-card">
+      <div className="aps-card-title">2 対象要素</div>
       <SectionMessage>色分けする要素をページ上で選択します</SectionMessage>
 
       <Field label="対象セレクタ">
-        <div className="ads-input-row">
+        <div className="aps-input-row">
           <input
             type="text"
-            className="ads-field-input"
+            className="aps-field-input"
             value={draft.targetSelector}
             onChange={e => onChange({ targetSelector: e.target.value })}
             placeholder="CSSセレクタ"
           />
           <button
-            className={`ads-btn ${pickerActive ? 'ads-btn--primary' : 'ads-btn--subtle'}`}
+            className={`aps-btn ${pickerActive ? 'aps-btn--primary' : 'aps-btn--subtle'}`}
             onClick={() => onStartPicker('target')}
           >
             {pickerActive ? '選択中...' : '選択'}
@@ -271,7 +271,7 @@ function Step2Content({
       <Field label="タイトル（任意）">
         <input
           type="text"
-          className="ads-field-input"
+          className="aps-field-input"
           value={draft.meta.title}
           onChange={e => onChange({ meta: { ...draft.meta, title: e.target.value } })}
           placeholder="ルール名"
@@ -291,13 +291,13 @@ function Step3_1Content({
   onGenerateListSelector: () => void;
 }) {
   return (
-    <div className="ads-card">
-      <div className="ads-card-title">3 類似項目</div>
+    <div className="aps-card">
+      <div className="aps-card-title">3 類似項目</div>
       <SectionMessage>同じ構造の要素をまとめて処理するか設定します</SectionMessage>
 
-      <div className="ads-switch" style={{ marginBottom: 12 }}>
+      <div className="aps-switch" style={{ marginBottom: 12 }}>
         <div
-          className={`ads-switch-toggle ${draft.list.enabled ? 'ads-active' : ''}`}
+          className={`aps-switch-toggle ${draft.list.enabled ? 'aps-active' : ''}`}
           onClick={() => onChange({ list: { ...draft.list, enabled: !draft.list.enabled } })}
         />
         <span>類似項目を処理する</span>
@@ -308,13 +308,13 @@ function Step3_1Content({
           <Field label="類似項目セレクタ">
             <input
               type="text"
-              className="ads-field-input"
+              className="aps-field-input"
               value={draft.list.itemSelector}
               onChange={e => onChange({ list: { ...draft.list, itemSelector: e.target.value } })}
               placeholder="リストアイテムのセレクタ"
             />
           </Field>
-          <button className="ads-btn ads-btn--subtle ads-btn--sm" onClick={onGenerateListSelector}>
+          <button className="aps-btn aps-btn--subtle aps-btn--sm" onClick={onGenerateListSelector}>
             現在の選択から類似セレクタ生成
           </button>
         </>
@@ -339,31 +339,31 @@ function Step3_2Content({
   onRemoveKeyword: (index: number) => void;
 }) {
   return (
-    <div className="ads-card">
-      <div className="ads-card-title">4 キーワード</div>
+    <div className="aps-card">
+      <div className="aps-card-title">4 キーワード</div>
       <SectionMessage>マッチさせるキーワードを追加します</SectionMessage>
 
       <Field label="キーワード追加">
-        <div className="ads-input-row">
+        <div className="aps-input-row">
           <input
             type="text"
-            className="ads-field-input"
+            className="aps-field-input"
             value={keywordInput}
             onChange={e => setKeywordInput(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && onAddKeyword()}
             placeholder="キーワードを入力"
           />
-          <button className="ads-btn ads-btn--subtle" onClick={onAddKeyword}>
+          <button className="aps-btn aps-btn--subtle" onClick={onAddKeyword}>
             追加
           </button>
         </div>
       </Field>
 
-      <div className="ads-tag-list">
+      <div className="aps-tag-list">
         {draft.match.keywords.map((kw, i) => (
-          <span className="ads-tag" key={i}>
+          <span className="aps-tag" key={i}>
             {kw}
-            <button className="ads-tag-remove" onClick={() => onRemoveKeyword(i)}>×</button>
+            <button className="aps-tag-remove" onClick={() => onRemoveKeyword(i)}>×</button>
           </span>
         ))}
         {draft.match.keywords.length === 0 && (
@@ -373,7 +373,7 @@ function Step3_2Content({
 
       <Field label="表現タイプ">
         <select
-          className="ads-field-select"
+          className="aps-field-select"
           value={draft.paint.type}
           onChange={e => onChange({ paint: { ...draft.paint, type: e.target.value as Draft['paint']['type'] } })}
         >
@@ -387,7 +387,7 @@ function Step3_2Content({
         <Field label="背景色">
           <input
             type="color"
-            className="ads-color-input"
+            className="aps-color-input"
             value={draft.paint.bg}
             onChange={e => onChange({ paint: { ...draft.paint, bg: e.target.value } })}
           />
@@ -398,7 +398,7 @@ function Step3_2Content({
         <Field label="文字色">
           <input
             type="color"
-            className="ads-color-input"
+            className="aps-color-input"
             value={draft.paint.fg}
             onChange={e => onChange({ paint: { ...draft.paint, fg: e.target.value } })}
           />
@@ -416,13 +416,13 @@ function Step3_3Content({
   onChange: (partial: Partial<Draft>) => void;
 }) {
   return (
-    <div className="ads-card">
-      <div className="ads-card-title">5 日付設定</div>
+    <div className="aps-card">
+      <div className="aps-card-title">5 日付設定</div>
       <SectionMessage>過去日付に日付専用の表現タイプを適用します</SectionMessage>
 
-      <div className="ads-switch" style={{ marginBottom: 12 }}>
+      <div className="aps-switch" style={{ marginBottom: 12 }}>
         <div
-          className={`ads-switch-toggle ${draft.date.enabled ? 'ads-active' : ''}`}
+          className={`aps-switch-toggle ${draft.date.enabled ? 'aps-active' : ''}`}
           onClick={() => onChange({ date: { ...draft.date, enabled: !draft.date.enabled } })}
         />
         <span>過去日付に表現タイプを適用</span>
@@ -430,7 +430,7 @@ function Step3_3Content({
 
       {draft.date.enabled && (
         <>
-          <label className="ads-checkbox" style={{ marginBottom: 12 }}>
+          <label className="aps-checkbox" style={{ marginBottom: 12 }}>
             <input
               type="checkbox"
               checked={draft.date.applyWithoutKeyword}
@@ -441,7 +441,7 @@ function Step3_3Content({
 
           <Field label="日付の表現タイプ">
             <select
-              className="ads-field-select"
+              className="aps-field-select"
               value={draft.date.paint.type}
               onChange={e => onChange({
                 date: { ...draft.date, paint: { ...draft.date.paint, type: e.target.value as Draft['paint']['type'] } },
@@ -457,7 +457,7 @@ function Step3_3Content({
             <Field label="日付の背景色">
               <input
                 type="color"
-                className="ads-color-input"
+                className="aps-color-input"
                 value={draft.date.paint.bg}
                 onChange={e => onChange({
                   date: { ...draft.date, paint: { ...draft.date.paint, bg: e.target.value } },
@@ -470,7 +470,7 @@ function Step3_3Content({
             <Field label="日付の文字色">
               <input
                 type="color"
-                className="ads-color-input"
+                className="aps-color-input"
                 value={draft.date.paint.fg}
                 onChange={e => onChange({
                   date: { ...draft.date, paint: { ...draft.date.paint, fg: e.target.value } },
@@ -481,7 +481,7 @@ function Step3_3Content({
 
           <Field label="日付取得元">
             <select
-              className="ads-field-select"
+              className="aps-field-select"
               value={draft.date.sourceType}
               onChange={e => onChange({ date: { ...draft.date, sourceType: e.target.value as Draft['date']['sourceType'] } })}
             >
@@ -507,8 +507,8 @@ function Step4Content({
 }) {
   if (!draft.date.enabled) {
     return (
-      <div className="ads-card">
-        <div className="ads-card-title">6 日付セレクタ</div>
+      <div className="aps-card">
+        <div className="aps-card-title">6 日付セレクタ</div>
         <SectionMessage variant="warning">
           日付機能が無効のため、このステップはスキップされます
         </SectionMessage>
@@ -517,20 +517,20 @@ function Step4Content({
   }
 
   return (
-    <div className="ads-card">
-      <div className="ads-card-title">6 日付セレクタ</div>
+    <div className="aps-card">
+      <div className="aps-card-title">6 日付セレクタ</div>
       <SectionMessage>日付を取得する要素を指定します</SectionMessage>
 
       <Field label="日付要素セレクタ">
-        <div className="ads-input-row">
+        <div className="aps-input-row">
           <input
             type="text"
-            className="ads-field-input"
+            className="aps-field-input"
             value={draft.date.dateSelector}
             onChange={e => onChange({ date: { ...draft.date, dateSelector: e.target.value } })}
             placeholder="日付要素のセレクタ"
           />
-          <button className="ads-btn ads-btn--subtle" onClick={() => onStartPicker('date')}>
+          <button className="aps-btn aps-btn--subtle" onClick={() => onStartPicker('date')}>
             選択
           </button>
         </div>
@@ -540,7 +540,7 @@ function Step4Content({
         <Field label="日付属性名">
           <input
             type="text"
-            className="ads-field-input"
+            className="aps-field-input"
             value={draft.date.dateAttr}
             onChange={e => onChange({ date: { ...draft.date, dateAttr: e.target.value } })}
             placeholder="data-date"
@@ -551,15 +551,15 @@ function Step4Content({
       {draft.date.sourceType === 'dayNumber' && (
         <>
           <Field label="年月ヘッダセレクタ">
-            <div className="ads-input-row">
+            <div className="aps-input-row">
               <input
                 type="text"
-                className="ads-field-input"
+                className="aps-field-input"
                 value={draft.date.headerSelector}
                 onChange={e => onChange({ date: { ...draft.date, headerSelector: e.target.value } })}
                 placeholder="年月ヘッダのセレクタ"
               />
-              <button className="ads-btn ads-btn--subtle" onClick={() => onStartPicker('header')}>
+              <button className="aps-btn aps-btn--subtle" onClick={() => onStartPicker('header')}>
                 選択
               </button>
             </div>
@@ -567,7 +567,7 @@ function Step4Content({
 
           <Field label="年月フォーマット">
             <select
-              className="ads-field-select"
+              className="aps-field-select"
               value={draft.date.headerFormat}
               onChange={e => onChange({ date: { ...draft.date, headerFormat: e.target.value as Draft['date']['headerFormat'] } })}
             >
@@ -649,87 +649,87 @@ function Step5Content({
   };
 
   return (
-    <div className="ads-card">
-      <div className="ads-card-title">7 保存</div>
+    <div className="aps-card">
+      <div className="aps-card-title">7 保存</div>
       <SectionMessage>ルールを保存して有効化します</SectionMessage>
-      <div className="ads-summary">
-        <div className="ads-summary-title">今回の設定</div>
-        <div className="ads-summary-row">
-          <div className="ads-summary-label">対象URL</div>
-          <div className="ads-summary-value">
-            <div className={`ads-summary-text ads-summary-text--code${expanded.scope ? ' is-expanded' : ' is-clamped'}${scopeLabel === '未設定' ? ' is-empty' : ''}`}>
+      <div className="aps-summary">
+        <div className="aps-summary-title">今回の設定</div>
+        <div className="aps-summary-row">
+          <div className="aps-summary-label">対象URL</div>
+          <div className="aps-summary-value">
+            <div className={`aps-summary-text aps-summary-text--code${expanded.scope ? ' is-expanded' : ' is-clamped'}${scopeLabel === '未設定' ? ' is-empty' : ''}`}>
               {scopeLabel}
             </div>
             {scopeNeedsToggle && (
-              <button className="ads-summary-toggle" onClick={() => handleToggle('scope')}>
+              <button className="aps-summary-toggle" onClick={() => handleToggle('scope')}>
                 {expanded.scope ? '折りたたみ' : '展開'}
               </button>
             )}
           </div>
         </div>
-        <div className="ads-summary-row">
-          <div className="ads-summary-label">対象要素</div>
-          <div className="ads-summary-value">
-            <div className={`ads-summary-text ads-summary-text--code${expanded.selector ? ' is-expanded' : ' is-clamped'}${selectorLabel === '未設定' ? ' is-empty' : ''}`}>
+        <div className="aps-summary-row">
+          <div className="aps-summary-label">対象要素</div>
+          <div className="aps-summary-value">
+            <div className={`aps-summary-text aps-summary-text--code${expanded.selector ? ' is-expanded' : ' is-clamped'}${selectorLabel === '未設定' ? ' is-empty' : ''}`}>
               {selectorLabel}
             </div>
             {selectorNeedsToggle && (
-              <button className="ads-summary-toggle" onClick={() => handleToggle('selector')}>
+              <button className="aps-summary-toggle" onClick={() => handleToggle('selector')}>
                 {expanded.selector ? '折りたたみ' : '展開'}
               </button>
             )}
           </div>
         </div>
-        <div className="ads-summary-row">
-          <div className="ads-summary-label">類似項目</div>
-          <div className="ads-summary-value">
-            <div className="ads-summary-text ads-summary-status">{listLabel}</div>
+        <div className="aps-summary-row">
+          <div className="aps-summary-label">類似項目</div>
+          <div className="aps-summary-value">
+            <div className="aps-summary-text aps-summary-status">{listLabel}</div>
             {draft.list.enabled && draft.list.itemSelector?.trim() && (
-              <div className="ads-summary-text ads-summary-text--code ads-summary-status">
+              <div className="aps-summary-text aps-summary-text--code aps-summary-status">
                 {draft.list.itemSelector.trim()}
               </div>
             )}
           </div>
         </div>
-        <div className="ads-summary-row">
-          <div className="ads-summary-label">条件(キーワード)</div>
-          <div className="ads-summary-value">
-            <div className={`ads-summary-text ads-summary-status${keywordIsEmpty ? ' is-empty' : ''}`}>{keywordLabel}</div>
+        <div className="aps-summary-row">
+          <div className="aps-summary-label">条件(キーワード)</div>
+          <div className="aps-summary-value">
+            <div className={`aps-summary-text aps-summary-status${keywordIsEmpty ? ' is-empty' : ''}`}>{keywordLabel}</div>
             {!keywordIsEmpty && (
-              <div className="ads-summary-tags">
+              <div className="aps-summary-tags">
                 {draft.match.keywords.map((keyword, index) => (
-                  <span className="ads-tag" key={`${keyword}-${index}`}>{keyword}</span>
+                  <span className="aps-tag" key={`${keyword}-${index}`}>{keyword}</span>
                 ))}
               </div>
             )}
           </div>
         </div>
-        <div className="ads-summary-row">
-          <div className="ads-summary-label">表現</div>
-          <div className="ads-summary-value">
-            <div className="ads-summary-text">
-              <span className="ads-summary-inline">
-                <span className="ads-summary-swatch" style={{ background: paintColor }} />
+        <div className="aps-summary-row">
+          <div className="aps-summary-label">表現</div>
+          <div className="aps-summary-value">
+            <div className="aps-summary-text">
+              <span className="aps-summary-inline">
+                <span className="aps-summary-swatch" style={{ background: paintColor }} />
                 {paintTypeLabel} {paintColor}
               </span>
             </div>
           </div>
         </div>
-        <div className="ads-summary-row">
-          <div className="ads-summary-label">日付設定</div>
-          <div className="ads-summary-value">
-            <div className="ads-summary-text ads-summary-status">{dateLabel}</div>
+        <div className="aps-summary-row">
+          <div className="aps-summary-label">日付設定</div>
+          <div className="aps-summary-value">
+            <div className="aps-summary-text aps-summary-status">{dateLabel}</div>
             {draft.date.enabled && (
               <>
-                <div className="ads-summary-text ads-summary-status">
-                  <span className="ads-summary-inline">
-                    <span className="ads-summary-swatch" style={{ background: datePaintColor }} />
+                <div className="aps-summary-text aps-summary-status">
+                  <span className="aps-summary-inline">
+                    <span className="aps-summary-swatch" style={{ background: datePaintColor }} />
                     表現: {datePaintTypeLabel} {datePaintColor}
                   </span>
                 </div>
-                <div className="ads-summary-text ads-summary-status">取得元: {dateSourceLabel}</div>
+                <div className="aps-summary-text aps-summary-status">取得元: {dateSourceLabel}</div>
                 {draft.date.dateSelector?.trim() && (
-                  <div className="ads-summary-text ads-summary-text--code ads-summary-status">
+                  <div className="aps-summary-text aps-summary-text--code aps-summary-status">
                     {draft.date.dateSelector.trim()}
                   </div>
                 )}
@@ -737,10 +737,10 @@ function Step5Content({
             )}
           </div>
         </div>
-        <div className="ads-summary-row">
-          <div className="ads-summary-label">保存方式</div>
-          <div className="ads-summary-value">
-            <div className="ads-summary-text">{saveModeLabel}</div>
+        <div className="aps-summary-row">
+          <div className="aps-summary-label">保存方式</div>
+          <div className="aps-summary-value">
+            <div className="aps-summary-text">{saveModeLabel}</div>
           </div>
         </div>
       </div>
@@ -774,30 +774,30 @@ function RulesList({
 }) {
   if (rules.length === 0) {
     return (
-      <div className="ads-card">
-        <div className="ads-card-title">このページのルール</div>
+      <div className="aps-card">
+        <div className="aps-card-title">このページのルール</div>
         <div style={{ fontSize: 11, color: '#6b778c' }}>ルールはまだありません</div>
       </div>
     );
   }
 
   return (
-    <div className="ads-card">
-      <div className="ads-card-title">このページのルール</div>
-      <div className="ads-rule-list">
+    <div className="aps-card">
+      <div className="aps-card-title">このページのルール</div>
+      <div className="aps-rule-list">
         {rules.map(rule => (
-          <div className="ads-rule-item" key={rule.id}>
-            <span className="ads-rule-name">{rule.meta?.title || rule.targetSelector || '無題'}</span>
-            <div className="ads-rule-actions">
+          <div className="aps-rule-item" key={rule.id}>
+            <span className="aps-rule-name">{rule.meta?.title || rule.targetSelector || '無題'}</span>
+            <div className="aps-rule-actions">
               <input
                 type="checkbox"
                 checked={rule.enabled !== false}
                 onChange={e => onToggle(rule.id, e.target.checked)}
               />
-              <button className="ads-btn ads-btn--subtle ads-btn--sm" onClick={() => onEdit(rule.id)}>
+              <button className="aps-btn aps-btn--subtle aps-btn--sm" onClick={() => onEdit(rule.id)}>
                 編集
               </button>
-              <button className="ads-btn ads-btn--subtle ads-btn--sm" onClick={() => onDelete(rule.id)}>
+              <button className="aps-btn aps-btn--subtle aps-btn--sm" onClick={() => onDelete(rule.id)}>
                 削除
               </button>
             </div>
@@ -1033,7 +1033,7 @@ export default function App() {
       window.addEventListener('pointerup', handlePointerUp);
     };
 
-    const header = panelRef.current?.querySelector('.ads-panel-header');
+    const header = panelRef.current?.querySelector('.aps-panel-header');
     if (header) {
       header.addEventListener('pointerdown', handleHeaderPointerDown);
     }
@@ -1257,24 +1257,24 @@ export default function App() {
       {/* ===== Old UI (hidden for phase1, kept for rollback) ===== */}
       <div
         ref={panelRef}
-        className={`ads-panel ${minimized ? 'ads-minimized' : ''}${dragging ? ' ads-panel-dragging' : ''}`}
+        className={`aps-panel ${minimized ? 'aps-minimized' : ''}${dragging ? ' aps-panel-dragging' : ''}`}
         style={{ left: panelPos.x, top: panelPos.y }}
       >
       {/* Header */}
-      <div className="ads-panel-header">
-        <div className="ads-panel-title ads-panel-rule">
-          <span className="ads-panel-rule-label">ルール:</span>
-          <span className="ads-panel-rule-name" title={currentRuleName}>{currentRuleName}</span>
-          <div className="ads-panel-rule-actions">
+      <div className="aps-panel-header">
+        <div className="aps-panel-title aps-panel-rule">
+          <span className="aps-panel-rule-label">ルール:</span>
+          <span className="aps-panel-rule-name" title={currentRuleName}>{currentRuleName}</span>
+          <div className="aps-panel-rule-actions">
             <button
-              className="ads-btn ads-btn--subtle ads-btn--sm"
+              className="aps-btn aps-btn--subtle aps-btn--sm"
               onClick={() => currentRuleId && adapter.editRule(currentRuleId)}
               disabled={!currentRuleId}
             >
               編集
             </button>
             <button
-              className="ads-btn ads-btn--subtle ads-btn--sm"
+              className="aps-btn aps-btn--subtle aps-btn--sm"
               onClick={() => currentRuleId && adapter.deleteRule(currentRuleId)}
               disabled={!currentRuleId}
             >
@@ -1282,28 +1282,28 @@ export default function App() {
             </button>
           </div>
         </div>
-        <div className="ads-panel-actions">
-          <button className="ads-icon-btn" onClick={() => adapter.minimizePalette()}>
+        <div className="aps-panel-actions">
+          <button className="aps-icon-btn" onClick={() => adapter.minimizePalette()}>
             {minimized ? '+' : '_'}
           </button>
-          <button className="ads-icon-btn" onClick={() => adapter.closePalette()}>
+          <button className="aps-icon-btn" onClick={() => adapter.closePalette()}>
             ×
           </button>
         </div>
       </div>
 
       {/* Picker banner */}
-      <div className={`ads-banner ${pickerActive ? 'ads-active' : ''}`}>
+      <div className={`aps-banner ${pickerActive ? 'aps-active' : ''}`}>
         <span>選択モード: 要素を選択中</span>
-        <div className="ads-banner-actions">
-          <button className="ads-btn ads-btn--sm ads-btn--subtle" onClick={() => adapter.startPicker('target')}>
+        <div className="aps-banner-actions">
+          <button className="aps-btn aps-btn--sm aps-btn--subtle" onClick={() => adapter.startPicker('target')}>
             終了
           </button>
         </div>
       </div>
 
       {/* Body */}
-      <div className="ads-panel-body">
+      <div className="aps-panel-body">
         {/* Left: Step navigation */}
         <StepNav
           steps={STEPS}
@@ -1313,22 +1313,22 @@ export default function App() {
         />
 
         {/* Right: Main content */}
-        <div className="ads-main">
+        <div className="aps-main">
           {renderStepContent()}
         </div>
       </div>
 
       {/* Footer */}
-      <div className="ads-footer">
-        <div className="ads-footer-secondary">
-          <button className="ads-btn ads-btn--subtle ads-btn--sm" onClick={handleExport}>
+      <div className="aps-footer">
+        <div className="aps-footer-secondary">
+          <button className="aps-btn aps-btn--subtle aps-btn--sm" onClick={handleExport}>
             エクスポート
           </button>
-          <button className="ads-btn ads-btn--subtle ads-btn--sm" onClick={() => fileInputRef.current?.click()}>
+          <button className="aps-btn aps-btn--subtle aps-btn--sm" onClick={() => fileInputRef.current?.click()}>
             インポート
           </button>
           <select
-            className="ads-field-select"
+            className="aps-field-select"
             style={{ width: 80, padding: '4px 6px', fontSize: 11 }}
             value={importMode}
             onChange={e => setImportMode(e.target.value as 'merge' | 'replace')}
@@ -1337,7 +1337,7 @@ export default function App() {
             <option value="replace">置換</option>
           </select>
           <button
-            className="ads-btn ads-btn--primary ads-btn--sm"
+            className="aps-btn aps-btn--primary aps-btn--sm"
             disabled={!canSave || saveStatus === 'saving'}
             onClick={handleSave}
           >

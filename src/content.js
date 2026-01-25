@@ -101,7 +101,7 @@ if (window.__APS_PALETTE_MOUNTED__ || window.__APS_PALETTE_MOUNTING__) {
 
         function resolvePanelRoot(container) {
             if (!container) return null;
-            return container.querySelector('.ads-panel, .aps2-root, .aps-palette-react') || container;
+            return container.querySelector('.aps-panel, .aps2-root, .aps-palette-react') || container;
         }
 
         function startPanelVisibilityDebug(container) {
