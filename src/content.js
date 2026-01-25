@@ -105,6 +105,12 @@ if (window.__APS_PALETTE_MOUNTED__ || window.__APS_PALETTE_MOUNTING__) {
                 headerSelector: '',
                 headerFormat: 'jp_ym',
                 grayPreset: 'medium',
+                paint: {
+                    type: 'highlight',
+                    bg: '#ffc0cb',
+                    fg: '',
+                    border: 'rgba(0,0,0,0.15)',
+                },
             },
             paint: {
                 type: 'highlight',
@@ -128,7 +134,11 @@ if (window.__APS_PALETTE_MOUNTED__ || window.__APS_PALETTE_MOUNTING__) {
                 scope: { ...baseDraft.scope, ...partial?.scope },
                 list: { ...baseDraft.list, ...partial?.list },
                 match: { ...baseDraft.match, ...partial?.match },
-                date: { ...baseDraft.date, ...partial?.date },
+                date: {
+                    ...baseDraft.date,
+                    ...partial?.date,
+                    paint: { ...baseDraft.date.paint, ...partial?.date?.paint },
+                },
                 paint: { ...baseDraft.paint, ...partial?.paint },
                 step2: { ...baseDraft.step2, ...partial?.step2 },
                 meta: { ...baseDraft.meta, ...partial?.meta },
@@ -498,6 +508,7 @@ if (window.__APS_PALETTE_MOUNTED__ || window.__APS_PALETTE_MOUNTING__) {
             }
 
             const ruleId = updatedDraft.id || (crypto.randomUUID ? crypto.randomUUID() : String(Date.now()));
+            const datePaint = updatedDraft.date?.paint || {};
             const rule = {
                 id: ruleId,
                 enabled: updatedDraft.enabled !== false,
@@ -525,6 +536,12 @@ if (window.__APS_PALETTE_MOUNTED__ || window.__APS_PALETTE_MOUNTING__) {
                     headerSelector: updatedDraft.date?.headerSelector || '',
                     headerFormat: updatedDraft.date?.headerFormat || 'jp_ym',
                     grayPreset: updatedDraft.date?.grayPreset || 'medium',
+                    paint: {
+                        type: datePaint.type || 'highlight',
+                        bg: datePaint.bg || '#ffc0cb',
+                        fg: datePaint.fg || '',
+                        border: datePaint.border || 'rgba(0,0,0,0.15)',
+                    },
                 },
                 paint: {
                     type: updatedDraft.paint?.type || 'highlight',

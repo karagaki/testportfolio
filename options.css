@@ -177,6 +177,35 @@ tbody td {
   word-break: break-all;
 }
 
+.r-summary {
+  margin-top: 6px;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #0f131c;
+}
+
+.r-summary-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+
+.r-summary-item {
+  font-size: 11px;
+  color: var(--muted);
+  margin: 2px 0;
+}
+
+.r-summary-label {
+  color: var(--muted);
+}
+
+.r-summary-item code {
+  color: var(--accent);
+}
+
 .empty {
   padding: 14px 12px;
   color: var(--muted);

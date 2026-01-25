@@ -24,6 +24,7 @@ export interface DateConfig {
   headerSelector: string;
   headerFormat: 'jp_ym' | 'ym_slash' | 'en_month_ym';
   grayPreset: 'weak' | 'medium' | 'strong';
+  paint: PaintConfig;
 }
 
 export interface PaintConfig {

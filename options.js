@@ -156,6 +156,8 @@ function makeDetailRow(host, rules) {
     line4.innerHTML = `<span class="k">更新</span> <code>${escapeHtml(fmtDate(r?.meta?.updatedAt || r?.meta?.createdAt || 0))}</code>`;
     box.appendChild(line4);
 
+    box.appendChild(makeRuleSummary(r));
+
     wrap.appendChild(box);
   }
 
@@ -172,6 +174,79 @@ function escapeHtml(s) {
     .replaceAll('>', '&gt;')
     .replaceAll('"', '&quot;')
     .replaceAll("'", '&#039;');
+}
+
+function truncateText(value, max = 72) {
+  const v = String(value || '').trim();
+  if (!v) return '';
+  return v.length > max ? `${v.slice(0, max)}…` : v;
+}
+
+function paintLabel(paint) {
+  const type = paint?.type || 'highlight';
+  if (type === 'text') return '文字';
+  if (type === 'collapse') return '非表示';
+  return '塗り';
+}
+
+function makeSummaryItem(label, value, { code = false } = {}) {
+  if (!value) return null;
+  const row = document.createElement('div');
+  row.className = 'r-summary-item';
+  const key = document.createElement('span');
+  key.className = 'r-summary-label';
+  key.textContent = `${label}: `;
+  row.appendChild(key);
+
+  if (code) {
+    const codeEl = document.createElement('code');
+    codeEl.textContent = value;
+    row.appendChild(codeEl);
+  } else {
+    row.appendChild(document.createTextNode(value));
+  }
+
+  return row;
+}
+
+function makeRuleSummary(rule) {
+  const summary = document.createElement('div');
+  summary.className = 'r-summary';
+
+  const title = document.createElement('div');
+  title.className = 'r-summary-title';
+  title.textContent = 'ルール仕様サマリー';
+  summary.appendChild(title);
+
+  const host = safeHost(rule?.scope);
+  const pathPattern = (rule?.scope?.pathPattern || '').trim();
+  const applyToAll = !!rule?.scope?.applyToAllPaths;
+  const urlLabel = applyToAll
+    ? `${host} (全ページ)`
+    : (pathPattern ? `${host}${pathPattern.startsWith('/') ? pathPattern : '/' + pathPattern}` : host);
+  const urlItem = makeSummaryItem('対象URL', truncateText(urlLabel));
+  if (urlItem) summary.appendChild(urlItem);
+
+  const targetSelector = truncateText(rule?.targetSelector || '');
+  const targetItem = makeSummaryItem('対象要素', targetSelector, { code: true });
+  if (targetItem) summary.appendChild(targetItem);
+
+  const keywords = Array.isArray(rule?.match?.keywords) ? rule.match.keywords : [];
+  if (keywords.length) {
+    const keywordText = `有効（${keywords.length}件） / 表現: ${paintLabel(rule?.paint)}`;
+    summary.appendChild(makeSummaryItem('キーワード', keywordText));
+  }
+
+  if (rule?.date?.enabled) {
+    const dateBasis = '過去日付（選択日/今日基準）';
+    const dateText = `有効（${dateBasis}） / 表現: ${paintLabel(rule?.date?.paint)}`;
+    summary.appendChild(makeSummaryItem('日付', dateText));
+  }
+
+  const stateText = rule?.enabled !== false ? '有効' : '無効';
+  summary.appendChild(makeSummaryItem('状態', stateText));
+
+  return summary;
 }
 
 function toggleDetails(host) {

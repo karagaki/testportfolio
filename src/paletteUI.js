@@ -403,22 +403,27 @@ export function createPaletteUI({
 
     const step1Block = el('div', 'aps-step-block');
     step1Block.dataset.step = 'step1';
+    step1Block.dataset.apsStep = 'target';
     step1Block.append(step1Header, pageSection, urlSection);
 
     const step2Block = el('div', 'aps-step-block');
     step2Block.dataset.step = 'step2';
+    step2Block.dataset.apsStep = 'element';
     step2Block.append(step2Header, slotSection, pickerTools);
 
     const step3_1Block = el('div', 'aps-step-block');
     step3_1Block.dataset.step = 'step3_1';
+    step3_1Block.dataset.apsStep = 'condType';
     step3_1Block.append(step3_1Header, listModeSection);
 
     const step3_2Block = el('div', 'aps-step-block');
     step3_2Block.dataset.step = 'step3_2';
+    step3_2Block.dataset.apsStep = 'condMain';
     step3_2Block.append(step3_2Header, keywordSection, paintSection, titleSection);
 
     const step3_3Block = el('div', 'aps-step-block');
     step3_3Block.dataset.step = 'step3_3';
+    step3_3Block.dataset.apsStep = 'assist';
     step3_3Block.append(step3_3Header, dateAuxSection);
 
     const step4Header = el('div', 'aps-step-header');
@@ -435,6 +440,7 @@ export function createPaletteUI({
 
     const step5Block = el('div', 'aps-step-block');
     step5Block.dataset.step = 'step5';
+    step5Block.dataset.apsStep = 'save';
     step5Block.append(step5Header, saveBtn);
 
     body.append(

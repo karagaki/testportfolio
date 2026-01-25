@@ -243,8 +243,8 @@
 }
 
 .aps-painted.aps-date-past {
-    opacity: var(--aps-past-opacity, 0.55) !important;
-    filter: var(--aps-past-filter, grayscale(0.75)) !important;
+    opacity: 1 !important;
+    filter: none !important;
 }
 
 /* highlight：背景 + 枠は inset shadow（borderを使わない＝サイズ不変） */

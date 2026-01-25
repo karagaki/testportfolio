@@ -31,6 +31,15 @@ function normalizeRules(data) {
         const scope = rule.scope || {};
         const list = rule.list || {};
         const date = rule.date || {};
+        const datePaint = date.paint || {};
+        const normalizedDatePaint = {
+            type: ['highlight', 'text', 'collapse'].includes(datePaint.type)
+                ? datePaint.type
+                : 'highlight',
+            bg: datePaint.bg || '#ffc0cb',
+            fg: datePaint.fg || '',
+            border: datePaint.border || 'rgba(0,0,0,0.15)',
+        };
         return {
             ...rule,
             scope: {
@@ -53,10 +62,98 @@ function normalizeRules(data) {
                     ? date.headerFormat
                     : 'jp_ym',
                 grayPreset: ['weak', 'medium', 'strong'].includes(date.grayPreset) ? date.grayPreset : 'medium',
+                paint: normalizedDatePaint,
             },
         };
     });
     return { ...data, rules };
+}
+
+function normalizePaint(paint) {
+    const src = paint || {};
+    const type = ['highlight', 'text', 'collapse'].includes(src.type) ? src.type : 'highlight';
+    return {
+        type,
+        bg: src.bg || '#ffc0cb',
+        fg: src.fg || '',
+        border: src.border || 'rgba(0,0,0,0.15)',
+    };
+}
+
+function normalizeDateConfig(date, keywordPaint) {
+    const src = date || {};
+    const paint = src.paint ? normalizePaint(src.paint) : normalizePaint(keywordPaint);
+    return {
+        enabled: !!src.enabled,
+        applyWithoutKeyword: !!src.applyWithoutKeyword,
+        sourceType: ['attr', 'text', 'dayNumber'].includes(src.sourceType) ? src.sourceType : 'attr',
+        dateSelector: src.dateSelector || '',
+        dateAttr: src.dateAttr || 'data-date',
+        headerSelector: src.headerSelector || '',
+        headerFormat: ['jp_ym', 'ym_slash', 'en_month_ym'].includes(src.headerFormat)
+            ? src.headerFormat
+            : 'jp_ym',
+        grayPreset: ['weak', 'medium', 'strong'].includes(src.grayPreset) ? src.grayPreset : 'medium',
+        paint,
+    };
+}
+
+function normalizeRuleForImport(rule) {
+    if (!rule || typeof rule !== 'object') return null;
+    const normalizedPaint = normalizePaint(rule.paint);
+    const normalizedDate = normalizeDateConfig(rule.date, normalizedPaint);
+    return {
+        ...rule,
+        paint: normalizedPaint,
+        date: normalizedDate,
+    };
+}
+
+function normalizeDraftForImport(draft) {
+    if (!draft || typeof draft !== 'object') return null;
+    const normalizedPaint = normalizePaint(draft.paint);
+    const normalizedDate = normalizeDateConfig(draft.date, normalizedPaint);
+    const step2 = {
+        targetConfirmed: !!draft.step2?.targetConfirmed,
+        dateMode: typeof draft.step2?.dateMode === 'string' ? draft.step2.dateMode : 'unset',
+    };
+    return {
+        ...draft,
+        paint: normalizedPaint,
+        date: normalizedDate,
+        step2,
+    };
+}
+
+function normalizeRulesForImport(rulesData) {
+    const rules = Array.isArray(rulesData?.rules)
+        ? rulesData.rules.map(normalizeRuleForImport).filter(Boolean)
+        : [];
+    return { version: 1, rules };
+}
+
+function isPlainObject(value) {
+    return !!value && typeof value === 'object' && !Array.isArray(value);
+}
+
+function mergeDefined(base, incoming) {
+    if (!isPlainObject(base)) return incoming ?? base;
+    if (!isPlainObject(incoming)) return base;
+    const out = { ...base };
+    Object.keys(incoming).forEach(key => {
+        const value = incoming[key];
+        if (value === undefined || value === null) return;
+        if (Array.isArray(value)) {
+            out[key] = value;
+            return;
+        }
+        if (isPlainObject(value)) {
+            out[key] = mergeDefined(isPlainObject(base[key]) ? base[key] : {}, value);
+            return;
+        }
+        out[key] = value;
+    });
+    return out;
 }
 
 export async function loadRules() {
@@ -155,12 +252,14 @@ export async function importAllData(payload, mode) {
         (payload && payload.siteNames && typeof payload.siteNames === 'object' && !Array.isArray(payload.siteNames))
             ? payload.siteNames
             : null;
-    const normalizedRules = normalizeRules(payload.rules);
+    const incomingRules = Array.isArray(payload.rules?.rules) ? payload.rules.rules : [];
+    const normalizedRules = normalizeRulesForImport(payload.rules);
+    const normalizedDraft = normalizeDraftForImport(payload.draft);
 
     if (mode === 'replace') {
         await setStorage({
             [RULES_KEY]: normalizedRules,
-            [DRAFT_KEY]: payload.draft ?? null,
+            [DRAFT_KEY]: normalizedDraft,
             [PALETTE_KEY]: payload.paletteState ?? null,
             [SITE_NAMES_KEY]: incomingSiteNames ?? {},
         });
@@ -172,8 +271,17 @@ export async function importAllData(payload, mode) {
     rulesData.rules.forEach(rule => {
         if (rule?.id) merged.set(rule.id, rule);
     });
-    normalizedRules.rules.forEach(rule => {
-        if (rule?.id) merged.set(rule.id, rule);
+    incomingRules.forEach(rule => {
+        if (!rule?.id) return;
+        const existing = merged.get(rule.id);
+        if (existing) {
+            const mergedRule = mergeDefined(existing, rule);
+            const normalized = normalizeRuleForImport(mergedRule);
+            if (normalized) merged.set(rule.id, normalized);
+            return;
+        }
+        const normalized = normalizeRuleForImport(rule);
+        if (normalized) merged.set(rule.id, normalized);
     });
 
     await saveRules({ version: 1, rules: Array.from(merged.values()) });
@@ -182,5 +290,11 @@ export async function importAllData(payload, mode) {
         const cur = await getStorage({ [SITE_NAMES_KEY]: {} });
         const mergedNames = { ...(cur[SITE_NAMES_KEY] || {}), ...incomingSiteNames };
         await setStorage({ [SITE_NAMES_KEY]: mergedNames });
+    }
+
+    if (payload.draft) {
+        const currentDraft = await loadDraft();
+        const mergedDraft = normalizeDraftForImport(mergeDefined(currentDraft || {}, payload.draft));
+        await saveDraft(mergedDraft);
     }
 }

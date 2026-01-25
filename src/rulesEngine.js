@@ -11,6 +11,20 @@ function getLocalTodayStart() {
     return new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
 }
 
+function getBaseDateFromUrl() {
+    try {
+        const params = new URLSearchParams(location.search);
+        const year = Number(params.get('target_year'));
+        const month = Number(params.get('target_month'));
+        if (Number.isInteger(year) && Number.isInteger(month) && month >= 1 && month <= 12) {
+            return new Date(year, month - 1, 1, 0, 0, 0, 0);
+        }
+    } catch (e) {
+        // ignore
+    }
+    return null;
+}
+
 function parseDateString(value) {
     const text = (value ?? '').toString().trim();
     if (!text) return null;
@@ -33,6 +47,14 @@ function parseDateString(value) {
         }
     }
     return null;
+}
+
+function parseDateFromTextNode(node, selector) {
+    if (!node) return null;
+    const target = selector ? node.querySelector(selector) : node;
+    if (!target) return null;
+    const text = target.innerText || target.textContent || '';
+    return parseDateString(text);
 }
 
 function parseHeaderYearMonth(text, format) {
@@ -82,49 +104,69 @@ function parseHeaderYearMonth(text, format) {
     return { year: Number(match[1]), month: Number(match[2]) };
 }
 
-function parseDateFromRule(node, rule) {
-    const date = rule.date || {};
-    const base = date.dateSelector ? node.querySelector(date.dateSelector) : node;
-    if (!base) return null;
-    if (date.sourceType === 'text') {
-        const val = base.innerText || base.textContent;
-        return parseDateString(val);
-    }
-    if (date.sourceType === 'dayNumber') {
-        const dayText = base.innerText || base.textContent || '';
-        const dayMatch = dayText.match(/(\d{1,2})/);
-        if (!dayMatch) return null;
-        const day = Number(dayMatch[1]);
-        if (Number.isNaN(day) || day < 1 || day > 31) return null;
-        const headerSelector = date.headerSelector || '';
-        if (!headerSelector) return null;
-        const headerEl = document.querySelector(headerSelector);
-        if (!headerEl) return null;
-        const header = headerEl.innerText || headerEl.textContent;
-        const ym = parseHeaderYearMonth(header, date.headerFormat || 'jp_ym');
-        if (!ym || Number.isNaN(ym.year) || Number.isNaN(ym.month)) return null;
-        return new Date(ym.year, ym.month - 1, day);
-    }
-    const attr = date.dateAttr || 'data-date';
-    const val = base.getAttribute(attr);
-    return parseDateString(val);
+function parseDayOnlyText(text, baseDate) {
+    if (!baseDate) return null;
+    const raw = (text ?? '').toString();
+    const match = raw.match(/(\d{1,2})/);
+    if (!match) return null;
+    const day = Number(match[1]);
+    if (Number.isNaN(day) || day < 1 || day > 31) return null;
+    return new Date(baseDate.getFullYear(), baseDate.getMonth(), day);
 }
 
-function applyPastVisual(node, rule) {
-    const preset = rule.date?.grayPreset || 'medium';
-    let opacity = '0.55';
-    let filter = 'grayscale(0.75)';
-    if (preset === 'weak') {
-        opacity = '0.75';
-        filter = 'grayscale(0.4)';
+function parseDateFromRule(node, rule, baseDate) {
+    const date = rule.date || {};
+    const container = node?.closest?.('.schedule_list_container')
+        || (node?.classList?.contains?.('schedule_list_container') ? node : node);
+    const base = date.dateSelector ? container?.querySelector?.(date.dateSelector) : null;
+
+    if (date.sourceType === 'attr') {
+        const attrTarget = base || container;
+        const attr = date.dateAttr || 'data-date';
+        const val = attrTarget ? attrTarget.getAttribute(attr) : null;
+        const parsed = parseDateString(val);
+        if (parsed) return parsed;
     }
-    if (preset === 'strong') {
-        opacity = '0.35';
-        filter = 'grayscale(1)';
+
+    if (date.sourceType === 'text' && base) {
+        const val = base.innerText || base.textContent;
+        const parsed = parseDateString(val);
+        if (parsed) return parsed;
     }
-    node.classList.add('aps-date-past');
-    node.style.setProperty('--aps-past-opacity', opacity);
-    node.style.setProperty('--aps-past-filter', filter);
+
+    if (date.sourceType === 'dayNumber') {
+        const dayTarget = base || container;
+        const dayText = dayTarget?.innerText || dayTarget?.textContent || '';
+        const dayMatch = dayText.match(/(\d{1,2})/);
+        if (dayMatch) {
+            const day = Number(dayMatch[1]);
+            if (!Number.isNaN(day) && day >= 1 && day <= 31) {
+                const headerSelector = date.headerSelector || '';
+                if (headerSelector) {
+                    const headerEl = document.querySelector(headerSelector);
+                    const header = headerEl?.innerText || headerEl?.textContent;
+                    const ym = parseHeaderYearMonth(header, date.headerFormat || 'jp_ym');
+                    if (ym && !Number.isNaN(ym.year) && !Number.isNaN(ym.month)) {
+                        return new Date(ym.year, ym.month - 1, day);
+                    }
+                }
+            }
+        }
+    }
+
+    if (base) {
+        const fallbackText = parseDateString(base.innerText || base.textContent || '');
+        if (fallbackText) return fallbackText;
+    }
+
+    const scheduleText = parseDateFromTextNode(container, '.schedule_list_text');
+    if (scheduleText) return scheduleText;
+
+    const dayEl = container?.querySelector?.('.schedule_list_day');
+    const dayOnly = parseDayOnlyText(dayEl?.textContent || '', baseDate);
+    if (dayOnly) return dayOnly;
+
+    return null;
 }
 
 export function getPageKey() {
@@ -189,8 +231,8 @@ function clearPainted(scopeKey) {
     });
 }
 
-function applyPaint(node, rule) {
-    const paint = rule.paint || {};
+function applyPaint(node, rule, paintOverride) {
+    const paint = paintOverride || rule.paint || {};
     const type = paint.type || 'highlight';
 
     node.classList.add('aps-painted');
@@ -241,36 +283,72 @@ export function applyRules(rules) {
             const keywords = rule.match.keywords
                 .map(keyword => normalizeText(keyword))
                 .filter(Boolean);
-
-            const allowNoKeywords = rule.date?.enabled && rule.date.applyWithoutKeyword;
-            const matchAll = allowNoKeywords && !keywords.length;
-            if (!keywords.length && !matchAll) return;
-
-            nodes.forEach(node => {
-                let matched = false;
-                if (matchAll) {
-                    matched = true;
+            const hasKeywords = keywords.length > 0;
+            const dateEnabled = rule.date?.enabled === true;
+            if (!hasKeywords && !dateEnabled) return;
+            let baseYMDate = null;
+            let compareDate = null;
+            if (dateEnabled) {
+                const today = new Date();
+                compareDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+                baseYMDate = compareDate;
+                const selected = document.querySelector('p.schedule_list_text.aps-picker-selected, p.schedule_list_day.aps-picker-selected');
+                const selectedItem = selected?.closest?.('.schedule_list_container');
+                if (selectedItem) {
+                    const parsed = parseDateFromRule(selectedItem, rule, compareDate);
+                    if (parsed) {
+                        baseYMDate = new Date(parsed.getFullYear(), parsed.getMonth(), 1);
+                    }
                 } else {
-                    const text = normalizeText(node.innerText || node.textContent);
-                    if (!text) {
-                        if (rule.list?.enabled && rule.list.itemSelector) {
-                            unpaintNode(node);
-                        }
-                        return;
+                    const urlBase = getBaseDateFromUrl();
+                    if (urlBase) {
+                        baseYMDate = urlBase;
                     }
-                    matched = keywords.some(keyword => text.includes(keyword));
                 }
-                if (matched) {
-                    applyPaint(node, rule);
-                    if (rule.date?.enabled) {
-                        const parsed = parseDateFromRule(node, rule);
-                        if (parsed && parsed.getTime() < getLocalTodayStart()) {
-                            applyPastVisual(node, rule);
+            }
+            const compareMs = compareDate ? compareDate.getTime() : null;
+            const shouldFilterByDate = dateEnabled && compareMs !== null;
+            const keywordSet = new Set();
+            const dateSet = new Set();
+            const dateMap = new Map();
+            const keywordPaint = rule.paint || {};
+            const datePaint = rule.date?.paint || {};
+            const resolvedDatePaint = {
+                type: datePaint.type || 'highlight',
+                bg: datePaint.bg || '#ffc0cb',
+                fg: datePaint.fg || '',
+                border: datePaint.border || 'rgba(0,0,0,0.15)',
+            };
+            nodes.forEach(node => {
+                const targetNode = node?.closest?.('.schedule_list_container')
+                    || (node?.classList?.contains?.('schedule_list_container') ? node : node);
+                if (!targetNode) return;
+
+                if (hasKeywords) {
+                    const text = normalizeText(targetNode.innerText || targetNode.textContent);
+                    if (text && keywords.some(keyword => text.includes(keyword))) {
+                        keywordSet.add(targetNode);
+                    }
+                }
+
+                if (dateEnabled) {
+                    const parsedDate = parseDateFromRule(targetNode, rule, baseYMDate);
+                    if (parsedDate) {
+                        dateMap.set(targetNode, parsedDate);
+                        if (shouldFilterByDate && parsedDate.getTime() < compareMs) {
+                            dateSet.add(targetNode);
                         }
                     }
-                } else if (rule.list?.enabled && rule.list.itemSelector) {
-                    unpaintNode(node);
                 }
+            });
+
+            keywordSet.forEach(node => {
+                applyPaint(node, rule, keywordPaint);
+            });
+
+            dateSet.forEach(node => {
+                if (keywordSet.has(node)) return;
+                applyPaint(node, rule, resolvedDatePaint);
             });
         });
 }
