@@ -1,6 +1,9 @@
 import { loadRules, exportAllData, importAllData } from './src/storage.js';
 
 const SITE_NAMES_KEY = 'aps_site_names_v1';
+const SITE_BLOCKLIST_KEY = 'aps_site_blocklist_v1';
+const SITE_BLOCKLIST_INCLUDE_SUBDOMAINS_KEY = 'aps_site_blocklist_include_subdomains_v1';
+const HOSTNAME_RE = /^(?=.{1,253}$)(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?)(?:\.(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?))*$/i;
 
 async function loadSiteNames() {
   const r = await chrome.storage.local.get(SITE_NAMES_KEY);
@@ -20,6 +23,13 @@ const els = {
   empty: document.getElementById('empty'),
   table: document.getElementById('sitesTable'),
   tbody: document.getElementById('sitesTbody'),
+  blockHostInput: document.getElementById('blockHostInput'),
+  blockHostAdd: document.getElementById('blockHostAdd'),
+  blockHostError: document.getElementById('blockHostError'),
+  blockIncludeSubdomains: document.getElementById('blockIncludeSubdomains'),
+  blocklistItems: document.getElementById('blocklistItems'),
+  blocklistEmpty: document.getElementById('blocklistEmpty'),
+  blocklistCount: document.getElementById('blocklistCount'),
 };
 
 function fmtDate(ts) {
@@ -47,6 +57,111 @@ function toOpenableUrl(host, pathPattern) {
 
   if (!clean || clean === '/') return base;
   return clean.startsWith('/') ? (base + clean) : (base + '/' + clean);
+}
+
+function normalizeHostInput(value) {
+  const v = String(value || '').trim().toLowerCase();
+  if (!v) return '';
+  if (!HOSTNAME_RE.test(v)) return '';
+  return v;
+}
+
+function normalizeBlocklist(list) {
+  const seen = new Set();
+  const result = [];
+  for (const entry of list || []) {
+    const host = normalizeHostInput(entry);
+    if (!host || seen.has(host)) continue;
+    seen.add(host);
+    result.push(host);
+  }
+  result.sort((a, b) => a.localeCompare(b));
+  return result;
+}
+
+function setBlocklistError(message) {
+  if (!els.blockHostError) return;
+  els.blockHostError.textContent = message || '';
+}
+
+async function loadBlocklistState() {
+  const data = await chrome.storage.local.get({
+    [SITE_BLOCKLIST_KEY]: [],
+    [SITE_BLOCKLIST_INCLUDE_SUBDOMAINS_KEY]: false,
+  });
+  const list = normalizeBlocklist(data?.[SITE_BLOCKLIST_KEY]);
+  const includeSubdomains = !!data?.[SITE_BLOCKLIST_INCLUDE_SUBDOMAINS_KEY];
+  return { list, includeSubdomains };
+}
+
+async function saveBlocklistState(list, includeSubdomains) {
+  await chrome.storage.local.set({
+    [SITE_BLOCKLIST_KEY]: normalizeBlocklist(list),
+    [SITE_BLOCKLIST_INCLUDE_SUBDOMAINS_KEY]: !!includeSubdomains,
+  });
+}
+
+function renderBlocklist(list) {
+  if (!els.blocklistItems || !els.blocklistEmpty || !els.blocklistCount) return;
+  els.blocklistItems.innerHTML = '';
+
+  const count = Array.isArray(list) ? list.length : 0;
+  els.blocklistCount.textContent = `${count}件`;
+
+  if (!count) {
+    els.blocklistEmpty.hidden = false;
+    return;
+  }
+
+  els.blocklistEmpty.hidden = true;
+
+  for (const host of list) {
+    const li = document.createElement('li');
+    li.className = 'blocklist-item';
+
+    const hostSpan = document.createElement('span');
+    hostSpan.className = 'blocklist-host';
+    hostSpan.textContent = host;
+
+    const delBtn = document.createElement('button');
+    delBtn.type = 'button';
+    delBtn.className = 'linkbtn';
+    delBtn.textContent = '削除';
+    delBtn.addEventListener('click', async () => {
+      const state = await loadBlocklistState();
+      const next = state.list.filter(x => x !== host);
+      await saveBlocklistState(next, state.includeSubdomains);
+      renderBlocklist(next);
+    });
+
+    li.appendChild(hostSpan);
+    li.appendChild(delBtn);
+    els.blocklistItems.appendChild(li);
+  }
+}
+
+async function refreshBlocklist() {
+  const { list, includeSubdomains } = await loadBlocklistState();
+  if (els.blockIncludeSubdomains) {
+    els.blockIncludeSubdomains.checked = includeSubdomains;
+  }
+  renderBlocklist(list);
+}
+
+async function addBlocklistHost() {
+  if (!els.blockHostInput) return;
+  const normalized = normalizeHostInput(els.blockHostInput.value);
+  if (!normalized) {
+    setBlocklistError('ホスト名の形式で入力してください。');
+    return;
+  }
+
+  const state = await loadBlocklistState();
+  const next = normalizeBlocklist([...state.list, normalized]);
+  await saveBlocklistState(next, state.includeSubdomains);
+  els.blockHostInput.value = '';
+  setBlocklistError('');
+  renderBlocklist(next);
 }
 
 function summarizeByHost(rules) {
@@ -410,4 +525,18 @@ els.fileImport.addEventListener('change', async () => {
 els.btnRefresh.addEventListener('click', refresh);
 els.q.addEventListener('input', () => refresh());
 
+els.blockHostAdd?.addEventListener('click', addBlocklistHost);
+els.blockHostInput?.addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    addBlocklistHost();
+  }
+});
+els.blockHostInput?.addEventListener('input', () => setBlocklistError(''));
+els.blockIncludeSubdomains?.addEventListener('change', async () => {
+  const state = await loadBlocklistState();
+  await saveBlocklistState(state.list, els.blockIncludeSubdomains.checked);
+});
+
 refresh();
+refreshBlocklist();

@@ -1,10 +1,72 @@
 // ===== APS Content Script (React-only UI) =====
 // Prevent double initialization and handle extension context invalidation
 
-// Guard: already mounted or mounting
-if (window.__APS_PALETTE_MOUNTED__ || window.__APS_PALETTE_MOUNTING__) {
-    console.log('[APS] Palette already mounted/mounting, skipping');
-} else {
+const SITE_BLOCKLIST_KEY = 'aps_site_blocklist_v1';
+const SITE_BLOCKLIST_INCLUDE_SUBDOMAINS_KEY = 'aps_site_blocklist_include_subdomains_v1';
+const HOSTNAME_RE = /^(?=.{1,253}$)(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?)(?:\.(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?))*$/i;
+
+function normalizeHostValue(value) {
+    const v = String(value || '').trim().toLowerCase();
+    if (!v || !HOSTNAME_RE.test(v)) return '';
+    return v;
+}
+
+function isHostBlocked(host, blocklist, includeSubdomains) {
+    if (!host || !Array.isArray(blocklist) || !blocklist.length) return false;
+    for (const entry of blocklist) {
+        const blockedHost = normalizeHostValue(entry);
+        if (!blockedHost) continue;
+        if (host === blockedHost) return true;
+        if (includeSubdomains && host.endsWith(`.${blockedHost}`)) return true;
+    }
+    return false;
+}
+
+async function shouldAbortForBlockedSite() {
+    let currentHost = '';
+    try {
+        currentHost = new URL(location.href).hostname;
+    } catch {
+        return false;
+    }
+
+    const normalizedHost = normalizeHostValue(currentHost);
+    if (!normalizedHost) return false;
+    if (!chrome?.storage?.local) return false;
+
+    return await new Promise(resolve => {
+        try {
+            chrome.storage.local.get(
+                {
+                    [SITE_BLOCKLIST_KEY]: [],
+                    [SITE_BLOCKLIST_INCLUDE_SUBDOMAINS_KEY]: false,
+                },
+                data => {
+                    const list = Array.isArray(data?.[SITE_BLOCKLIST_KEY]) ? data[SITE_BLOCKLIST_KEY] : [];
+                    const includeSubdomains = !!data?.[SITE_BLOCKLIST_INCLUDE_SUBDOMAINS_KEY];
+                    const blocked = isHostBlocked(normalizedHost, list, includeSubdomains);
+                    if (blocked) {
+                        console.log('[APS] Disabled on blocklisted host:', normalizedHost);
+                    }
+                    resolve(blocked);
+                }
+            );
+        } catch {
+            resolve(false);
+        }
+    });
+}
+
+(async () => {
+    if (await shouldAbortForBlockedSite()) {
+        return;
+    }
+
+    // Guard: already mounted or mounting
+    if (window.__APS_PALETTE_MOUNTED__ || window.__APS_PALETTE_MOUNTING__) {
+        console.log('[APS] Palette already mounted/mounting, skipping');
+        return;
+    }
     window.__APS_PALETTE_MOUNTING__ = true;
 
     (async () => {
@@ -986,7 +1048,16 @@ if (window.__APS_PALETTE_MOUNTED__ || window.__APS_PALETTE_MOUNTING__) {
 
         function init() {
             runApplyRules('RULES', currentRules);
-            observer.observe(document.body, { childList: true, subtree: true, characterData: true });
+            const observeTarget = document.body || document.documentElement;
+            if (observeTarget) {
+                observer.observe(observeTarget, { childList: true, subtree: true, characterData: true });
+            } else {
+                // Last fallback: DOM not ready yet; retry on the next task.
+                queueMicrotask(() => {
+                    const t = document.body || document.documentElement;
+                    if (t) observer.observe(t, { childList: true, subtree: true, characterData: true });
+                });
+            }
         }
 
         init();
@@ -997,4 +1068,4 @@ if (window.__APS_PALETTE_MOUNTED__ || window.__APS_PALETTE_MOUNTING__) {
 
         console.log('[APS] Content script initialized (React mode)');
     })();
-}
+})();

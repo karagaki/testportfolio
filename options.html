@@ -25,6 +25,38 @@
   </header>
 
   <section class="panel">
+    <div class="panel-head">
+      <div>
+        <h2>サイト別 無効化（A_パレットリビルド）</h2>
+        <p class="panel-sub">登録したホストではパネルを表示せず機能も停止します。</p>
+      </div>
+    </div>
+
+    <div class="blocklist-controls">
+      <label class="blocklist-input">
+        <span>ホスト名</span>
+        <input id="blockHostInput" type="text" placeholder="example.com" />
+      </label>
+      <button id="blockHostAdd" class="btn" type="button">追加</button>
+      <div id="blockHostError" class="form-error" role="status" aria-live="polite"></div>
+    </div>
+
+    <label class="checkbox-row">
+      <input id="blockIncludeSubdomains" type="checkbox" />
+      <span>サブドメインも無効化</span>
+    </label>
+
+    <div class="blocklist-box">
+      <div class="blocklist-head">
+        <span>登録済みホスト</span>
+        <span id="blocklistCount" class="muted">0件</span>
+      </div>
+      <ul id="blocklistItems" class="blocklist-items"></ul>
+      <div id="blocklistEmpty" class="empty" hidden>未登録です。</div>
+    </div>
+  </section>
+
+  <section class="panel">
     <div class="toolbar">
       <label class="search">
         <span>検索</span>

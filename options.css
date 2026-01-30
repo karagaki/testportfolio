@@ -56,6 +56,18 @@ h1 {
   padding: 14px 18px 22px;
 }
 
+.panel-head h2 {
+  margin: 0 0 4px 0;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.panel-sub {
+  margin: 0;
+  color: var(--muted);
+  font-size: 11px;
+}
+
 .toolbar {
   display: flex;
   gap: 12px;
@@ -264,3 +276,109 @@ tbody td {
   user-select: none;
 }
 .import-btn .btnlike:hover { background: var(--btn-hover); }
+
+.btn {
+  background: var(--btn);
+  border: 1px solid var(--line);
+  color: var(--text);
+  padding: 8px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.btn:hover { background: var(--btn-hover); }
+
+.blocklist-controls {
+  display: flex;
+  gap: 10px;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  margin-top: 6px;
+}
+
+.blocklist-input {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.blocklist-input input {
+  width: min(360px, 70vw);
+  background: #0b0d12;
+  border: 1px solid var(--line);
+  color: var(--text);
+  padding: 8px 10px;
+  border-radius: 10px;
+}
+
+.blocklist-input input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.form-error {
+  color: var(--warn);
+  font-size: 11px;
+  min-height: 14px;
+  flex-basis: 100%;
+}
+
+.checkbox-row {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  margin-top: 10px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.blocklist-box {
+  margin-top: 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--panel);
+  padding: 10px;
+}
+
+.blocklist-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--muted);
+  font-size: 11px;
+  margin-bottom: 6px;
+}
+
+.blocklist-items {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 6px;
+  max-height: 220px;
+  overflow: auto;
+}
+
+.blocklist-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 6px 8px;
+  background: #0b0d12;
+}
+
+.blocklist-host {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  font-size: 12px;
+  color: var(--text);
+  word-break: break-all;
+}
+
+.muted {
+  color: var(--muted);
+}
