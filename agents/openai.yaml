@@ -1,0 +1,8 @@
+version: 1
+skills:
+  - name: investigate_read_only
+    title: "Investigate Only (READ ONLY)"
+    entrypoint: skill_investigate.md
+  - name: apply_patch_write
+    title: "Apply Patch (WRITE)"
+    entrypoint: skill_apply_patch.md
