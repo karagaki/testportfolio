@@ -6,3 +6,6 @@ skills:
   - name: apply_patch_write
     title: "Apply Patch (WRITE)"
     entrypoint: skill_apply_patch.md
+  - name: diff_only_implement_and_release
+    title: "Diff Only Implement and Release"
+    entrypoint: agents/skills/diff_only_implement_and_release/SKILL.md
