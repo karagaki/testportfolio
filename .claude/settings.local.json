@@ -23,7 +23,8 @@
       "Bash(git commit:*)",
       "Bash(else echo \"Already initialized\")",
       "Bash(npm run build:*)",
-      "Bash(git diff -U5 HEAD~1..HEAD -- ui/palette-app/App.tsx)"
+      "Bash(git diff -U5 HEAD~1..HEAD -- ui/palette-app/App.tsx)",
+      "Bash(git checkout -b fix/new-rule-back-to-existing)"
     ],
     "additionalDirectories": [
       "/Users/i/Desktop/Projects/A_パレットリビルド/dist",
