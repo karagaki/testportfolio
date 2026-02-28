@@ -926,6 +926,7 @@ export default function App() {
   const showSkeleton = false;
   const panelPosRef = useRef({ x: 10, y: 10 });
   const dragStateRef = useRef({ active: false, startX: 0, startY: 0, originX: 0, originY: 0 });
+  const lastExistingRuleIdRef = useRef<string | null>(null);
   const [panelPos, setPanelPos] = useState({ x: 10, y: 10 });
   const [dragging, setDragging] = useState(false);
 
@@ -1145,6 +1146,7 @@ export default function App() {
   }, []);
 
   const handleNewRule = useCallback(() => {
+    if (draft?.id) lastExistingRuleIdRef.current = draft.id;
     if (pickerActive) {
       adapter.stopPicker();
     }
@@ -1157,7 +1159,21 @@ export default function App() {
     setSaveStatus('idle');
     setSaveMessage('');
     setActiveStep('step1');
-  }, [pickerActive, pageInfo]);
+  }, [pickerActive, pageInfo, draft]);
+
+  const handleBackToExisting = useCallback(() => {
+    if (pickerActive) adapter.stopPicker();
+    const id = lastExistingRuleIdRef.current;
+    if (!id) return;
+    adapter.editRule(id);
+    setSaveStatus('idle');
+    setSaveMessage('');
+    setActiveStep('step1');
+  }, [pickerActive]);
+
+  useEffect(() => {
+    if (draft?.id) lastExistingRuleIdRef.current = draft.id;
+  }, [draft?.id]);
 
   // Calculate step states
   const stepCompletion = useMemo(() => calculateStepCompletion(draft), [draft]);
@@ -1287,6 +1303,14 @@ export default function App() {
             >
               新規
             </button>
+            {!currentRuleId && lastExistingRuleIdRef.current && (
+              <button
+                className="aps-btn aps-btn--subtle aps-btn--sm"
+                onClick={handleBackToExisting}
+              >
+                既存へ戻る
+              </button>
+            )}
             <button
               className="aps-btn aps-btn--subtle aps-btn--sm"
               onClick={() => currentRuleId && adapter.editRule(currentRuleId)}
