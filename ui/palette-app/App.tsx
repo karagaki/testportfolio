@@ -1171,6 +1171,19 @@ export default function App() {
     setActiveStep('step1');
   }, [pickerActive]);
 
+  const handleRuleSelectChange = useCallback((value: string) => {
+    if (!value) {
+      handleNewRule();
+      return;
+    }
+    if (pickerActive) adapter.stopPicker();
+    lastExistingRuleIdRef.current = value;
+    adapter.editRule(value);
+    setSaveStatus('idle');
+    setSaveMessage('');
+    setActiveStep('step1');
+  }, [pickerActive, handleNewRule]);
+
   useEffect(() => {
     if (draft?.id) lastExistingRuleIdRef.current = draft.id;
   }, [draft?.id]);
@@ -1297,6 +1310,21 @@ export default function App() {
           <span className="aps-panel-rule-label">ルール:</span>
           <span className="aps-panel-rule-name" title={currentRuleName}>{currentRuleName}</span>
           <div className="aps-panel-rule-actions">
+            <select
+              className="aps-field-select"
+              value={currentRuleId || ''}
+              onChange={(e) => handleRuleSelectChange(e.target.value)}
+              disabled={rules.length === 0}
+              style={{ height: 26, fontSize: 12, padding: '0 6px', minWidth: 160 }}
+              title="既存ルールを選択"
+            >
+              <option value="">新規（未保存）</option>
+              {rules.map((rule) => (
+                <option key={rule.id} value={rule.id}>
+                  {rule.meta?.title?.trim() || rule.targetSelector?.trim() || '無題'}
+                </option>
+              ))}
+            </select>
             <button
               className="aps-btn aps-btn--subtle aps-btn--sm"
               onClick={handleNewRule}
