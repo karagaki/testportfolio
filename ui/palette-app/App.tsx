@@ -1144,6 +1144,21 @@ export default function App() {
     adapter.startPicker(target);
   }, []);
 
+  const handleNewRule = useCallback(() => {
+    if (pickerActive) {
+      adapter.stopPicker();
+    }
+    const host = pageInfo.split('/')[0] || '';
+    setDraft(() => {
+      const updated = { ...defaultDraft, scope: { ...defaultDraft.scope, host } };
+      adapter.updateDraft(updated);
+      return updated;
+    });
+    setSaveStatus('idle');
+    setSaveMessage('');
+    setActiveStep('step1');
+  }, [pickerActive, pageInfo]);
+
   // Calculate step states
   const stepCompletion = useMemo(() => calculateStepCompletion(draft), [draft]);
   const stepStates = useMemo(() => normalizeStepStates(stepCompletion), [stepCompletion]);
@@ -1266,6 +1281,12 @@ export default function App() {
           <span className="aps-panel-rule-label">ルール:</span>
           <span className="aps-panel-rule-name" title={currentRuleName}>{currentRuleName}</span>
           <div className="aps-panel-rule-actions">
+            <button
+              className="aps-btn aps-btn--subtle aps-btn--sm"
+              onClick={handleNewRule}
+            >
+              新規
+            </button>
             <button
               className="aps-btn aps-btn--subtle aps-btn--sm"
               onClick={() => currentRuleId && adapter.editRule(currentRuleId)}
