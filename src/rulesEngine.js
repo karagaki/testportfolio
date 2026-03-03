@@ -28,6 +28,19 @@ function getBaseDateFromUrl() {
 function parseDateString(value) {
     const text = (value ?? '').toString().trim();
     if (!text) return null;
+    const makeValidatedDate = (year, month, day, hour = 0, minute = 0) => {
+        if (month < 1 || month > 12) return null;
+        if (day < 1 || day > 31) return null;
+        if (hour < 0 || hour > 23) return null;
+        if (minute < 0 || minute > 59) return null;
+        const date = new Date(year, month - 1, day, hour, minute, 0, 0);
+        if (date.getFullYear() !== year) return null;
+        if (date.getMonth() !== month - 1) return null;
+        if (date.getDate() !== day) return null;
+        if (date.getHours() !== hour) return null;
+        if (date.getMinutes() !== minute) return null;
+        return date;
+    };
     let match = text.match(/(\d{4})[/-](\d{1,2})[/-](\d{1,2})/);
     if (match) {
         const year = Number(match[1]);
@@ -45,6 +58,36 @@ function parseDateString(value) {
         if (!Number.isNaN(year) && !Number.isNaN(month) && !Number.isNaN(day)) {
             return new Date(year, month - 1, day);
         }
+    }
+    match = text.match(/^\s*(\d{1,2})[/.](\d{1,2})(?:\(([日月火水木金土])\))?\s+(\d{1,2}):(\d{2})\s*$/);
+    if (match) {
+        const month = Number(match[1]);
+        const day = Number(match[2]);
+        const hour = Number(match[4]);
+        const minute = Number(match[5]);
+        if (
+            Number.isNaN(month) || Number.isNaN(day) || Number.isNaN(hour) || Number.isNaN(minute)
+            || month < 1 || month > 12
+            || day < 1 || day > 31
+            || hour < 0 || hour > 23
+            || minute < 0 || minute > 59
+        ) {
+            return null;
+        }
+        const now = new Date();
+        const years = [now.getFullYear() - 1, now.getFullYear(), now.getFullYear() + 1];
+        let best = null;
+        years.forEach(year => {
+            const candidate = makeValidatedDate(year, month, day, hour, minute);
+            if (!candidate) return;
+            const diff = Math.abs(candidate.getTime() - now.getTime());
+            if (!best || diff < best.diff) {
+                best = { date: candidate, diff };
+            }
+        });
+        const maxDiff = 180 * 24 * 60 * 60 * 1000;
+        if (!best || best.diff > maxDiff) return null;
+        return best.date;
     }
     return null;
 }
