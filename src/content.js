@@ -422,7 +422,7 @@ async function shouldAbortForBlockedSite() {
 
         function runApplyRules(source, rules) {
             const targetRules = rules || currentRules;
-            applyRules(targetRules);
+            applyRules(targetRules, { dateDebug });
             const ruleCount = Array.isArray(targetRules) ? targetRules.length : 0;
             updateTraceDisplay(source, ruleCount);
         }
@@ -437,7 +437,7 @@ async function shouldAbortForBlockedSite() {
             return data;
         }
 
-        const [rulesData, savedDraft, paletteState] = await Promise.all([
+        const [rulesData, savedDraft, loadedPaletteState] = await Promise.all([
             tracedLoad('RULES', loadRules),
             tracedLoad('DRAFT', loadDraft),
             tracedLoad('PALETTE_STATE', loadPaletteState),
@@ -476,8 +476,10 @@ async function shouldAbortForBlockedSite() {
         if (draft.scope?.host && draft.scope.host !== pageKey.host) {
             draft = { ...defaultDraft };
         }
+        let paletteState = loadedPaletteState || {};
         let paletteVisible = paletteState?.visible ?? false;
         let paletteMinimized = paletteState?.minimized ?? false;
+        let dateDebug = paletteState?.dateDebug ?? false;
         let lastSelectedElement = null;
         let pickerTarget = 'target';
         let pickerActive = false;
@@ -571,12 +573,18 @@ async function shouldAbortForBlockedSite() {
                 pickerActive,
                 visible: paletteVisible,
                 minimized: paletteMinimized,
+                dateDebug,
                 targetDisplay,
                 traceText: buildTraceText(),
             };
             if (window.__aps_react_update) {
                 window.__aps_react_update();
             }
+        }
+
+        function persistPaletteState() {
+            paletteState = { ...(paletteState || {}), visible: paletteVisible, minimized: paletteMinimized, dateDebug };
+            savePaletteState(paletteState);
         }
 
         const picker = createDomPicker({
@@ -857,13 +865,13 @@ async function shouldAbortForBlockedSite() {
 
         function setPaletteVisible(visible) {
             paletteVisible = visible;
-            savePaletteState({ visible: paletteVisible, minimized: paletteMinimized });
+            persistPaletteState();
             updateReactState();
         }
 
         function setPaletteMinimized(minimized) {
             paletteMinimized = minimized;
-            savePaletteState({ visible: paletteVisible, minimized: paletteMinimized });
+            persistPaletteState();
             updateReactState();
         }
 
@@ -935,6 +943,12 @@ async function shouldAbortForBlockedSite() {
             onRuleToggle: handleToggleRule,
             onClose: () => setPaletteVisible(false),
             onMinimize: () => setPaletteMinimized(!paletteMinimized),
+            onToggleDateDebug: enabled => {
+                dateDebug = !!enabled;
+                persistPaletteState();
+                runApplyRules('RULES', currentRules);
+                updateReactState();
+            },
             onDraftChange: handleDraftChange,
         };
 

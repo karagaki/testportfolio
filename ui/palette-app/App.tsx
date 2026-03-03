@@ -410,9 +410,13 @@ function Step3_2Content({
 
 function Step3_3Content({
   draft,
+  dateDebug,
+  onToggleDateDebug,
   onChange,
 }: {
   draft: Draft;
+  dateDebug: boolean;
+  onToggleDateDebug: (enabled: boolean) => void;
   onChange: (partial: Partial<Draft>) => void;
 }) {
   return (
@@ -427,6 +431,16 @@ function Step3_3Content({
         />
         <span>過去日付に表現タイプを適用</span>
       </div>
+
+      <label className="aps-checkbox" style={{ marginBottom: 12 }}>
+        <input
+          type="checkbox"
+          checked={dateDebug}
+          onChange={e => onToggleDateDebug(e.target.checked)}
+        />
+        日付デバッグ（取得可視化）
+      </label>
+      <SectionMessage>取得結果を要素上に表示。デバッグON中は“非表示”を薄表示に置換</SectionMessage>
 
       {draft.date.enabled && (
         <>
@@ -911,6 +925,7 @@ export default function App() {
   const [targetDisplay, setTargetDisplay] = useState('未選択');
   const [visible, setVisible] = useState(true);
   const [minimized, setMinimized] = useState(false);
+  const [dateDebug, setDateDebug] = useState(false);
   const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle');
   const [saveMessage, setSaveMessage] = useState('');
   const [keywordInput, setKeywordInput] = useState('');
@@ -939,6 +954,7 @@ export default function App() {
       setPickerActive(state.pickerActive);
       setVisible(state.visible);
       setMinimized(state.minimized);
+      setDateDebug(!!state.dateDebug);
       setTargetDisplay(state.targetDisplay);
     }
   }, []);
@@ -1265,7 +1281,14 @@ export default function App() {
           />
         );
       case 'step3_3':
-        return <Step3_3Content draft={draft} onChange={handleDraftChange} />;
+        return (
+          <Step3_3Content
+            draft={draft}
+            dateDebug={dateDebug}
+            onToggleDateDebug={adapter.toggleDateDebug}
+            onChange={handleDraftChange}
+          />
+        );
       case 'step4':
         return <Step4Content draft={draft} onChange={handleDraftChange} onStartPicker={handleStartPicker} />;
       case 'step5':

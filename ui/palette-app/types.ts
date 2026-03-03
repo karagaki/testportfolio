@@ -63,6 +63,7 @@ export type SaveStatus = 'idle' | 'saving' | 'success' | 'error';
 export interface AdapterCallbacks {
   onTogglePicker: () => void;
   onPickTargetChange: (target: PickerTarget) => void;
+  onToggleDateDebug: (enabled: boolean) => void;
   onGenerateListSelector: () => void;
   onExport: () => Promise<void>;
   onImport: (payload: unknown, mode: string) => Promise<void>;

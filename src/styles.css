@@ -265,6 +265,48 @@
     display: none !important;
 }
 
+.aps-date-debug-ok,
+.aps-date-debug-ng,
+.aps-date-debug-hide {
+    position: relative !important;
+}
+
+.aps-date-debug-ok::after,
+.aps-date-debug-ng::after,
+.aps-date-debug-hide::after {
+    content: attr(data-aps-date-debug);
+    position: absolute;
+    top: -10px;
+    left: 0;
+    font-size: 10px;
+    line-height: 1.2;
+    padding: 2px 4px;
+    border-radius: 4px;
+    z-index: 2147483647;
+    color: #1f2937;
+    background: rgba(255, 255, 255, 0.92);
+    border: 1px solid rgba(148, 163, 184, 0.45);
+    pointer-events: none;
+    white-space: nowrap;
+}
+
+.aps-date-debug-ok::after {
+    background: rgba(219, 246, 225, 0.9);
+}
+
+.aps-date-debug-ng::after {
+    background: rgba(254, 226, 226, 0.9);
+}
+
+.aps-date-debug-hide::after {
+    background: rgba(254, 243, 199, 0.92);
+}
+
+.aps-date-debug-hide {
+    opacity: 0.25 !important;
+    filter: grayscale(1) !important;
+}
+
 /* ===== Picker（要素選択）: 中立色で控えめに ===== */
 .aps-picker-hover {
     outline: 2px solid var(--aps-picker-hover) !important;

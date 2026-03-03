@@ -114,7 +114,36 @@ function parseDayOnlyText(text, baseDate) {
     return new Date(baseDate.getFullYear(), baseDate.getMonth(), day);
 }
 
-function parseDateFromRule(node, rule, baseDate) {
+function formatDateLabel(date) {
+    const pad = value => String(value).padStart(2, '0');
+    return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+}
+
+function formatDiffLabel(parsedDate, compareMs) {
+    if (compareMs === null || compareMs === undefined) return '';
+    const parsedAt = new Date(parsedDate.getFullYear(), parsedDate.getMonth(), parsedDate.getDate()).getTime();
+    const diff = Math.round((parsedAt - compareMs) / 86400000);
+    if (diff > 0) return `+${diff}d`;
+    if (diff < 0) return `${diff}d`;
+    return '0d';
+}
+
+function setDateDebugInfo(node, text, classes = []) {
+    node.removeAttribute('data-aps-date-debug');
+    node.classList.remove('aps-date-debug-ok', 'aps-date-debug-ng', 'aps-date-debug-hide');
+    if (!text) return;
+    node.dataset.apsDateDebug = String(text).slice(0, 60);
+    classes.forEach(name => node.classList.add(name));
+}
+
+function appendDateDebugInfo(node, text) {
+    if (!text) return;
+    const prev = node.dataset.apsDateDebug || '';
+    const next = prev ? `${prev} ${text}` : text;
+    node.dataset.apsDateDebug = next.slice(0, 60);
+}
+
+function parseDateFromRule(node, rule, baseDate, debugInfo) {
     const date = rule.date || {};
     const container = node?.closest?.('.schedule_list_container')
         || (node?.classList?.contains?.('schedule_list_container') ? node : node);
@@ -125,13 +154,19 @@ function parseDateFromRule(node, rule, baseDate) {
         const attr = date.dateAttr || 'data-date';
         const val = attrTarget ? attrTarget.getAttribute(attr) : null;
         const parsed = parseDateString(val);
-        if (parsed) return parsed;
+        if (parsed) {
+            if (debugInfo) debugInfo.source = 'attr';
+            return parsed;
+        }
     }
 
     if (date.sourceType === 'text' && base) {
         const val = base.innerText || base.textContent;
         const parsed = parseDateString(val);
-        if (parsed) return parsed;
+        if (parsed) {
+            if (debugInfo) debugInfo.source = 'text';
+            return parsed;
+        }
     }
 
     if (date.sourceType === 'dayNumber') {
@@ -147,6 +182,7 @@ function parseDateFromRule(node, rule, baseDate) {
                     const header = headerEl?.innerText || headerEl?.textContent;
                     const ym = parseHeaderYearMonth(header, date.headerFormat || 'jp_ym');
                     if (ym && !Number.isNaN(ym.year) && !Number.isNaN(ym.month)) {
+                        if (debugInfo) debugInfo.source = 'dayNumber';
                         return new Date(ym.year, ym.month - 1, day);
                     }
                 }
@@ -156,15 +192,24 @@ function parseDateFromRule(node, rule, baseDate) {
 
     if (base) {
         const fallbackText = parseDateString(base.innerText || base.textContent || '');
-        if (fallbackText) return fallbackText;
+        if (fallbackText) {
+            if (debugInfo) debugInfo.source = 'parseText';
+            return fallbackText;
+        }
     }
 
     const scheduleText = parseDateFromTextNode(container, '.schedule_list_text');
-    if (scheduleText) return scheduleText;
+    if (scheduleText) {
+        if (debugInfo) debugInfo.source = 'scheduleText';
+        return scheduleText;
+    }
 
     const dayEl = container?.querySelector?.('.schedule_list_day');
     const dayOnly = parseDayOnlyText(dayEl?.textContent || '', baseDate);
-    if (dayOnly) return dayOnly;
+    if (dayOnly) {
+        if (debugInfo) debugInfo.source = 'dayOnly';
+        return dayOnly;
+    }
 
     return null;
 }
@@ -191,6 +236,8 @@ export function matchScope(scope) {
 function unpaintNode(node) {
     node.classList.remove('aps-painted');
     node.removeAttribute('data-aps-type');
+    node.removeAttribute('data-aps-date-debug');
+    node.classList.remove('aps-date-debug-ok', 'aps-date-debug-ng', 'aps-date-debug-hide');
     node.style.removeProperty('--aps-bg');
     node.style.removeProperty('--aps-border');
     node.style.removeProperty('--aps-fg');
@@ -231,6 +278,14 @@ function clearPainted(scopeKey) {
     });
 }
 
+function clearDateDebugMarks() {
+    const nodes = document.querySelectorAll('[data-aps-date-debug], .aps-date-debug-ok, .aps-date-debug-ng, .aps-date-debug-hide');
+    nodes.forEach(node => {
+        node.removeAttribute('data-aps-date-debug');
+        node.classList.remove('aps-date-debug-ok', 'aps-date-debug-ng', 'aps-date-debug-hide');
+    });
+}
+
 function applyPaint(node, rule, paintOverride) {
     const paint = paintOverride || rule.paint || {};
     const type = paint.type || 'highlight';
@@ -254,7 +309,9 @@ function applyPaint(node, rule, paintOverride) {
     }
 }
 
-export function applyRules(rules) {
+export function applyRules(rules, opts = {}) {
+    const dateDebug = !!opts.dateDebug;
+    clearDateDebugMarks();
     if (!Array.isArray(rules) || !rules.length) return;
 
     const scopeKey = getScopeKey();
@@ -332,7 +389,22 @@ export function applyRules(rules) {
                 }
 
                 if (dateEnabled) {
-                    const parsedDate = parseDateFromRule(targetNode, rule, baseYMDate);
+                    const debugInfo = dateDebug ? {} : null;
+                    const parsedDate = parseDateFromRule(targetNode, rule, baseYMDate, debugInfo);
+                    if (dateDebug) {
+                        if (parsedDate) {
+                            const sourceLabel = debugInfo?.source || (rule.date?.sourceType || 'parse');
+                            const diffLabel = formatDiffLabel(parsedDate, compareMs);
+                            const suffix = diffLabel ? ` ${diffLabel}` : '';
+                            setDateDebugInfo(
+                                targetNode,
+                                `OK ${sourceLabel} ${formatDateLabel(parsedDate)}${suffix}`,
+                                ['aps-date-debug-ok']
+                            );
+                        } else {
+                            setDateDebugInfo(targetNode, 'NG parse', ['aps-date-debug-ng']);
+                        }
+                    }
                     if (parsedDate) {
                         dateMap.set(targetNode, parsedDate);
                         if (shouldFilterByDate && parsedDate.getTime() < compareMs) {
@@ -348,7 +420,15 @@ export function applyRules(rules) {
 
             dateSet.forEach(node => {
                 if (keywordSet.has(node)) return;
+                if (dateDebug && resolvedDatePaint.type === 'collapse') {
+                    node.classList.add('aps-date-debug-hide');
+                    appendDateDebugInfo(node, 'HIDE');
+                    return;
+                }
                 applyPaint(node, rule, resolvedDatePaint);
+                if (dateDebug && resolvedDatePaint.type === 'text') {
+                    appendDateDebugInfo(node, 'GRAY');
+                }
             });
         });
 }

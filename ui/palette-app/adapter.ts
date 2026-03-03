@@ -10,6 +10,7 @@ declare global {
       pickerActive: boolean;
       visible: boolean;
       minimized: boolean;
+      dateDebug: boolean;
       targetDisplay: string;
     };
     __aps_react_update?: () => void;
@@ -41,6 +42,12 @@ export function generateListSelector(): void {
   const callbacks = getCallbacks();
   if (!callbacks) return;
   callbacks.onGenerateListSelector();
+}
+
+export function toggleDateDebug(enabled: boolean): void {
+  const callbacks = getCallbacks();
+  if (!callbacks) return;
+  callbacks.onToggleDateDebug(enabled);
 }
 
 export async function saveRule(draft: Draft): Promise<void> {
