@@ -28,6 +28,17 @@ function getBaseDateFromUrl() {
 function parseDateString(value) {
     const text = (value ?? '').toString().trim();
     if (!text) return null;
+    let norm = text
+        .replace(/[０-９]/g, ch => String.fromCharCode(ch.charCodeAt(0) - 0xFEE0))
+        .replace(/／/g, '/')
+        .replace(/．/g, '.')
+        .replace(/：/g, ':')
+        .replace(/（/g, '(')
+        .replace(/）/g, ')')
+        .replace(/　/g, ' ');
+    norm = norm.replace(/[\(\[]\s*[日月火水木金土](?:曜(?:日)?)?\s*[\)\]]/g, ' ');
+    norm = norm.replace(/(\d{1,2}:\d{2}).*$/, '$1');
+    norm = norm.replace(/\s+/g, ' ').trim();
     const makeValidatedDate = (year, month, day, hour = 0, minute = 0) => {
         if (month < 1 || month > 12) return null;
         if (day < 1 || day > 31) return null;
@@ -41,7 +52,7 @@ function parseDateString(value) {
         if (date.getMinutes() !== minute) return null;
         return date;
     };
-    let match = text.match(/(\d{4})[/-](\d{1,2})[/-](\d{1,2})/);
+    let match = norm.match(/(\d{4})[/-](\d{1,2})[/-](\d{1,2})/);
     if (match) {
         const year = Number(match[1]);
         const month = Number(match[2]);
@@ -50,7 +61,7 @@ function parseDateString(value) {
             return new Date(year, month - 1, day);
         }
     }
-    match = text.match(/(\d{4})\s*年\s*(\d{1,2})\s*月\s*(\d{1,2})\s*日?/);
+    match = norm.match(/(\d{4})\s*年\s*(\d{1,2})\s*月\s*(\d{1,2})\s*日?/);
     if (match) {
         const year = Number(match[1]);
         const month = Number(match[2]);
@@ -59,12 +70,12 @@ function parseDateString(value) {
             return new Date(year, month - 1, day);
         }
     }
-    match = text.match(/^\s*(\d{1,2})[/.](\d{1,2})(?:\(([日月火水木金土])\))?\s+(\d{1,2}):(\d{2})\s*$/);
+    match = norm.match(/^\s*(\d{1,2})[/.](\d{1,2})\s*(?:\([^)]*\))?\s*(\d{1,2}):(\d{2})\s*$/);
     if (match) {
         const month = Number(match[1]);
         const day = Number(match[2]);
-        const hour = Number(match[4]);
-        const minute = Number(match[5]);
+        const hour = Number(match[3]);
+        const minute = Number(match[4]);
         if (
             Number.isNaN(month) || Number.isNaN(day) || Number.isNaN(hour) || Number.isNaN(minute)
             || month < 1 || month > 12
